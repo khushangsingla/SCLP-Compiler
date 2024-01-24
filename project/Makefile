@@ -8,7 +8,7 @@ SCAN = scanner
 all: sclp
 
 sclp: $(CODE).o lex.yy.o y.tab.o
-	$(CPP) $(FLAGS) -o $(CODE).o sclp lex.yy.o y.tab.o -ly -ll
+	$(CPP) $(FLAGS) -o sclp $(CODE).o lex.yy.o y.tab.o -ly -ll
 
 $(CODE).o: $(CODE).cpp y.tab.h
 	$(CPP) $(FLAGS) -c $(CODE).cpp
@@ -16,11 +16,11 @@ $(CODE).o: $(CODE).cpp y.tab.h
 y.tab.o: y.tab.c y.tab.h
 	$(CC) $(FLAGS) -c y.tab.c
 
-lex.yy.o: $(SCAN).l y.tab.h
+lex.yy.o: $(SCAN).l y.tab.h printing.h
 	lex $(SCAN).l
 	$(CC) $(FLAGS) -c lex.yy.c
 
-y.tab.h y.tab.c: $(PARSE).y
+y.tab.h y.tab.c: $(PARSE).y printing.h
 	yacc -dv $(PARSE).y
 
 clean:

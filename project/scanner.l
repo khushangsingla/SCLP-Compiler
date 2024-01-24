@@ -104,7 +104,7 @@ bool		{
 								}
 
 .		{
-			my_print("","[scanner.l] unknown character\n");
-			return ;
+			my_print_vars("","[scanner.l] unknown character: %c(%d)\n",0,2,yytext[0],yytext[0]);
+			// return ;
 		}
 %%
