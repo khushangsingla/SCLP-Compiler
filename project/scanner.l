@@ -62,13 +62,13 @@ while		{
 			}
 
 	/* Expression Related */
-digit+		{
+{digits}+		{
 				my_print("", "[scanner.l] number found!\n");
 				yylval = atoi(yytext);
 				return NUM;
 			}
 
-operator	{
+{operator}	{
 				my_print("", "[scanner.l] operator found!\n");
 				yylval = yytext[0];
 				return OPERATOR;
@@ -96,11 +96,15 @@ bool		{
 			}
 	
 	/* Variables */
-(alphabets)(alphanumeric)*		{
-									my_print("CORRECT THIS!!", "[scanner.l] variable identifier found!\n");
+{alphabets}{alphanumeric}*		{
+									my_print("CORRECT THIS!!\t", "[scanner.l] variable identifier found!\n");
 									/* CORRECT THIS */
 									yylval = yytext[0];
 									return IDENTIFIER;
 								}
 
+.		{
+			my_print("","[scanner.l] unknown character\n");
+			return ;
+		}
 %%

@@ -7,12 +7,18 @@
 #include <cerrno>
 #include <cstring>
 #include "printing.h"
+// #include "y.tab.h"
 
 using namespace std;
 
 // int yylex (void);
+// extern int yyparse(void);
 
 extern FILE* yyin, yyout;
+extern "C"
+{
+	int yyparse(void);
+}
 
 void print_help(string cmd)
 {
@@ -62,5 +68,6 @@ int main(int argc, char* argv[])
 	// while(true){
 	// 	// yylex();
 	// }
+	yyparse();
 
 }

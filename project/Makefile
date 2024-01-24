@@ -8,9 +8,9 @@ SCAN = scanner
 all: sclp
 
 sclp: $(CODE).o lex.yy.o y.tab.o
-	$(CPP) $(FLAGS) -o sclp $(CODE).o lex.yy.o y.tab.o -ly -ll
+	$(CPP) $(FLAGS) -o $(CODE).o sclp lex.yy.o y.tab.o -ly -ll
 
-$(CODE).o: $(CODE).cpp
+$(CODE).o: $(CODE).cpp y.tab.h
 	$(CPP) $(FLAGS) -c $(CODE).cpp
 
 y.tab.o: y.tab.c y.tab.h
