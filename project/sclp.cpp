@@ -7,7 +7,7 @@
 #include <cerrno>
 #include <cstring>
 #include "printing.h"
-// #include "y.tab.h"
+#include "y.tab.h"
 
 using namespace std;
 
@@ -17,7 +17,8 @@ using namespace std;
 extern FILE* yyin, yyout;
 extern "C"
 {
-	int yyparse(void);
+	// int yyparse(void);
+	int yylex (void);
 }
 
 void print_help(string cmd)
@@ -65,9 +66,7 @@ int main(int argc, char* argv[])
 	if(yyin == NULL){
 		cerr << argv[0] << ": " << input_file << ": " << strerror(errno) << endl;
 	}
-	// while(true){
-	// 	// yylex();
-	// }
-	yyparse();
+	while(yylex());
+	// yyparse();
 
 }

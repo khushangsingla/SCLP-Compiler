@@ -1,4 +1,4 @@
-#define DEBUG
+// #define DEBUG
 // #include <iostream>
 // #include <string>
 #include <stdio.h>
@@ -30,3 +30,9 @@ void my_print_vars(const char* a, const char* b, int a1, int b1, ...)
 // 	std::cout<<b;
 // #endif
 // }
+
+void scanner_output(const char* token,char* val,int lineno)
+{
+
+	printf("\tToken Name: %s\tLexeme: %s\tLineno: %d\n",token,val,lineno);
+}

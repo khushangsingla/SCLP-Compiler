@@ -2,48 +2,91 @@
 #include <stdio.h>
 #include <stdlib.h>
 %}
-%token VOID
-%token MAIN
-%token BRACE_OPEN 
-%token BRACE_CLOSE
-%token PRINT
-%token READ
+
+
+%token WHILE				
+%token ELSE			
+%token INTEGER				/*		int ( L1 )*/
+%token FLOAT				/*		float(L1)*/
+%token BOOL					/*		bool(L1)*/
+%token STRING				/*		string(L1)*/
+%token VOID					/*		void(L1)*/
+%token WRITE				/*		print(L1)*/
+%token READ					/*		read(L1)*/
+%token NAME					/*		.*(L1)*/
+%token RETURN				/*		*/
+%token ASSIGN_OP			/*	= (L1)*/
+%token GREATER_THAN			/*		*/
+%token LESS_THAN			/*		*/
+%token GREATER_THAN_EQUAL	/*		*/
+%token LESS_THAN_EQUAL		/*		*/
+%token NOT_EQUAL			/*		*/
+%token EQUAL				/*		*/
+%token PLUS					/*		+ (L1)*/
+%token MINUS				/*		- (L1)*/
+%token MULT					/*		* (L1)*/
+%token ADDRESSOF			/*		*/
+%token LEFT_CURLY_BRACKET	/*		{ L1*/
+%token RIGHT_CURLY_BRACKET	/*		} L1*/
+%token LEFT_ROUND_BRACKET	/*		( L1*/
+%token RIGHT_ROUND_BRACKET	/*		) L1*/
+%token LEFT_SQUARE_BRACKET	/*		[ L1*/
+%token RIGHT_SQUARE_BRACKET	/*	] L1*/
+%token SEMICOLON			/*		; L1*/
+%token COMMA				/*		, L1*/
+%token OP_FOR_TERNARY_EXPR	/*		*/
+%token FLOAT_NUM			/*		L1*/
+%token INT_NUM				/*		L1*/
+%token STR_CONST			/*		L1*/
+%token DIV					/*			/ (L1)*/
 %token IF
-%token ELSE 
-%token IDENTIFIER
-%token DTYPE_BOOL
-%token DTYPE_FLOAT
-%token DTYPE_STRING
-%token DTYPE_INT
-%token OPERATOR
-%token NUM
-%token WHILE
-%token DO
-%left '+' '-'
-%left '*' '/'	
+%token NOT_IN_CURRENT_LEVEL
+%token IGNORE
+
+
 %%
-PROGRAM : tok
-  {
-	printf("[parser.y] NUL FOUND\n");
-  }
-tok : tok tok | 
-	VOID |
-	MAIN |
-	BRACE_OPEN  |
-	BRACE_CLOSE |
-	PRINT |
-	READ |
-	IF |
-	ELSE  |
-	IDENTIFIER |
-	DTYPE_BOOL |
-	DTYPE_FLOAT |
-	DTYPE_STRING |
-	DTYPE_INT |
-	OPERATOR |
-	NUM |
-	WHILE |
-	DO |
+
+tok1 : tok tok
+tok : WHILE				| 
+       ELSE			| 
+       INTEGER				| 
+       FLOAT				| 
+       BOOL					| 
+       STRING				| 
+       VOID					| 
+       WRITE				| 
+       READ					| 
+       NAME					| 
+       RETURN				| 
+       ASSIGN_OP			| 
+       GREATER_THAN			| 
+       LESS_THAN			| 
+       GREATER_THAN_EQUAL	| 
+       LESS_THAN_EQUAL		| 
+       NOT_EQUAL			| 
+       EQUAL				| 
+       PLUS					| 
+       MINUS				| 
+       MULT					| 
+       ADDRESSOF			| 
+       LEFT_CURLY_BRACKET	| 
+       RIGHT_CURLY_BRACKET	| 
+       LEFT_ROUND_BRACKET	| 
+       RIGHT_ROUND_BRACKET	| 
+       LEFT_SQUARE_BRACKET	| 
+       RIGHT_SQUARE_BRACKET	| 
+       SEMICOLON			| 
+       COMMA				| 
+       OP_FOR_TERNARY_EXPR	| 
+       FLOAT_NUM			| 
+       INT_NUM				| 
+       STR_CONST			| 
+       DIV					| 
+       IF					| 
+       NOT_IN_CURRENT_LEVEL	|
+	   IGNORE
+	   ;
+
 
 
 %%
