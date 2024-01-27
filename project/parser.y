@@ -1,4 +1,5 @@
 %{
+int yydebug = 1;
 #include <stdio.h>
 #include <stdlib.h>
 %}
@@ -42,59 +43,127 @@
 %token IF
 %token NOT_IN_CURRENT_LEVEL
 %token IGNORE
+%token AND
+%token OR
+%token NOT
 
-%left '+' '-'
-%left '*' '/'
+%left PLUS MINUS
+%left MULT DIV
+%right UMINUS
 
 %%
 
-tok1 : tok tok
-tok : WHILE				| 
-       ELSE			| 
-       INTEGER				| 
-       FLOAT				| 
-       BOOL					| 
-       STRING				| 
-       VOID					| 
-       WRITE				| 
-       READ					| 
-       NAME					| 
-       RETURN				| 
-       ASSIGN_OP			| 
-       GREATER_THAN			| 
-       LESS_THAN			| 
-       GREATER_THAN_EQUAL	| 
-       LESS_THAN_EQUAL		| 
-       NOT_EQUAL			| 
-       EQUAL				| 
-       PLUS					| 
-       MINUS				| 
-       MULT					| 
-       ADDRESSOF			| 
-       LEFT_CURLY_BRACKET	| 
-       RIGHT_CURLY_BRACKET	| 
-       LEFT_ROUND_BRACKET	| 
-       RIGHT_ROUND_BRACKET	| 
-       LEFT_SQUARE_BRACKET	| 
-       RIGHT_SQUARE_BRACKET	| 
-       SEMICOLON			| 
-       COMMA				| 
-       OP_FOR_TERNARY_EXPR	| 
-       FLOAT_NUM			| 
-       INT_NUM				| 
-       STR_CONST			| 
-       DIV					| 
-       IF					| 
-       NOT_IN_CURRENT_LEVEL	|
-	   IGNORE
-	   ;
+program 
+	: global_decl_statement_list func_decl_defn
+	| func_decl_defn
+;
 
+global_decl_statement_list
+	: global_decl_statement_list var_decl_stmt
+	| var_decl_stmt
+;
+
+var_decl_stmt
+	: named_type var_decl_item_list ';'
+;
+
+var_decl_item_list
+	: var_decl_item_list ',' var_decl_item
+	| var_decl_item
+;
+
+var_decl_item
+	: NAME
+;
+
+named_type
+	: INTEGER
+	| FLOAT
+	| VOID
+	| STRING
+	| BOOL
+;
+
+func_decl_defn
+	: named_type NAME '(' funcdecl_param_list ')' '{' func_defn '}'
+	| named_type NAME '(' ')' '{' func_defn '}'
+;
+
+funcdecl_param_list
+	: funcdecl_param_list ',' funcdecl_param
+	| funcdecl_param
+;
+
+funcdecl_param
+	: named_type NAME
+;
+
+func_defn
+	: optional_var_decl_stmt_list statement_list
+;
+
+optional_var_decl_stmt_list
+	: %empty
+	| var_decl_stmt_list
+;
+
+var_decl_stmt_list
+	: var_decl_stmt
+	| var_decl_stmt_list var_decl_stmt
+;
+
+statement_list
+	: statement_list statement
+	| %empty
+;
+
+statement
+	: assignment_statement
+	| print_statement
+	| read_statement
+;
+
+print_statement
+	: WRITE expression ';'
+;
+
+read_statement
+	: READ NAME ';'
+;
+
+assignment_statement
+	: NAME ASSIGN_OP expression ';'
+;
+
+expression
+	: expression PLUS expression
+	| expression MINUS expression
+	| expression MULT expression
+	| expression DIV expression
+	| MINUS expression	%prec UMINUS 
+	| '(' expression ')'
+	| variable_as_operand
+	| constant_as_operand
+;
+
+variable_as_operand
+	: NAME
+;
+
+constant_as_operand
+	: INT_NUM
+	| FLOAT_NUM
+	| STR_CONST
+;
+
+error_thing
+	: NOT_IN_CURRENT_LEVEL {yyerror("NOT IN CURRENT LEVEL");}
+;
 
 
 %%
 int yyerror (char *mesg)
 {
 	fprintf (stderr, "[parser.y]%s\n", mesg);
-	// exit (1);
+	exit (1);
 }
-

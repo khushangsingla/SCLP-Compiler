@@ -210,6 +210,27 @@ return {
 				return COMMA;
 			}
 
+&&			{
+				my_print("","[scanner.l] && found!\n");
+				return NOT_IN_CURRENT_LEVEL;
+				scanner_output("AND",yytext,yylineno);
+				return AND;
+			}
+
+\|\|			{
+				my_print("","[scanner.l] || found!\n");
+				return NOT_IN_CURRENT_LEVEL;
+				scanner_output("OR",yytext,yylineno);
+				return OR;
+			}
+
+!			{
+				my_print("","[scanner.l] ! found!\n");
+				return NOT_IN_CURRENT_LEVEL;
+				scanner_output("NOT",yytext,yylineno);
+				return NOT;
+			}
+
 {ternary_ops}	{
 				my_print("", "[scanner.l] ?: found!\n");
 				return NOT_IN_CURRENT_LEVEL;
