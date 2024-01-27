@@ -43,6 +43,8 @@
 %token NOT_IN_CURRENT_LEVEL
 %token IGNORE
 
+%left '+' '-'
+%left '*' '/'
 
 %%
 
