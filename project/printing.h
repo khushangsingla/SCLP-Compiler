@@ -4,15 +4,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-extern FILE* token_output_file = NULL;
-
-struct arguments {
-	bool show_tokens = false;
-	bool stop_after_scanning = false;
-	string input_file = "";
-};
-
-struct arguments arguments;
+extern FILE* token_output_file;
 
 void my_print(const char* a, const char* b)
 {
@@ -44,6 +36,6 @@ void my_print_vars(const char* a, const char* b, int a1, int b1, ...)
 
 void scanner_output(const char* token,char* val,int lineno)
 {
-	if(arguments.show_tokens)
+	if(token_output_file)
 		fprintf(token_output_file,"\tToken Name: %s\tLexeme: %s\tLineno: %d\n",token,val,lineno);
 }

@@ -21,16 +21,17 @@ using namespace std;
 
 static int parse_opt (int key, char *arg, struct argp_state *state);
 
+extern FILE *yyin, *yyout;
+FILE* token_output_file = NULL;
+
 struct arguments {
 	bool show_tokens = false;
 	bool stop_after_scanning = false;
-	string input_file = "";
+	std::string input_file = "";
 };
 
 struct arguments arguments;
 
-extern FILE *yyin, *yyout;
-FILE* token_output_file;
 extern "C"
 {
 	// int yyparse(void);
@@ -84,6 +85,9 @@ int main(int argc, char* argv[])
 	if(arguments.show_tokens)
 	{
 		token_output_file = fopen((arguments.input_file + ".toks").c_str(),"w");
+	}
+
+	if(arguments.stop_after_scanning){
 		while(true){
 			int output = yylex();
 			if(!output)	break;
@@ -93,9 +97,6 @@ int main(int argc, char* argv[])
 				break;
 			}
 		}
-	}
-
-	if(arguments.stop_after_scanning){
 		return 0;
 	}
 
