@@ -36,6 +36,7 @@ extern "C"
 {
 	// int yyparse(void);
 	int yylex (void);
+	int do_parse(void);
 }
 
 void print_help(string cmd)
@@ -77,7 +78,7 @@ int main(int argc, char* argv[])
 
 #ifdef DEBUG
 	cerr << "[sclp.cpp] arguments.show_tokens = " << arguments.show_tokens<<endl;
-	cerr << "[sclp.cpp] arguments.stop_after_scan = " << arguments.stop_after_scan<<endl;
+	cerr << "[sclp.cpp] arguments.stop_after_scan = " << arguments.stop_after_scanning<<endl;
 	cerr << "[sclp.cpp] arguments.input_file = " << arguments.input_file<<endl;
 	
 #endif
@@ -91,14 +92,19 @@ int main(int argc, char* argv[])
 		while(true){
 			int output = yylex();
 			if(!output)	break;
-			bool allowed = (output != NOT_IN_CURRENT_LEVEL);
+			bool allowed = (output != NOT_IN_CURRENT_LEVEL) && (output != UNKNOWN_CHAR);
 			if(!allowed){
 				cerr << "Handle this\n";
+				return 1;
 				break;
 			}
 		}
 		return 0;
 	}
+	
+	// yyparse();
+	
+	do_parse();
 
 	return 0;
 // 	if(argc == 1){

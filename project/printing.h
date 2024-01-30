@@ -1,4 +1,5 @@
 // #define DEBUG
+
 // #include <iostream>
 // #include <string>
 #include <stdio.h>
@@ -10,7 +11,7 @@ void my_print(const char* a, const char* b)
 {
 	printf("%s",a);
 #ifdef DEBUG
-	printf("%s",b);
+	fprintf(stderr,"%s",b);
 #endif
 }
 

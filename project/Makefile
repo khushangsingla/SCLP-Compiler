@@ -1,27 +1,31 @@
 CPP = g++
 CC = gcc
-FLAGS = -g
+CFLAGS = 
 CODE = sclp
 PARSE = parser
 SCAN = scanner
+YACC_FLAGS = -dv
+
+# YACC_FLAGS += -t
+# CFLAGS += -DDEBUG -g
 
 all: sclp
 
-sclp: $(CODE).o lex.yy.o y.tab.o
-	$(CPP) $(FLAGS) -o sclp $(CODE).o lex.yy.o y.tab.o -ly -ll
+sclp: $(CODE).o lex.yy.o y.tab.o Makefile
+	$(CPP) $(CFLAGS) -o sclp $(CODE).o lex.yy.o y.tab.o -ly -ll
 
-$(CODE).o: $(CODE).cpp y.tab.h
-	$(CPP) $(FLAGS) -c $(CODE).cpp
+$(CODE).o: $(CODE).cpp y.tab.h Makefile
+	$(CPP) $(CFLAGS) -c $(CODE).cpp
 
-y.tab.o: y.tab.c y.tab.h
-	$(CC) $(FLAGS) -c y.tab.c
+y.tab.o: y.tab.c y.tab.h Makefile
+	$(CC) $(CFLAGS) -c y.tab.c
 
-lex.yy.o: $(SCAN).l y.tab.h printing.h
+lex.yy.o: $(SCAN).l y.tab.h printing.h Makefile
 	lex $(SCAN).l
-	$(CC) $(FLAGS) -c lex.yy.c
+	$(CC) $(CFLAGS) -c lex.yy.c
 
-y.tab.h y.tab.c: $(PARSE).y printing.h
-	yacc -dv $(PARSE).y
+y.tab.h y.tab.c: $(PARSE).y printing.h Makefile
+	yacc $(YACC_FLAGS) $(PARSE).y
 
 clean:
 	rm *.o sclp lex.yy.c y.tab.c y.tab.h y.output 2>/dev/null || true

@@ -1,7 +1,10 @@
 %{
-int yydebug = 1;
 #include <stdio.h>
 #include <stdlib.h>
+
+int do_parse();
+int yyerror();
+int yydebug = 1;
 %}
 
 
@@ -46,6 +49,7 @@ int yydebug = 1;
 %token AND
 %token OR
 %token NOT
+%token UNKNOWN_CHAR
 
 %left PLUS MINUS
 %left MULT DIV
@@ -56,6 +60,10 @@ int yydebug = 1;
 program 
 	: global_decl_statement_list func_decl_defn
 	| func_decl_defn
+	| global_decl_statement_list func_decl func_decl_defn
+	| func_decl global_decl_statement_list func_decl_defn
+	| global_decl_statement_list func_decl global_decl_statement_list func_decl_defn
+	| func_decl func_decl_defn
 ;
 
 global_decl_statement_list
@@ -64,11 +72,11 @@ global_decl_statement_list
 ;
 
 var_decl_stmt
-	: named_type var_decl_item_list ';'
+	: named_type var_decl_item_list SEMICOLON
 ;
 
 var_decl_item_list
-	: var_decl_item_list ',' var_decl_item
+	: var_decl_item_list COMMA var_decl_item
 	| var_decl_item
 ;
 
@@ -84,13 +92,17 @@ named_type
 	| BOOL
 ;
 
+func_decl
+	: named_type NAME LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET SEMICOLON
+	| named_type NAME LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET SEMICOLON
+
 func_decl_defn
-	: named_type NAME '(' funcdecl_param_list ')' '{' func_defn '}'
-	| named_type NAME '(' ')' '{' func_defn '}'
+	: named_type NAME LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET
+	| named_type NAME LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET
 ;
 
 funcdecl_param_list
-	: funcdecl_param_list ',' funcdecl_param
+	: funcdecl_param_list COMMA funcdecl_param
 	| funcdecl_param
 ;
 
@@ -124,15 +136,15 @@ statement
 ;
 
 print_statement
-	: WRITE expression ';'
+	: WRITE expression SEMICOLON
 ;
 
 read_statement
-	: READ NAME ';'
+	: READ NAME SEMICOLON
 ;
 
 assignment_statement
-	: NAME ASSIGN_OP expression ';'
+	: NAME ASSIGN_OP expression SEMICOLON
 ;
 
 expression
@@ -141,7 +153,7 @@ expression
 	| expression MULT expression
 	| expression DIV expression
 	| MINUS expression	%prec UMINUS 
-	| '(' expression ')'
+	| LEFT_ROUND_BRACKET expression RIGHT_ROUND_BRACKET
 	| variable_as_operand
 	| constant_as_operand
 ;
@@ -157,13 +169,20 @@ constant_as_operand
 ;
 
 error_thing
-	: NOT_IN_CURRENT_LEVEL {yyerror("NOT IN CURRENT LEVEL");}
+	: NOT_IN_CURRENT_LEVEL
+	| UNKNOWN_CHAR
+	{yyerror("NOT IN CURRENT LEVEL");}
 ;
 
 
 %%
 int yyerror (char *mesg)
 {
-	fprintf (stderr, "[parser.y]%s\n", mesg);
+	fprintf (stderr, "[parser.y] %s\n", mesg);
 	exit (1);
+}
+
+int do_parse()
+{
+	return yyparse();
 }

@@ -250,7 +250,7 @@ return {
 				return INT_NUM;
 			}
 
-\"{alphanumeric}*\"	{
+\"[^\"]*\"	{
 				my_print("", "[scanner.l] string found!\n");
 				scanner_output("STR_CONST",yytext,yylineno);
 				return STR_CONST;
@@ -262,15 +262,22 @@ return {
 				return NAME;
 			}
 
+\/\/.*		{
+				my_print("","[scanner.l] comment found!\n");
+			}
+
+[\t ]+		{
+				my_print("","[scanner.l] whitespace found\n");
+			}
+
 \n			{
 				my_print("","[scanner.l] newline found\n");
 				yylineno++;
-				return IGNORE;
 			}
 
 .			{
 				my_print_vars("","[scanner.l] Unknown char found: %c(%d)\n",0,2,yytext[0],yytext[0]);
-				return IGNORE;
+				exit(1);
 			}
 
 %%
