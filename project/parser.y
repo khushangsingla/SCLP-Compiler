@@ -1,10 +1,11 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+extern void my_exit(int);
 
 int do_parse();
 int yyerror();
-int yydebug = 1;
+// int yydebug = 1;
 %}
 
 
@@ -92,6 +93,13 @@ named_type
 	| BOOL
 ;
 
+param_type
+	: INTEGER
+	| FLOAT
+	| STRING
+	| BOOL
+;
+
 func_decl
 	: named_type NAME LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET SEMICOLON
 	| named_type NAME LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET SEMICOLON
@@ -107,7 +115,7 @@ funcdecl_param_list
 ;
 
 funcdecl_param
-	: named_type NAME
+	: param_type NAME
 ;
 
 func_defn
@@ -179,7 +187,7 @@ error_thing
 int yyerror (char *mesg)
 {
 	fprintf (stderr, "[parser.y] %s\n", mesg);
-	exit (1);
+	my_exit(1);
 }
 
 int do_parse()

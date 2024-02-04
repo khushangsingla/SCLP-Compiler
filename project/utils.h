@@ -1,5 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
 // #define DEBUG
-
 // #include <iostream>
 // #include <string>
 #include <stdio.h>
@@ -40,3 +41,15 @@ void scanner_output(const char* token,char* val,int lineno)
 	if(token_output_file)
 		fprintf(token_output_file,"\tToken Name: %s\tLexeme: %s\tLineno: %d\n",token,val,lineno);
 }
+
+void my_exit(int exit_code)
+{
+	if(token_output_file){
+		fclose(token_output_file);
+		token_output_file = NULL;
+	}
+	if(exit_code != 0)	fprintf(stderr,"ERROR ENCOUNTERED!\n");
+
+	exit(exit_code);
+}
+#endif

@@ -1,8 +1,11 @@
 %option noyywrap
 %{
 #include <stdio.h>
-#include "printing.h"
+#include "utils.h"
 #include "y.tab.h"
+
+extern void my_exit(int);
+
 %}
 
 digits [0-9]
@@ -238,7 +241,12 @@ return {
 				return OP_FOR_TERNARY_EXPR;
 			}
 
-{digits}+\.{digits}+	{
+\.			{
+				my_print("", "[scanner.l] . found!\n");
+				return NOT_IN_CURRENT_LEVEL;
+			}
+
+{digits}*\.{digits}*	{
 				my_print("", "[scanner.l] float_num found!\n");
 				scanner_output("FLOAT_NUM",yytext,yylineno);
 				return FLOAT_NUM;
@@ -277,7 +285,7 @@ return {
 
 .			{
 				my_print_vars("","[scanner.l] Unknown char found: %c(%d)\n",0,2,yytext[0],yytext[0]);
-				exit(1);
+				my_exit(1);
 			}
 
 %%

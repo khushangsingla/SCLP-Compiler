@@ -7,11 +7,13 @@
 #include <cerrno>
 #include <cstring>
 # include <argp.h>
-#include "printing.h"
+#include "utils.h"
 #include "y.tab.h"
 
 #define SHOW_TOKENS 't'
 #define STOP_AFTER_SCAN 's'
+
+extern void my_exit(int);
 
 using namespace std;
 
@@ -67,7 +69,7 @@ int main(int argc, char* argv[])
 	argp_parse (&argp, argc, argv, 0, 0, 0);
 	if( arguments.input_file == "" ){
 		cerr << "No input file" << endl;
-		return 1;
+		my_exit(1);
 	}
 
 	yyin = fopen(arguments.input_file.c_str(), "r");
@@ -95,18 +97,18 @@ int main(int argc, char* argv[])
 			bool allowed = (output != NOT_IN_CURRENT_LEVEL) && (output != UNKNOWN_CHAR);
 			if(!allowed){
 				cerr << "Handle this\n";
-				return 1;
+				my_exit(1);
 				break;
 			}
 		}
-		return 0;
+		my_exit(0);
 	}
 	
 	// yyparse();
 	
 	do_parse();
 
-	return 0;
+	my_exit(0);
 // 	if(argc == 1){
 // 		cerr << "Usage: " << argv[0] << " [OPTION...] [FILE]\nTry `" << argv[0] << " --help' or `" << argv[0] << " --usage' for more information." << endl;
 // 		return 1;
@@ -139,6 +141,7 @@ int main(int argc, char* argv[])
 	// yyparse();
 
 }
+
 static int parse_opt (int key, char *arg, struct argp_state *state)
 {
 	switch (key)
