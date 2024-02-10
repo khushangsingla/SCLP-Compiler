@@ -94,42 +94,36 @@ return {
 
 >			{
 				my_print("", "[scanner.l] greater_than found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("GREATER_THAN",yytext,yylineno);
 				return GREATER_THAN;
 			}
 
 \<			{
 				my_print("", "[scanner.l] less_than found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("LESS_THAN",yytext,yylineno);
 				return LESS_THAN;
 			}
 
 >=			{
 				my_print("", "[scanner.l] >= found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("GREATER_THAN_EQUAL",yytext,yylineno);
 				return GREATER_THAN_EQUAL;
 			}
 
 \<=			{
 				my_print("", "[scanner.l] <= found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("LESS_THAN_EQUAL",yytext,yylineno);
 				return LESS_THAN_EQUAL;
 			}
 
 !=			{
 				my_print("", "[scanner.l] != found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("NOT_EQUAL",yytext,yylineno);
 				return NOT_EQUAL;
 			}
 
 ==			{
 				my_print("", "[scanner.l] == found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("EQUAL",yytext,yylineno);
 				return EQUAL;
 			}
@@ -215,30 +209,26 @@ return {
 
 &&			{
 				my_print("","[scanner.l] && found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("AND",yytext,yylineno);
 				return AND;
 			}
 
 \|\|			{
 				my_print("","[scanner.l] || found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("OR",yytext,yylineno);
 				return OR;
 			}
 
 !			{
 				my_print("","[scanner.l] ! found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("NOT",yytext,yylineno);
 				return NOT;
 			}
 
 {ternary_ops}	{
 				my_print("", "[scanner.l] ?: found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("OP_FOR_TERNARY_EXPR",yytext,yylineno);
-				return OP_FOR_TERNARY_EXPR;
+				return yytext[0];
 			}
 
 \.			{

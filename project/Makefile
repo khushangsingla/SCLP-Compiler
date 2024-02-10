@@ -14,6 +14,18 @@ all: sclp
 sclp: $(CODE).o lex.yy.o y.tab.o Makefile
 	$(CPP) $(CFLAGS) -o sclp $(CODE).o lex.yy.o y.tab.o -ly -ll
 
+program: program.h program.cpp symbol_table.h procedure.h
+	$(CPP) $(CFLAGS) -c program.cpp
+
+procedure: procedure.h procedure.cpp symbol_table.h ast.h
+	$(CPP) $(CFLAGS) -c procedure.cpp
+
+ast: ast.h ast.cpp Makefile
+	$(CPP) $(CFLAGS) -c ast.cpp
+
+symboltable: symbol_table.h symbol_table.cpp
+	$(CPP) $(CFLAGS) -c symbol_table.cpp
+
 $(CODE).o: $(CODE).cpp y.tab.h utils.h Makefile
 	$(CPP) $(CFLAGS) -c $(CODE).cpp
 

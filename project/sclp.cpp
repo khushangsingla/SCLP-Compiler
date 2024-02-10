@@ -12,6 +12,7 @@
 
 #define SHOW_TOKENS 't'
 #define STOP_AFTER_SCAN 's'
+#define STOP_AFTER_PARSE 'p'
 
 extern void my_exit(int);
 
@@ -29,6 +30,7 @@ FILE* token_output_file = NULL;
 struct arguments {
 	bool show_tokens = false;
 	bool stop_after_scanning = false;
+	bool stop_after_parsing = false;
 	std::string input_file = "";
 };
 
@@ -61,6 +63,7 @@ int main(int argc, char* argv[])
 	struct argp_option options[] = {
   		{ "show-tokens", SHOW_TOKENS, 0, 0, "Show the tokens in FILE.toks (or out.toks)", 9 },
   		{ "sa-scan",  STOP_AFTER_SCAN, 0, 0, "Stop after lexical analysis", 0 },
+  		{ "sa-parse",  STOP_AFTER_PARSE, 0, 0, "Stop after parsing", 0 },
 		{ 0 }
 		};
 
@@ -151,6 +154,9 @@ static int parse_opt (int key, char *arg, struct argp_state *state)
 			break;
 		case STOP_AFTER_SCAN: 
 			arguments.stop_after_scanning = true;	
+			break;
+		case STOP_AFTER_PARSE:
+			arguments.stop_after_parsing = true;
 			break;
 		case 0:
 			arguments.input_file = arg;

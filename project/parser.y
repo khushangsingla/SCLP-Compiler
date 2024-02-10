@@ -52,6 +52,10 @@ int yyerror();
 %token NOT
 %token UNKNOWN_CHAR
 
+%left '?' ':'
+%left AND OR
+%nonassoc LESS_THAN LESS_THAN_EQUAL GREATER_THAN GREATER_THAN_EQUAL EQUAL NOT_EQUAL
+%right NOT
 %left PLUS MINUS
 %left MULT DIV
 %right UMINUS
@@ -156,24 +160,54 @@ assignment_statement
 ;
 
 expression
-	: expression PLUS expression
-	| expression MINUS expression
-	| expression MULT expression
-	| expression DIV expression
-	| MINUS expression	%prec UMINUS 
-	| LEFT_ROUND_BRACKET expression RIGHT_ROUND_BRACKET
-	| variable_as_operand
-	| constant_as_operand
+	: expression PLUS expression		{
+											$$ = PlusExpressionAST($1,$2);
+										}
+	| expression MINUS expression		{
+											$$ = MinusExpressionAST($1,$2);
+										}
+	| expression MULT expression		{
+											$$ = MultiplicationExpressionAST($1,$2);
+										}
+	| expression DIV expression			{
+											$$ = DivisionExpressionAST($1,$2);
+										}
+	| MINUS expression	%prec UMINUS	{
+											$$ = UMinusExpressionAST($1);
+										}
+	| LEFT_ROUND_BRACKET expression RIGHT_ROUND_BRACKET	{ $$ = $1; }
+	| expression '?' expression ':' expression {
+													$$ = ConditionalExpressionAST($1,$2,$3);
+												}
+	| expression AND expression			{
+											$$ = BooleanExpressionAST($1,$2,BOOL_AND);
+										}
+	| expression OR expression			{
+											$$ = BooleanExpressionAST($1,$2,BOOL_OR);
+										}
+	| NOT expression
+	| relative_expression				{ $$ = $1; }
+	| variable_as_operand				{ $$ = $1; }
+	| constant_as_operand				{ $$ = $1; }
+;
+
+relative_expression
+	: expression LESS_THAN expression
+	| expression LESS_THAN_EQUAL expression
+	| expression GREATER_THAN expression
+	| expression GREATER_THAN_EQUAL expression
+	| expression NOT_EQUAL expression
+	| expression EQUAL expression
 ;
 
 variable_as_operand
-	: NAME
+	: NAME							{ $$ = NameExpressionAST($1);}
 ;
 
 constant_as_operand
-	: INT_NUM
-	| FLOAT_NUM
-	| STR_CONST
+	: INT_NUM						{ $$ = IntegerExpressionAST($1);}
+	| FLOAT_NUM						{ $$ = FloatExpressionAST($1);}
+	| STR_CONST						{ $$ = StringExpressionAST($1);}
 ;
 
 error_thing
