@@ -1,6 +1,8 @@
 %option noyywrap
 %{
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "utils.h"
 #include "y.tab.h"
 
@@ -239,24 +241,33 @@ return {
 {digits}*\.{digits}*	{
 				my_print("", "[scanner.l] float_num found!\n");
 				scanner_output("FLOAT_NUM",yytext,yylineno);
+				yylval.name = malloc(strlen(yytext)+1);
+				strcpy(yylval.name,yytext);
 				return FLOAT_NUM;
 			}
 
 {digits}+	{
 				my_print("", "[scanner.l] integer found!\n");
 				scanner_output("INT_NUM",yytext,yylineno);
+				yylval.name = malloc(strlen(yytext)+1);
+				strcpy(yylval.name,yytext);
 				return INT_NUM;
 			}
 
 \"[^\"]*\"	{
 				my_print("", "[scanner.l] string found!\n");
 				scanner_output("STR_CONST",yytext,yylineno);
+				yylval.name = malloc(strlen(yytext)+1);
+				strcpy(yylval.name,yytext);
 				return STR_CONST;
 			}
 
 {alphabets}{alphanumeric}*	{
 				my_print("", "[scanner.l] variable found!\n");
 				scanner_output("NAME",yytext,yylineno);
+				yylval.name = malloc(strlen(yytext)+1);
+				strcpy(yylval.name,yytext);
+
 				return NAME;
 			}
 

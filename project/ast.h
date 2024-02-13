@@ -66,13 +66,16 @@ class BaseExpressionAST : public ExpressionAST
 
 class UnaryExpressionAST : public ExpressionAST
 {
-	public:
+	protected:
+		AST *operand;
 		UnaryExpressionAST(ast_type,AST*);
+	public:
 };
 
 class BinaryExpressionAST : public ExpressionAST
 {
 	protected:
+		AST *left,*right;
 		BinaryExpressionAST(ast_type,AST* left, AST* right);
 		setLeftChild(AST*);
 		setRightChild(AST*);
@@ -82,6 +85,7 @@ class BinaryExpressionAST : public ExpressionAST
 class TernaryExpressionAST : public ExpressionAST
 {
 	protected:
+		AST *left,*mid,*right;
 		TernaryExpressionAST(ast_type,AST*,AST*,AST*);
 	public:
 
@@ -96,29 +100,32 @@ class FunctionCallAST : public BaseExpressionAST
 class NameExpressionAST : public BaseExpressionAST
 {
 	Symbol* var;
+	string name;
 	public:
-		NameExpressionAST(string name);
+		NameExpressionAST(char* name);
+		~NameExpressionAST();
 };
 
 class IntegerExpressionAST : public BaseExpressionAST
 {
 	int val;
 	public:
-		IntegerExpressionAST(int);
+		IntegerExpressionAST(char*);
 };
 
 class FloatExpressionAST : public BaseExpressionAST
 {
 	float val;
 	public:
-		FloatExpressionAST(float);
+		FloatExpressionAST(char*);
 };
 
 class StringExpressionAST : public BaseExpressionAST
 {
 	string val;
 	public:
-		StringExpressionAST(string val);
+		StringExpressionAST(char*);
+		~StringExpressionAST();
 };
 
 class AddressExpressionAST : public UnaryExpressionAST
@@ -196,8 +203,9 @@ class ConditionalExpressionAST : public TernaryExpressionAST
 
 class AssignmentStatementAST : public StatementAST
 {
+	AST *lhs,*rhs;
 	public:
-		AssignmentStatementAST();
+		AssignmentStatementAST(AST*,AST*);
 };
 
 class IterationStatementAST : public StatementAST

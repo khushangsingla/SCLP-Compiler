@@ -21,8 +21,7 @@ BaseExpressionAST::BaseExpressionAST(ast_type t) : ExpressionAST(t)
 
 UnaryExpressionAST::UnaryExpressionAST(ast_type t,AST* ch) : ExpressionAST(t)
 {
-	assert(children.size() == 0);
-	children.push_back(ch);
+	this -> operand = ch;
 }
 
 BinaryExpressionAST::BinaryExpressionAST(ast_type t, AST* left, AST* right) : ExpressionAST(t)
@@ -33,53 +32,56 @@ BinaryExpressionAST::BinaryExpressionAST(ast_type t, AST* left, AST* right) : Ex
 
 BinaryExpressionAST::setLeftChild(AST* ast)
 {
-	assert(children.size() == 0);
-	assert(ast);
-	children.push_back(ast);
+	left = ast;
 }
 
 BinaryExpressionAST::setRightChild(AST* ast)
 {
-	assert(children.size() == 1);
-	assert(ast);
-	children.push_back(ast);
+	right = ast;
 }
 
 TernaryExpressionAST::TernaryExpressionAST(ast_type t,AST* l, AST* m, AST* r) : ExpressionAST(t)
 {
-	assert(l);
-	assert(m);
-	assert(r);
-	assert(children.size() == 0);
-	children.push_back(l);
-	children.push_back(m);
-	children.push_back(r);
+	left = l;
+	mid = m;
+	right = r;
 }
 
 FunctionCallAST::FunctionCallAST() : BaseExpressionAST(FUNCTION_CALL_AST)
 {
 }
 
-NameExpressionAST::NameExpressionAST(string name) : BaseExpressionAST(NAME_EXPRESSION_AST)
+NameExpressionAST::NameExpressionAST(char* name) : BaseExpressionAST(NAME_EXPRESSION_AST)
 {
 	/* TODO */
 	/* Convert string name to symbol* */
 	var = NULL;
+	this->name = new string(name);
+}
+
+NameExpressionAST::~NameExpressionAST()
+{
+	delete name;
 }
 
 IntegerExpressionAST::IntegerExpressionAST(int val) : BaseExpressionAST(INTEGER_EXPRESSION_AST)
 {
-	this->val = val;
+	this->val = atoi(val);
 }
 
 FloatExpressionAST::FloatExpressionAST(float val) : BaseExpressionAST(FLOAT_EXPRESSION_AST)
 {
-	this->val = val;
+	this->val = atof(val);
 }
 
 StringExpressionAST::StringExpressionAST(string val) : BaseExpressionAST(STRING_EXPRESSION_AST)
 {
-	this->val = val;
+	this->val = new string(val);
+}
+
+StringExpressionAST::~StringExpressionAST()
+{
+	delete val;
 }
 
 AddressExpressionAST::AddressExpressionAST(AST* t) : UnaryExpressionAST(ADDRESS_EXPRESSION_AST,t)
@@ -131,8 +133,10 @@ ConditionalExpressionAST::ConditionalExpressionAST(AST* a,AST* b,AST* c) : Terna
 {
 }
 
-AssignmentStatementAST::AssignmentStatementAST() : StatementAST(ASSIGNMENT_STATEMENT_AST)
+AssignmentStatementAST::AssignmentStatementAST(AST* l, AST* r) : StatementAST(ASSIGNMENT_STATEMENT_AST)
 {
+	lhs = l;
+	rhs = r;
 }
 
 IterationStatementAST::IterationStatementAST() : StatementAST(ITERATION_STATEMENT_AST)

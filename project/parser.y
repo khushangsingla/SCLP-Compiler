@@ -8,6 +8,9 @@ int yyerror();
 // int yydebug = 1;
 %}
 
+%union{
+	char* name;
+}
 
 %token WHILE				
 %token ELSE			
@@ -86,7 +89,7 @@ var_decl_item_list
 ;
 
 var_decl_item
-	: NAME
+	: variable_as_operand
 ;
 
 named_type
@@ -105,12 +108,12 @@ param_type
 ;
 
 func_decl
-	: named_type NAME LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET SEMICOLON
-	| named_type NAME LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET SEMICOLON
+	: named_type variable_as_operand LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET SEMICOLON
+	| named_type variable_as_operand LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET SEMICOLON
 
 func_decl_defn
-	: named_type NAME LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET
-	| named_type NAME LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET
+	: named_type variable_as_operand LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET
+	| named_type variable_as_operand LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET
 ;
 
 funcdecl_param_list
@@ -119,7 +122,7 @@ funcdecl_param_list
 ;
 
 funcdecl_param
-	: param_type NAME
+	: param_type variable_as_operand
 ;
 
 func_defn
@@ -152,38 +155,41 @@ print_statement
 ;
 
 read_statement
-	: READ NAME SEMICOLON
+	: READ variable_as_operand SEMICOLON
 ;
 
 assignment_statement
-	: NAME ASSIGN_OP expression SEMICOLON
+	: variable_as_operand ASSIGN_OP expression SEMICOLON	{
+												$$ = new AssignmentStatementAST(new NameExpressionAST($1),$3);
+												free($1);
+											}
 ;
 
 expression
 	: expression PLUS expression		{
-											$$ = PlusExpressionAST($1,$2);
+											$$ = new PlusExpressionAST($1,$3);
 										}
 	| expression MINUS expression		{
-											$$ = MinusExpressionAST($1,$2);
+											$$ = new MinusExpressionAST($1,$3);
 										}
 	| expression MULT expression		{
-											$$ = MultiplicationExpressionAST($1,$2);
+											$$ = new MultiplicationExpressionAST($1,$3);
 										}
 	| expression DIV expression			{
-											$$ = DivisionExpressionAST($1,$2);
+											$$ = new DivisionExpressionAST($1,$3);
 										}
 	| MINUS expression	%prec UMINUS	{
-											$$ = UMinusExpressionAST($1);
+											$$ = new UMinusExpressionAST($2);
 										}
-	| LEFT_ROUND_BRACKET expression RIGHT_ROUND_BRACKET	{ $$ = $1; }
+	| LEFT_ROUND_BRACKET expression RIGHT_ROUND_BRACKET	{ $$ = $2; }
 	| expression '?' expression ':' expression {
-													$$ = ConditionalExpressionAST($1,$2,$3);
+													$$ = new ConditionalExpressionAST($1,$3,$5);
 												}
 	| expression AND expression			{
-											$$ = BooleanExpressionAST($1,$2,BOOL_AND);
+											$$ = new BooleanExpressionAST($1,$3,BOOL_AND);
 										}
 	| expression OR expression			{
-											$$ = BooleanExpressionAST($1,$2,BOOL_OR);
+											$$ = new BooleanExpressionAST($1,$3,BOOL_OR);
 										}
 	| NOT expression
 	| relative_expression				{ $$ = $1; }
@@ -201,13 +207,13 @@ relative_expression
 ;
 
 variable_as_operand
-	: NAME							{ $$ = NameExpressionAST($1);}
+	: NAME							{ $$ = new NameExpressionAST($1);free($1);}
 ;
 
 constant_as_operand
-	: INT_NUM						{ $$ = IntegerExpressionAST($1);}
-	| FLOAT_NUM						{ $$ = FloatExpressionAST($1);}
-	| STR_CONST						{ $$ = StringExpressionAST($1);}
+	: INT_NUM						{ $$ = new IntegerExpressionAST($1); free($1);}
+	| FLOAT_NUM						{ $$ = new FloatExpressionAST($1);free($1);}
+	| STR_CONST						{ $$ = new StringExpressionAST($1);free($1);}
 ;
 
 error_thing
