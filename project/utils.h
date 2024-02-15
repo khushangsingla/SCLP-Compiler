@@ -7,6 +7,7 @@
 #include <stdarg.h>
 
 extern FILE* token_output_file;
+struct arguments;
 
 void my_print(const char* a, const char* b)
 {

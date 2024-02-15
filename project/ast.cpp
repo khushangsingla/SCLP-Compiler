@@ -125,8 +125,9 @@ PlusExpressionAST::PlusExpressionAST(ASTAST* left,AST* right* left, AST* right) 
 {
 }
 
-RelationalExpressionAST::RelationalExpressionAST(AST* left,AST* right) : BinaryExpressionAST(RELATIONAL_EXPRESSION_AST,left,right)
+RelationalExpressionAST::RelationalExpressionAST(AST* left,AST* right,relop op) : BinaryExpressionAST(RELATIONAL_EXPRESSION_AST,left,right)
 {
+	this->opn = op;
 }
 
 ConditionalExpressionAST::ConditionalExpressionAST(AST* a,AST* b,AST* c) : TernaryExpressionAST(CONDITIONAL_EXPRESSION_AST,a,b,c)
@@ -143,12 +144,14 @@ IterationStatementAST::IterationStatementAST() : StatementAST(ITERATION_STATEMEN
 {
 }
 
-ReadStatementAST::ReadStatementAST() : StatementAST(READ_STATEMENT_AST)
+ReadStatementAST::ReadStatementAST(NameExpressionAST* opd) : StatementAST(READ_STATEMENT_AST)
 {
+	this->opd = opd;
 }
 
-PrintStatementAST::PrintStatementAST() : StatementAST(PRINT_STATEMENT_AST)
+PrintStatementAST::PrintStatementAST(ExpressionAST* opd) : StatementAST(PRINT_STATEMENT_AST)
 {
+	this->opd = opd;
 }
 
 ReturnStatementAST::ReturnStatementAST() : StatementAST(RETURN_STATEMENT_AST)
@@ -156,5 +159,9 @@ ReturnStatementAST::ReturnStatementAST() : StatementAST(RETURN_STATEMENT_AST)
 }
 
 SelectionStatementAST::SelectionStatementAST() : StatementAST(SELECTION_STATEMENT_AST)
+{
+}
+
+NotBoolExpressionAST::NotBoolExpressionAST(AST* t) : UnaryExpressionAST(NOT_BOOL_EXPRESSION_AST,t)
 {
 }

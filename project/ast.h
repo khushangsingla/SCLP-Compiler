@@ -9,6 +9,15 @@ enum bool_type {
 	BOOL_OR
 };
 
+enum relop {
+	RELOP_GREATER_THAN,
+	RELOP_LESS_THAN,
+	RELOP_GREATER_THAN_EQUAL,
+	RELOP_LESS_THAN_EQUAL,
+	RELOP_NOT_EQUAL,
+	RELOP_EQUAL
+};
+
 enum ast_type {
 	FUNCTION_CALL_AST,
 	NAME_EXPRESSION_AST,
@@ -27,6 +36,7 @@ enum ast_type {
 	ADDRESS_EXPRESSION_AST,
 	POINTER_DEREFERENCE_EXPRESSION_AST,
 	UMINUS_EXPRESSION_AST,
+	NOT_BOOL_EXPRESSION_AST,
 	ASSIGNMENT_STATEMENT_AST,
 	ITERATION_STATEMENT_AST,
 	READ_STATEMENT_AST,
@@ -191,8 +201,9 @@ class PlusExpressionAST : public BinaryExpressionAST
 
 class RelationalExpressionAST : public BinaryExpressionAST
 {
+	relop opn;
 	public:
-		RelationalExpressionAST(AST* left,AST* right);
+		RelationalExpressionAST(AST*,AST*,relop);
 };
 
 class ConditionalExpressionAST : public TernaryExpressionAST
@@ -216,14 +227,18 @@ class IterationStatementAST : public StatementAST
 
 class ReadStatementAST : public StatementAST
 {
+	private:
+		NameExpressionAST* opd;
 	public:
-		ReadStatementAST();
+		ReadStatementAST(NameExpressionAST*);
 };
 
 class PrintStatementAST : public StatementAST
-{
+{	
+	private:
+		ExpressionAST* opd;
 	public:
-		PrintStatementAST();
+		PrintStatementAST(ExpressionAST*);
 };
 
 class ReturnStatementAST : public StatementAST
@@ -244,3 +259,7 @@ class SequenceStatementAST : public StatementAST
 		SequenceStatementAST();
 };
 
+class NotBoolExpressionAST : public UnaryExpressionAST
+{
+	public:
+		NotBoolExpressionAST(AST*);
