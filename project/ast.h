@@ -1,8 +1,9 @@
 #pragma once
 
 #include <vector>
-
-#include "utils.h"
+#include <string>
+#include <stdlib.h>
+using namespace std;
 
 enum bool_type {
 	BOOL_AND,
@@ -87,8 +88,8 @@ class BinaryExpressionAST : public ExpressionAST
 	protected:
 		AST *left,*right;
 		BinaryExpressionAST(ast_type,AST* left, AST* right);
-		setLeftChild(AST*);
-		setRightChild(AST*);
+		void setLeftChild(AST*);
+		void setRightChild(AST*);
 	public:
 };
 
@@ -109,11 +110,9 @@ class FunctionCallAST : public BaseExpressionAST
 
 class NameExpressionAST : public BaseExpressionAST
 {
-	Symbol* var;
-	string name;
 	public:
+		string name;
 		NameExpressionAST(char* name);
-		~NameExpressionAST();
 };
 
 class IntegerExpressionAST : public BaseExpressionAST
@@ -135,7 +134,6 @@ class StringExpressionAST : public BaseExpressionAST
 	string val;
 	public:
 		StringExpressionAST(char*);
-		~StringExpressionAST();
 };
 
 class AddressExpressionAST : public UnaryExpressionAST
@@ -196,7 +194,7 @@ class MultiplicationExpressionAST : public BinaryExpressionAST
 class PlusExpressionAST : public BinaryExpressionAST
 {
 	public:
-		PlusExpressionAST(Expression* left, Expression* rightAST* left,AST* right);
+		PlusExpressionAST(AST*,AST*);
 };
 
 class RelationalExpressionAST : public BinaryExpressionAST
@@ -228,17 +226,17 @@ class IterationStatementAST : public StatementAST
 class ReadStatementAST : public StatementAST
 {
 	private:
-		NameExpressionAST* opd;
+		AST* opd;
 	public:
-		ReadStatementAST(NameExpressionAST*);
+		ReadStatementAST(AST*);
 };
 
 class PrintStatementAST : public StatementAST
 {	
 	private:
-		ExpressionAST* opd;
+		AST* opd;
 	public:
-		PrintStatementAST(ExpressionAST*);
+		PrintStatementAST(AST*);
 };
 
 class ReturnStatementAST : public StatementAST
@@ -263,3 +261,4 @@ class NotBoolExpressionAST : public UnaryExpressionAST
 {
 	public:
 		NotBoolExpressionAST(AST*);
+};

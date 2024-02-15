@@ -1,23 +1,32 @@
 #pragma once
 
-enum datatype {
+#include <map>
+#include <string>
+#include "ast.h"
+// #include "utils.h"
+
+void my_exit(int exit_code);
+using namespace std;
+
+enum st_datatype {
 	DTYPE_INTEGER,
 	DTYPE_FLOAT,
 	DTYPE_STRING,
 	DTYPE_BOOL,
 	DTYPE_VOID
-}
+};
 
 class Symbol {
 	private:
-		string name;
-		datatype type;
+		st_datatype type;
 		bool is_ptr;
 
 	public:
-		Symbol(string, datatype, bool);
+		string name;
+		Symbol(AST*, st_datatype, bool is_ptr = false);
+		Symbol(string, st_datatype, bool is_ptr = false);
 		string get_name();
-		datatype get_type();
+		st_datatype get_type();
 };
 
 class SymbolTable {
@@ -26,7 +35,7 @@ class SymbolTable {
 	
 	public:
 		SymbolTable();
-		SymbolTable(datatype, vector<AST*>*,bool);
+		SymbolTable(st_datatype, vector<AST*>*,bool to_delete = false);	// for int a, b, c;
 		int add_symbol(Symbol*);
 		int add_symbols_from_table(SymbolTable*);
 };

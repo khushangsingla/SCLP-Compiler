@@ -1,6 +1,6 @@
 CPP = g++
-CC = gcc
-CFLAGS = 
+CC = g++
+CFLAGS = -std=c++11
 CODE = sclp
 PARSE = parser
 SCAN = scanner
@@ -11,19 +11,22 @@ YACC_FLAGS = -dv
 
 all: sclp
 
-sclp: $(CODE).o lex.yy.o y.tab.o Makefile
-	$(CPP) $(CFLAGS) -o sclp $(CODE).o lex.yy.o y.tab.o -ly -ll
+sclp: $(CODE).o lex.yy.o y.tab.o Makefile symbol_table.o ast.o program.o procedure.o utils.o
+	$(CPP) $(CFLAGS) -o sclp $(CODE).o symbol_table.o ast.o program.o procedure.o utils.o lex.yy.o y.tab.o -ly -ll
 
-program: program.h program.cpp symbol_table.h procedure.h
-	$(CPP) $(CFLAGS) -c program.cpp
+utils.o: utils.h utils.cpp
+	$(CPP) $(CFLAGS) -c utils.cpp
 
-procedure: procedure.h procedure.cpp symbol_table.h ast.h
-	$(CPP) $(CFLAGS) -c procedure.cpp
-
-ast: ast.h ast.cpp Makefile
+ast.o: ast.cpp ast.h symbol_table.h
 	$(CPP) $(CFLAGS) -c ast.cpp
 
-symboltable: symbol_table.h symbol_table.cpp
+program.o: program.cpp procedure.h symbol_table.h program.h ast.h
+	$(CPP) $(CFLAGS) -c program.cpp
+
+procedure.o: procedure.cpp symbol_table.h procedure.h ast.h
+	$(CPP) $(CFLAGS) -c procedure.cpp
+
+symbol_table.o: symbol_table.cpp symbol_table.h
 	$(CPP) $(CFLAGS) -c symbol_table.cpp
 
 $(CODE).o: $(CODE).cpp y.tab.h utils.h Makefile

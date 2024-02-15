@@ -1,13 +1,17 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include "symbol_table.h"
-#include "ast.h"
+#include <vector>
+#include "utils.h"
+#include "program.h"
+#include <bits/stdc++.h>
+using namespace std;
 extern void my_exit(int);
 extern struct arguments arguments;
 
 int do_parse();
-int yyerror();
+int yyerror(char*);
+extern int yylex();
 // int yydebug = 1;
 %}
 
@@ -16,7 +20,11 @@ int yyerror();
 	AST* ast;
 	vector<AST*>* vec_of_ast;
 	SymbolTable* symtab;
-	datatype dtype;
+	st_datatype dtype;
+	Procedure* procedure;
+	ProcedureDefn* procdef;
+	Symbol* symb;
+	Program* prog;
 }
 
 %token WHILE				
@@ -72,18 +80,18 @@ int yyerror();
 %right UMINUS
 
 
-%type<> program
+%type<prog> program
 %type<symtab> global_decl_statement_list
 %type<symtab> var_decl_stmt
 %type<vec_of_ast> var_decl_item_list
 %type<ast> var_decl_item
 %type<dtype> named_type
 %type<dtype> param_type
-%type<> func_decl
-%type<> func_decl_defn
-%type<> funcdecl_param_list
-%type<> funcdecl_param
-%type<> func_defn
+%type<procedure> func_decl
+%type<procedure> func_decl_defn
+%type<symtab> funcdecl_param_list
+%type<symb> funcdecl_param
+%type<procdef> func_defn
 %type<symtab> optional_var_decl_stmt_list
 %type<symtab> var_decl_stmt_list
 %type<vec_of_ast> statement_list
@@ -101,26 +109,38 @@ int yyerror();
 program 
 	: global_decl_statement_list func_decl_defn {
 													if(!arguments.stop_after_parsing){
+														$$ = new Program($1, $2);
 													}
 												}
 	| func_decl_defn {
 													if(!arguments.stop_after_parsing){
+														$$ = new Program(new SymbolTable(), $1);
 													}
 												}
 	| global_decl_statement_list func_decl func_decl_defn {
 													if(!arguments.stop_after_parsing){
+														$$ = new Program($1, $2);
+														$$->add_procedure($3);
 													}
 												}
 	| func_decl global_decl_statement_list func_decl_defn {
 													if(!arguments.stop_after_parsing){
+														$$ = new Program(new SymbolTable(), $1);
+														$$->add_global_symbols($2);
+														$$->add_procedure($3);
 													}
 												}
 	| global_decl_statement_list func_decl global_decl_statement_list func_decl_defn {
 													if(!arguments.stop_after_parsing){
+														$$ = new Program($1, $2);
+														$$->add_global_symbols($3);
+														$$->add_procedure($4);
 													}
 												}
 	| func_decl func_decl_defn {
 													if(!arguments.stop_after_parsing){
+														$$ = new Program(new SymbolTable(), $1);
+														$$->add_procedure($2);
 													}
 												}
 ;
@@ -130,7 +150,7 @@ global_decl_statement_list
 													if(!arguments.stop_after_parsing){
 														$1->add_symbols_from_table($2);
 														$$ = $1;
-														delete $2;
+														// delete $2;
 													}
 												}
 	| var_decl_stmt {
@@ -144,7 +164,7 @@ var_decl_stmt
 	: named_type var_decl_item_list SEMICOLON {
 													if(!arguments.stop_after_parsing){
 														$$ = new SymbolTable($1, $2,true);
-														delete $2;
+														// delete $2;
 													}
 												}
 ;
@@ -224,20 +244,24 @@ param_type
 func_decl
 	: named_type variable_as_operand LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET SEMICOLON {
 													if(!arguments.stop_after_parsing){
+														$$ = new Procedure($2, $4, $1);
 													}
 												}
 	| named_type variable_as_operand LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET SEMICOLON {
 													if(!arguments.stop_after_parsing){
+														$$ = new Procedure($2, new SymbolTable(), $1);
 													}
 												}
 
 func_decl_defn
 	: named_type variable_as_operand LEFT_ROUND_BRACKET funcdecl_param_list RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET {
 													if(!arguments.stop_after_parsing){
+														$$ = new Procedure($2, $4, $7, $1);
 													}
 												}
 	| named_type variable_as_operand LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET {
 													if(!arguments.stop_after_parsing){
+														$$ = new Procedure($2, new SymbolTable(), $6, $1);
 													}
 												}
 ;
@@ -245,10 +269,14 @@ func_decl_defn
 funcdecl_param_list
 	: funcdecl_param_list COMMA funcdecl_param {
 													if(!arguments.stop_after_parsing){
+														$$ = $1;
+														$1->add_symbol($3);
 													}
 												}
 	| funcdecl_param {
 													if(!arguments.stop_after_parsing){
+														$$ = new SymbolTable();
+														$$->add_symbol($1);
 													}
 												}
 ;
@@ -256,6 +284,8 @@ funcdecl_param_list
 funcdecl_param
 	: param_type variable_as_operand {
 													if(!arguments.stop_after_parsing){
+														$$ = new Symbol($2, $1);
+														// delete $2;
 													}
 												}
 ;
@@ -263,6 +293,7 @@ funcdecl_param
 func_defn
 	: optional_var_decl_stmt_list statement_list {
 													if(!arguments.stop_after_parsing){
+														$$ = new ProcedureDefn($1, *$2);
 													}
 												}
 ;
@@ -290,7 +321,7 @@ var_decl_stmt_list
 													if(!arguments.stop_after_parsing){
 														$1->add_symbols_from_table($2);
 														$$ = $1;
-														delete $2;
+														// delete $2;
 													}
 												}
 ;
@@ -393,7 +424,7 @@ expression
 												$$ = new BooleanExpressionAST($1,$3,BOOL_OR);
 											}
 										}
-	| NOT expression
+	| NOT expression					{if(!arguments.stop_after_parsing){$$ = new NotBoolExpressionAST($2);}}
 	| relative_expression				{if(!arguments.stop_after_parsing){ $$ = $1; }}
 	| variable_as_operand				{if(!arguments.stop_after_parsing){ $$ = $1; }}
 	| constant_as_operand				{if(!arguments.stop_after_parsing){ $$ = $1; }}
@@ -433,13 +464,13 @@ relative_expression
 ;
 
 variable_as_operand
-	: NAME							{if(!arguments.stop_after_parsing){ $$ = new NameExpressionAST($1);free($1);}}
+	: NAME							{if(!arguments.stop_after_parsing){ $$ = new NameExpressionAST($1);/*free($1);*/}}
 ;
 
 constant_as_operand
-	: INT_NUM						{if(!arguments.stop_after_parsing){ $$ = new IntegerExpressionAST($1); free($1);}}
-	| FLOAT_NUM						{if(!arguments.stop_after_parsing){ $$ = new FloatExpressionAST($1);free($1);}}
-	| STR_CONST						{if(!arguments.stop_after_parsing){ $$ = new StringExpressionAST($1);free($1);}}
+	: INT_NUM						{if(!arguments.stop_after_parsing){ $$ = new IntegerExpressionAST($1); /*free($1);*/}}
+	| FLOAT_NUM						{if(!arguments.stop_after_parsing){ $$ = new FloatExpressionAST($1);/*free($1);*/}}
+	| STR_CONST						{if(!arguments.stop_after_parsing){ $$ = new StringExpressionAST($1);/*free($1);*/}}
 ;
 
 error_thing

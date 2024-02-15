@@ -7,7 +7,9 @@
 #include <cerrno>
 #include <cstring>
 # include <argp.h>
+using namespace std;
 #include "utils.h"
+#include "program.h"
 #include "y.tab.h"
 
 #define SHOW_TOKENS 't'
@@ -15,8 +17,6 @@
 #define STOP_AFTER_PARSE 'p'
 
 extern void my_exit(int);
-
-using namespace std;
 
 // int yylex (void);
 // extern int yyparse(void);
@@ -27,21 +27,10 @@ static int parse_opt (int key, char *arg, struct argp_state *state);
 extern FILE *yyin, *yyout;
 FILE* token_output_file = NULL;
 
-struct arguments {
-	bool show_tokens = false;
-	bool stop_after_scanning = false;
-	bool stop_after_parsing = false;
-	std::string input_file = "";
-};
-
 struct arguments arguments;
 
-extern "C"
-{
-	// int yyparse(void);
-	int yylex (void);
-	int do_parse(void);
-}
+int yylex (void);
+int do_parse(void);
 
 void print_help(string cmd)
 {

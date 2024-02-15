@@ -1,7 +1,15 @@
 #include "symbol_table.h"
 
-Symbol::Symbol(string name, datatype type, bool is_ptr = false){
-	this->name = name;
+using namespace std;
+
+Symbol::Symbol(string s, st_datatype type, bool is_ptr ){
+	this->name = s;
+	this->type = type;
+	this->is_ptr = is_ptr;
+}
+Symbol::Symbol(AST* a, st_datatype type, bool is_ptr ){
+	this->name = ((NameExpressionAST*)a)->name;
+	// delete a;
 	this->type = type;
 	this->is_ptr = is_ptr;
 }
@@ -10,7 +18,7 @@ string Symbol::get_name(){
 	return this->name;	
 }
 
-datatype Symbol::get_type(){
+st_datatype Symbol::get_type(){
 	return type;
 }
 
@@ -18,11 +26,11 @@ SymbolTable::SymbolTable(){
 	
 }
 
-SymbolTable::SymbolTable(datatype d, vector<AST*>* v,bool to_delete = false;){
+SymbolTable::SymbolTable(st_datatype d, vector<AST*>* v,bool to_delete){
 	for(auto x: *v){
-		if(add_symbol(new Symbol(x->name, d, false)) != 0) my_exit(1);
-		if(to_delete)
-			delete x;
+		if(add_symbol(new Symbol(((NameExpressionAST*)x)->name, d, false)) != 0) my_exit(1);
+		// if(to_delete)
+			// delete x;
 	}
 }
 
@@ -37,7 +45,7 @@ int SymbolTable::add_symbol(Symbol* s){
 
 int SymbolTable::add_symbols_from_table(SymbolTable* t){
 	for(auto s: t->symbols){
-		if(add_symbol(s) != 0) return -1;
+		if(add_symbol(s.second) != 0) return -1;
 	}
 	return 0;
 }

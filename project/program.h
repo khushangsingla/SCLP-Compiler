@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
+#include <map>
 
-#include "symbol_table.h"
 #include "procedure.h"
 
 using namespace std;
@@ -10,9 +10,13 @@ using namespace std;
 class Program {
 	private:
 		SymbolTable *global_symbol_table;
-		vector<Procedure*> procedures;
+		map<string, Procedure*> procedures;
 
 	public:
-		int add_symbol_to_GST(/* TODO */);
+		Program(SymbolTable*);
+		Program(SymbolTable*, Procedure*);
+		// Program(SymbolTable*, vector<Procedure*>);
+		// int add_symbol_to_GST(/* TODO */);
 		int add_procedure(Procedure*);
+		int add_global_symbols(SymbolTable*);
 };

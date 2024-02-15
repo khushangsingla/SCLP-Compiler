@@ -30,12 +30,12 @@ BinaryExpressionAST::BinaryExpressionAST(ast_type t, AST* left, AST* right) : Ex
 	setRightChild(right);
 }
 
-BinaryExpressionAST::setLeftChild(AST* ast)
+void BinaryExpressionAST::setLeftChild(AST* ast)
 {
 	left = ast;
 }
 
-BinaryExpressionAST::setRightChild(AST* ast)
+void BinaryExpressionAST::setRightChild(AST* ast)
 {
 	right = ast;
 }
@@ -55,34 +55,28 @@ NameExpressionAST::NameExpressionAST(char* name) : BaseExpressionAST(NAME_EXPRES
 {
 	/* TODO */
 	/* Convert string name to symbol* */
-	var = NULL;
-	this->name = new string(name);
+	this->name = name;
 }
 
-NameExpressionAST::~NameExpressionAST()
-{
-	delete name;
-}
-
-IntegerExpressionAST::IntegerExpressionAST(int val) : BaseExpressionAST(INTEGER_EXPRESSION_AST)
+IntegerExpressionAST::IntegerExpressionAST(char* val) : BaseExpressionAST(INTEGER_EXPRESSION_AST)
 {
 	this->val = atoi(val);
 }
 
-FloatExpressionAST::FloatExpressionAST(float val) : BaseExpressionAST(FLOAT_EXPRESSION_AST)
+FloatExpressionAST::FloatExpressionAST(char* val) : BaseExpressionAST(FLOAT_EXPRESSION_AST)
 {
 	this->val = atof(val);
 }
 
-StringExpressionAST::StringExpressionAST(string val) : BaseExpressionAST(STRING_EXPRESSION_AST)
+StringExpressionAST::StringExpressionAST(char* val) : BaseExpressionAST(STRING_EXPRESSION_AST)
 {
-	this->val = new string(val);
+	this->val = val;
 }
 
-StringExpressionAST::~StringExpressionAST()
-{
-	delete val;
-}
+// StringExpressionAST::~StringExpressionAST()
+// {
+// 	// delete val;
+// }
 
 AddressExpressionAST::AddressExpressionAST(AST* t) : UnaryExpressionAST(ADDRESS_EXPRESSION_AST,t)
 {
@@ -121,7 +115,7 @@ MultiplicationExpressionAST::MultiplicationExpressionAST(AST* left, AST *right) 
 {
 }
 
-PlusExpressionAST::PlusExpressionAST(ASTAST* left,AST* right* left, AST* right) : BinaryExpressionAST(PLUS_EXPRESSION_AST,left,right,left,right)
+PlusExpressionAST::PlusExpressionAST(AST* left,AST* right) : BinaryExpressionAST(PLUS_EXPRESSION_AST,left,right)
 {
 }
 
@@ -144,12 +138,12 @@ IterationStatementAST::IterationStatementAST() : StatementAST(ITERATION_STATEMEN
 {
 }
 
-ReadStatementAST::ReadStatementAST(NameExpressionAST* opd) : StatementAST(READ_STATEMENT_AST)
+ReadStatementAST::ReadStatementAST(AST* opd) : StatementAST(READ_STATEMENT_AST)
 {
 	this->opd = opd;
 }
 
-PrintStatementAST::PrintStatementAST(ExpressionAST* opd) : StatementAST(PRINT_STATEMENT_AST)
+PrintStatementAST::PrintStatementAST(AST* opd) : StatementAST(PRINT_STATEMENT_AST)
 {
 	this->opd = opd;
 }
