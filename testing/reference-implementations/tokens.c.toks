@@ -1,0 +1,5 @@
+	Token Name: INT_NUM 	Lexeme: 102 	 Lineno: 1
+	Token Name: FLOAT_NUM 	Lexeme: 1398.124 	 Lineno: 2
+	Token Name: STR_CONST 	Lexeme: "sjakf" 	 Lineno: 3
+	Token Name: STR_CONST 	Lexeme: "kodw\nfjwk" 	 Lineno: 4
+	Token Name: STR_CONST 	Lexeme: "dw\rojf" 	 Lineno: 5
