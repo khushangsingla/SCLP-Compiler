@@ -266,3 +266,135 @@ int NotBoolExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns
 	dtype = DTYPE_BOOL;
 	return 0;
 }
+
+void AssignmentStatementAST::print(string prefix)
+{
+	ast_output(prefix + "Asgn:\n" + prefix + "  LHS (");
+	lhs -> print(prefix + "  ");
+	ast_output(")\n" + prefix + "  RHS (");
+	rhs -> print(prefix + "  ");
+	ast_output(")\n");
+}
+
+void ReadStatementAST::print(string prefix)
+{
+	ast_output(prefix + "Read: ");
+	opd -> print(prefix + "  ");
+	ast_output("\n");
+}
+
+void PrintStatementAST::print(string prefix)
+{
+	ast_output(prefix + "Write: ");
+	opd -> print(prefix + "  ");
+	ast_output("\n");
+}
+
+void NameExpressionAST::print(string prefix)
+{
+	ast_output(prefix + "Name : " + name + "_" + get_string_for_dtype(dtype));
+}
+
+void IntegerExpressionAST::print(string prefix)
+{
+	ast_output(prefix + "Num : " + to_string(val) + get_string_for_dtype(dtype));
+}
+
+void FloatExpressionAST::print(string prefix)
+{
+	// convert float to string with precision 2
+	string float_str;
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(2) << val;
+	float_str = ss.str();
+	ast_output(prefix + "Num : " + float_str + get_string_for_dtype(dtype));
+}
+
+void BinaryExpressionAST::print(string prefix)
+{
+	ast_output("\n" + prefix + "Arith: ");
+	switch(type)
+	{
+		case PLUS_EXPRESSION_AST:
+			ast_output("Plus");
+			break;
+		case MINUS_EXPRESSION_AST:
+			ast_output("Minus");
+			break;
+		case MULTIPLICATION_EXPRESSION_AST:
+			ast_output("Mult");
+			break;
+		case DIVISION_EXPRESSION_AST:
+			ast_output("Div");
+			break;
+		default:
+			assert(0);
+	}
+	ast_output(get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
+	left -> print(prefix + "  ");
+	ast_output(")\n" + prefix + "  R_Opd (");
+	right -> print(prefix + "  ");
+	ast_output(")\n");
+}
+
+void ConditionalExpressionAST::print(string prefix)
+{
+	left -> print(prefix + "  ");
+	ast_output("\n" + prefix + "True_Part (");
+	mid -> print(prefix + "  ");
+	ast_output(")\n" + prefix + "False_Part (");
+	right -> print(prefix + "  ");
+	ast_output(")\n");
+}
+
+void RelationalExpressionAST::print(string prefix)
+{
+	ast_output("\n" + prefix + "Condition: ");
+	switch(opn)
+	{
+		case RELOP_LESS_THAN:
+			ast_output("LT");
+			break;
+		case RELOP_LESS_THAN_EQUAL:
+			ast_output("LE");
+			break;
+		case RELOP_GREATER_THAN:
+			ast_output("GT");
+			break;
+		case RELOP_GREATER_THAN_EQUAL:
+			ast_output("GE");
+			break;
+		case RELOP_EQUAL:
+			ast_output("EQ");
+			break;
+		case RELOP_NOT_EQUAL:
+			ast_output("NE");
+			break;
+		default:
+			assert(0);
+	}
+	ast_output(get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
+	left -> print(prefix + "  ");
+	ast_output(")\n" + prefix + "  R_Opd (");
+	right -> print(prefix + "  ");
+	ast_output(")\n");
+}
+
+void NotBoolExpressionAST::print(string prefix)
+{
+	ast_output("\n" + prefix + "Condition: NOT" + get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
+	operand -> print(prefix + "  ");
+	ast_output(")\n");
+}
+
+void UMinusExpressionAST::print(string prefix)
+{
+	ast_output("\n" + prefix + "Arith: UMinus" + get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
+	operand -> print(prefix + "  ");
+	ast_output(")\n");
+}
+
+void StringExpressionAST::print(string prefix)
+{
+	ast_output(prefix + "String : " + val + get_string_for_dtype(dtype));
+}

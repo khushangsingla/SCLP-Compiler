@@ -1,8 +1,10 @@
 #pragma once
+#define SHIT_MAIN_ONLY
 
 #include <vector>
 #include "symbol_table.h"
 #include "ast.h"
+#include "utils.h"
 
 class ProcedureDefn {
 	private:	
@@ -12,6 +14,7 @@ class ProcedureDefn {
 		SymbolTable *local_symbol_table;
 		ProcedureDefn(SymbolTable*, vector<AST*>);
 		int is_defn_valid(SymbolTable*, map<string, Procedure*>&);
+		void print_ast();
 };
 
 class Procedure {
@@ -30,4 +33,5 @@ class Procedure {
 		int is_proc_valid(SymbolTable*, map<string, Procedure*>&);
 		st_datatype get_return_type();
 		int get_param_list_size();
+		void print_ast();
 };

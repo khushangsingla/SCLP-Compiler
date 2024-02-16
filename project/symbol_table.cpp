@@ -74,3 +74,21 @@ st_datatype SymbolTable::get_datatype(string name)
 int SymbolTable::get_symbol_count(){
 	return symbols.size();
 }
+
+string get_string_for_dtype(st_datatype dt){
+	switch(dt){
+		case DTYPE_INTEGER: 
+			return "<int>";
+		case DTYPE_FLOAT: 
+			return "<float>";
+		case DTYPE_STRING: 
+			return "<string>";
+		case DTYPE_BOOL: 
+			return "<bool>";
+		case DTYPE_VOID: 
+			return "<void>";
+		default: 
+			assert(0);
+			return "<unknown>";
+	}
+}

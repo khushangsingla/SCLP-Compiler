@@ -1,4 +1,5 @@
 #include "utils.h"
+extern struct arguments arguments;
 
 void my_print(const char* a, const char* b)
 {
@@ -57,4 +58,15 @@ void my_exit(int exit_code, const char* msg)
 	}
 
 	exit(exit_code);
+}
+
+void ast_output(const char* str)
+{
+	if(arguments.show_ast)
+		fprintf(arguments.ast_output_file,"%s\n",str);
+}
+
+void ast_output(string str)
+{
+	ast_output(str.c_str());
 }

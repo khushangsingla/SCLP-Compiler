@@ -15,6 +15,7 @@ using namespace std;
 #define SHOW_TOKENS 't'
 #define STOP_AFTER_SCAN 's'
 #define STOP_AFTER_PARSE 'p'
+#define SHOW_AST 'a'
 
 extern void my_exit(int);
 
@@ -51,6 +52,7 @@ int main(int argc, char* argv[])
 
 	struct argp_option options[] = {
   		{ "show-tokens", SHOW_TOKENS, 0, 0, "Show the tokens in FILE.toks (or out.toks)", 9 },
+  		{ "show-ast", SHOW_AST, 0, 0, "Show the ast in FILE.ast (or out.ast)", 9 },
   		{ "sa-scan",  STOP_AFTER_SCAN, 0, 0, "Stop after lexical analysis", 0 },
   		{ "sa-parse",  STOP_AFTER_PARSE, 0, 0, "Stop after parsing", 0 },
 		{ 0 }
@@ -74,12 +76,18 @@ int main(int argc, char* argv[])
 	cerr << "[sclp.cpp] arguments.show_tokens = " << arguments.show_tokens<<endl;
 	cerr << "[sclp.cpp] arguments.stop_after_scan = " << arguments.stop_after_scanning<<endl;
 	cerr << "[sclp.cpp] arguments.input_file = " << arguments.input_file<<endl;
+	cerr << "[sclp.cpp] arguments.show_ast = " << arguments.show_ast<<endl;
 	
 #endif
 
 	if(arguments.show_tokens)
 	{
 		token_output_file = fopen((arguments.input_file + ".toks").c_str(),"w");
+	}
+
+	if(arguments.show_ast)
+	{
+		arguments.ast_output_file = fopen((arguments.input_file + ".ast").c_str(),"w");
 	}
 
 	if(arguments.stop_after_scanning){
@@ -140,6 +148,9 @@ static int parse_opt (int key, char *arg, struct argp_state *state)
 	{
 		case SHOW_TOKENS: 
 			arguments.show_tokens = true;	
+			break;
+		case SHOW_AST:
+			arguments.show_ast = true;
 			break;
 		case STOP_AFTER_SCAN: 
 			arguments.stop_after_scanning = true;	

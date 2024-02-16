@@ -45,3 +45,5 @@ class SymbolTable {
 		st_datatype get_datatype(string);
 		int get_symbol_count();
 };
+
+string get_string_for_dtype(st_datatype);

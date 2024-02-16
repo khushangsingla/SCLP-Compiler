@@ -12,6 +12,7 @@ Program::Program(SymbolTable* gst, Procedure* proc){
 	if(proc -> is_defined &&  proc->is_proc_valid(gst, procedures) != 0){
 		my_exit(1, "[program.cpp] procedure not valid");
 	}
+	proc->print_ast();
 }
 
 int Program::main_func_check(){
@@ -43,6 +44,7 @@ int Program::add_procedure(Procedure* proc){
 	if(proc->is_defined && proc->is_proc_valid(global_symbol_table, procedures) != 0){
 		my_exit(1, "[program.cpp] procedure not valid");
 	}
+	proc -> print_ast();
 	return 0;
 }
 

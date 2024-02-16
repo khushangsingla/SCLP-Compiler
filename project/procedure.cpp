@@ -71,3 +71,28 @@ st_datatype Procedure::get_return_type(){
 int Procedure::get_param_list_size(){
 	return formal_param_list->get_symbol_count();
 }
+
+void Procedure::print_ast()
+{
+	ast_output("**Procedure: ");
+	ast_output(name.c_str());
+	ast_output("\n");
+	ast_output("\t\tReturn type: ");
+	ast_output(get_string_for_dtype(ret_type));
+	ast_output("\n");
+	ast_output("\t\tFormal parameters: ");
+#ifndef SHIT_MAIN_ONLY
+	assert(0);
+#endif
+	ast_output("**BEGIN: Abstract Syntax Tree\n");
+	defn->print_ast();
+	ast_output("**END: Abstract Syntax Tree\n");
+}
+
+void ProcedureDefn::print_ast()
+{
+	for(unsigned int i=0;i<statements.size();i++)
+	{
+		statements[i] -> print("\t\t");
+	}
+}
