@@ -70,3 +70,7 @@ st_datatype SymbolTable::get_datatype(string name)
 	assert(is_variable_present(name) == 0);
 	return symbols[name] -> type;
 }
+
+int SymbolTable::get_symbol_count(){
+	return symbols.size();
+}

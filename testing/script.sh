@@ -45,7 +45,7 @@ do
 				exit
 			fi
 		else
-			if [ $y -ne 0 ]
+			if [ $y -eq 0 ]
 			then
 				echo PARSE ERROR 2
 				echo $file
@@ -55,20 +55,20 @@ do
 		# continue
 		./sclp $file
 		y=$?
-		./ref-sclp $file
+		./ref-sclp --sa-ast $file
 		z=$?
 		if [ $z -eq 0 ]
 		then
 			if [ $y -ne 0 ]
 			then
-				echo PARSE ERROR 1
+				echo AST ERROR 1
 				echo $file
 				exit
 			fi
 		else
-			if [ $y -ne 0 ]
+			if [ $y -eq 0 ]
 			then
-				echo PARSE ERROR 2
+				echo AST ERROR 2
 				echo $file
 				exit
 			fi

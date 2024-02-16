@@ -63,3 +63,11 @@ int ProcedureDefn::is_defn_valid(SymbolTable* vars, map<string, Procedure*>& fns
 	}
 	return 0;
 }
+
+st_datatype Procedure::get_return_type(){
+	return ret_type;
+}
+
+int Procedure::get_param_list_size(){
+	return formal_param_list->get_symbol_count();
+}

@@ -28,4 +28,6 @@ class Procedure {
 		Procedure(AST*, SymbolTable*, SymbolTable*, vector<AST*>, st_datatype);
 		int add_defn(ProcedureDefn*);
 		int is_proc_valid(SymbolTable*, map<string, Procedure*>&);
+		st_datatype get_return_type();
+		int get_param_list_size();
 };

@@ -19,4 +19,5 @@ class Program {
 		// int add_symbol_to_GST(/* TODO */);
 		int add_procedure(Procedure*);
 		int add_global_symbols(SymbolTable*);
+		int main_func_check();
 };

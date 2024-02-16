@@ -14,6 +14,22 @@ Program::Program(SymbolTable* gst, Procedure* proc){
 	}
 }
 
+int Program::main_func_check(){
+	if(procedures.size() != 1){
+		my_exit(1, "Only main function should be present");
+	}	
+	if(procedures.find("main") == procedures.end()){
+		my_exit(1, "main not present");
+	}
+	if(procedures["main"]->get_return_type() != DTYPE_VOID){
+		my_exit(1, "main return type not void");
+	}
+	if(procedures["main"]->get_param_list_size() != 0){
+		my_exit(1, "arguments not allowed in main");
+	}
+	return 0;
+}
+
 int Program::add_procedure(Procedure* proc){
 	if(procedures.find(proc->name) != procedures.end()){
 		if(procedures[proc->name]->is_defined || !proc->is_defined){

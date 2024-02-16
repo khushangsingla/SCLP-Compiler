@@ -248,6 +248,7 @@ int ReadStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 {
 	if(opd -> is_valid(vars,fns) != 0)	return -1;
 	if(opd -> type != NAME_EXPRESSION_AST)	return -1;
+	if(((ExpressionAST*)opd) -> dtype != DTYPE_INTEGER && ((ExpressionAST*)opd) -> dtype != DTYPE_FLOAT)	return -1;
 	return 0;
 }
 

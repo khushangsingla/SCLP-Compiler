@@ -43,4 +43,5 @@ class SymbolTable {
 		int add_global_symbols(SymbolTable*);
 		int is_variable_present(string);
 		st_datatype get_datatype(string);
+		int get_symbol_count();
 };
