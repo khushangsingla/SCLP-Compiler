@@ -191,6 +191,7 @@ class BooleanExpressionAST : public BinaryExpressionAST
 	public:
 		BooleanExpressionAST(AST* left,AST* right, bool_type);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
+		void print(string);
 };
 
 class DivisionExpressionAST : public BinaryExpressionAST

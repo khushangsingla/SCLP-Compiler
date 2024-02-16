@@ -85,6 +85,7 @@ void Procedure::print_ast()
 	assert(0);
 #endif
 	ast_output("**BEGIN: Abstract Syntax Tree ");
+	assert(defn);
 	defn->print_ast();
 	ast_output("\n**END: Abstract Syntax Tree\n");
 }

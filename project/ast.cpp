@@ -400,3 +400,24 @@ void StringExpressionAST::print(string prefix)
 {
 	ast_output("String : " + val + get_string_for_dtype(dtype));
 }
+
+void BooleanExpressionAST::print(string prefix)
+{
+	ast_output("\n" + prefix + "Condition: ");
+	switch(type)
+	{
+		case BOOL_AND:
+			ast_output("AND");
+			break;
+		case BOOL_OR:
+			ast_output("OR");
+			break;
+		default:
+			assert(0);
+	}
+	ast_output(get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
+	left -> print(prefix + "  ");
+	ast_output(")\n" + prefix + "  " + "  R_Opd (");
+	right -> print(prefix + "  ");
+	ast_output(")");
+}

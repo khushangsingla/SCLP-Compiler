@@ -53,7 +53,7 @@ do
 			fi
 		fi
 		# continue
-		echo ./sclp --show-ast $file
+		# echo ./sclp --show-ast $file
 		./sclp --show-ast $file
 		y=$?
 		mv $file.ast myout
@@ -90,77 +90,3 @@ do
 		fi
 	done
 done
-# Tokens
-# for x in $(ls example-programs/Level-1-test-cases/*.c)
-# do
-# 	echo $x
-# 	./reference-implementations/sclp --sa-scan --show-tokens $x
-# 	cp $x.toks myout
-# 	./reference-implementations/A1-sclp --sa-scan --show-tokens $x
-# 	diff -Bw myout $x.toks
-# done
-# for x in $(ls example-programs/Level-2-test-cases/*.c)
-# do
-# 	echo $x
-# 	./reference-implementations/sclp --sa-scan --show-tokens $x
-# 	cp $x.toks myout
-# 	./reference-implementations/A1-sclp --sa-scan --show-tokens $x
-# 	diff -Bw myout $x.toks
-# done
-# for x in $(ls example-programs/Level-1-invalid-test-cases/*.c)
-# do
-# 	echo $x
-# 	./reference-implementations/sclp --sa-scan --show-tokens $x
-# 	y=$?
-# 	cp $x.toks myout
-# 	./reference-implementations/A1-sclp --sa-scan --show-tokens $x
-# 	z=$?
-# 	# echo $y $z
-# 	if [ $y -eq $z ]
-# 	then
-# 		if [ $z -eq 0 ]
-# 		then
-# 			diff -Bw myout $x.toks
-# 		fi
-# 	else
-# 		echo ***ERROR***
-# 	fi
-# done
-# for x in $(ls example-programs/Level-2-invalid-test-cases/*.c)
-# do
-# 	echo $x
-# 	./reference-implementations/sclp --sa-scan --show-tokens $x
-# 	y=$?
-# 	cp $x.toks myout
-# 	./reference-implementations/A1-sclp --sa-scan --show-tokens $x
-# 	z=$?
-# 	# echo $y $z
-# 	if [ $y -eq $z ]
-# 	then
-# 		if [ $z -eq 0 ]
-# 		then
-# 			diff -Bw myout $x.toks
-# 		fi
-# 	else
-# 		echo ***ERROR***
-# 	fi
-# done
-# for x in $(ls my_tests/*.c)
-# do
-# 	echo $x
-# 	./reference-implementations/sclp --sa-scan --show-tokens $x
-# 	y=$?
-# 	cp $x.toks myout
-# 	./reference-implementations/A1-sclp --sa-scan --show-tokens $x
-# 	z=$?
-# 	# echo $y $z
-# 	if [ $y -eq $z ]
-# 	then
-# 		if [ $z -eq 0 ]
-# 		then
-# 			diff -Bw myout $x.toks
-# 		fi
-# 	else
-# 		echo ***ERROR***
-# 	fi
-# done
