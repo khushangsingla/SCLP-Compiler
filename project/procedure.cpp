@@ -74,25 +74,25 @@ int Procedure::get_param_list_size(){
 
 void Procedure::print_ast()
 {
-	ast_output("**Procedure: ");
+	ast_output("**PROCEDURE: ");
 	ast_output(name.c_str());
 	ast_output("\n");
-	ast_output("\t\tReturn type: ");
+	ast_output("\tReturn Type: ");
 	ast_output(get_string_for_dtype(ret_type));
 	ast_output("\n");
-	ast_output("\t\tFormal parameters: ");
+	ast_output("\tFormal Parameters:\n");
 #ifndef SHIT_MAIN_ONLY
 	assert(0);
 #endif
-	ast_output("**BEGIN: Abstract Syntax Tree\n");
+	ast_output("**BEGIN: Abstract Syntax Tree ");
 	defn->print_ast();
-	ast_output("**END: Abstract Syntax Tree\n");
+	ast_output("\n**END: Abstract Syntax Tree\n");
 }
 
 void ProcedureDefn::print_ast()
 {
 	for(unsigned int i=0;i<statements.size();i++)
 	{
-		statements[i] -> print("\t\t");
+		statements[i] -> print("         ");
 	}
 }

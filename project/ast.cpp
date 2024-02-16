@@ -269,35 +269,33 @@ int NotBoolExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns
 
 void AssignmentStatementAST::print(string prefix)
 {
-	ast_output(prefix + "Asgn:\n" + prefix + "  LHS (");
+	ast_output("\n" + prefix + "Asgn:\n" + prefix + "  LHS (");
 	lhs -> print(prefix + "  ");
 	ast_output(")\n" + prefix + "  RHS (");
 	rhs -> print(prefix + "  ");
-	ast_output(")\n");
+	ast_output(")");
 }
 
 void ReadStatementAST::print(string prefix)
 {
-	ast_output(prefix + "Read: ");
+	ast_output("\n" + prefix + "Read: ");
 	opd -> print(prefix + "  ");
-	ast_output("\n");
 }
 
 void PrintStatementAST::print(string prefix)
 {
-	ast_output(prefix + "Write: ");
+	ast_output("\n" + prefix + "Write: ");
 	opd -> print(prefix + "  ");
-	ast_output("\n");
 }
 
 void NameExpressionAST::print(string prefix)
 {
-	ast_output(prefix + "Name : " + name + "_" + get_string_for_dtype(dtype));
+	ast_output("Name : " + name + "_" + get_string_for_dtype(dtype));
 }
 
 void IntegerExpressionAST::print(string prefix)
 {
-	ast_output(prefix + "Num : " + to_string(val) + get_string_for_dtype(dtype));
+	ast_output("Num : " + to_string(val) + get_string_for_dtype(dtype));
 }
 
 void FloatExpressionAST::print(string prefix)
@@ -307,11 +305,12 @@ void FloatExpressionAST::print(string prefix)
 	std::stringstream ss;
 	ss << std::fixed << std::setprecision(2) << val;
 	float_str = ss.str();
-	ast_output(prefix + "Num : " + float_str + get_string_for_dtype(dtype));
+	ast_output("Num : " + float_str + get_string_for_dtype(dtype));
 }
 
 void BinaryExpressionAST::print(string prefix)
 {
+	prefix += "  ";
 	ast_output("\n" + prefix + "Arith: ");
 	switch(type)
 	{
@@ -328,13 +327,16 @@ void BinaryExpressionAST::print(string prefix)
 			ast_output("Div");
 			break;
 		default:
+			// my_exit(2,"asserted here");
+			// fflush(stderr);
+			// asm("int3");
 			assert(0);
 	}
 	ast_output(get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
 	left -> print(prefix + "  ");
 	ast_output(")\n" + prefix + "  R_Opd (");
 	right -> print(prefix + "  ");
-	ast_output(")\n");
+	ast_output(")");
 }
 
 void ConditionalExpressionAST::print(string prefix)
@@ -344,7 +346,7 @@ void ConditionalExpressionAST::print(string prefix)
 	mid -> print(prefix + "  ");
 	ast_output(")\n" + prefix + "False_Part (");
 	right -> print(prefix + "  ");
-	ast_output(")\n");
+	ast_output(")");
 }
 
 void RelationalExpressionAST::print(string prefix)
@@ -377,24 +379,24 @@ void RelationalExpressionAST::print(string prefix)
 	left -> print(prefix + "  ");
 	ast_output(")\n" + prefix + "  R_Opd (");
 	right -> print(prefix + "  ");
-	ast_output(")\n");
+	ast_output(")");
 }
 
 void NotBoolExpressionAST::print(string prefix)
 {
 	ast_output("\n" + prefix + "Condition: NOT" + get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
 	operand -> print(prefix + "  ");
-	ast_output(")\n");
+	ast_output(")");
 }
 
 void UMinusExpressionAST::print(string prefix)
 {
-	ast_output("\n" + prefix + "Arith: UMinus" + get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
+	ast_output("\n" + prefix + "Arith: Uminus" + get_string_for_dtype(dtype) + "\n" + prefix + "  L_Opd (");
 	operand -> print(prefix + "  ");
-	ast_output(")\n");
+	ast_output(")");
 }
 
 void StringExpressionAST::print(string prefix)
 {
-	ast_output(prefix + "String : " + val + get_string_for_dtype(dtype));
+	ast_output("String : " + val + get_string_for_dtype(dtype));
 }

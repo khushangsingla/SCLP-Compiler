@@ -53,23 +53,38 @@ do
 			fi
 		fi
 		# continue
-		./sclp $file
+		echo ./sclp --show-ast $file
+		./sclp --show-ast $file
 		y=$?
-		./ref-sclp --sa-ast $file
+		mv $file.ast myout
+		./ref-sclp --sa-ast --show-ast $file
 		z=$?
-		if [ $z -eq 0 ]
+		if [ $y -eq $z ]
 		then
-			if [ $y -ne 0 ]
+			if [ $z -eq 0 ]
 			then
-				echo AST ERROR 1
-				echo $file
-				exit
+				result=$(diff -y -W 72 -Bw myout $file.ast)
+				if [ $? -ne 0 ]
+				then
+					echo $file 
+					# echo $result
+					echo AST ERROR 1
+					exit
+				fi
 			fi
 		else
 			if [ $y -eq 0 ]
 			then
-				echo AST ERROR 2
 				echo $file
+				# echo $result
+				echo AST ERROR 2
+				exit
+			fi
+			if [ $z -eq 0 ]
+			then
+				echo $file
+				# echo $result
+				echo AST ERROR 2
 				exit
 			fi
 		fi

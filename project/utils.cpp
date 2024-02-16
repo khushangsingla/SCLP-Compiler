@@ -1,5 +1,6 @@
 #include "utils.h"
 extern struct arguments arguments;
+extern int yylineno;
 
 void my_print(const char* a, const char* b)
 {
@@ -52,6 +53,10 @@ void my_exit(int exit_code, const char* msg)
 		fclose(token_output_file);
 		token_output_file = NULL;
 	}
+	if(exit_code == 2)
+	{
+		fprintf(stderr,"Line: %d, %s\n",yylineno,msg);
+	}
 	if(exit_code != 0){
 		fprintf(stderr,"ERROR ENCOUNTERED!\n");
 		fprintf(stderr,"%s\n",msg);
@@ -63,7 +68,7 @@ void my_exit(int exit_code, const char* msg)
 void ast_output(const char* str)
 {
 	if(arguments.show_ast)
-		fprintf(arguments.ast_output_file,"%s\n",str);
+		fprintf(arguments.ast_output_file,"%s",str);
 }
 
 void ast_output(string str)

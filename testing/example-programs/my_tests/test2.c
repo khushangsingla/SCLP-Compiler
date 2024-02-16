@@ -10,12 +10,5 @@ void main(){
 	m = l + n/m - 69.420;
 	read l;
 	print l*m+n;
-	g = a >= b;
-	g = a <= b;
-	g = a > b;
-	g = a < b;
-	g = a == b;
-	g = a != b;
-	a = !g ? b : c;
-	x = "lmao";
+	f = x==y ? g : h;
 }
