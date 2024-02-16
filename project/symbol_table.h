@@ -1,14 +1,16 @@
 #pragma once
 
 #include <map>
+#include <vector>
 #include <string>
-#include "ast.h"
+class AST;
 // #include "utils.h"
 
 void my_exit(int exit_code);
 using namespace std;
 
 enum st_datatype {
+	DTYPE_UNKNOWN,
 	DTYPE_INTEGER,
 	DTYPE_FLOAT,
 	DTYPE_STRING,
@@ -18,10 +20,10 @@ enum st_datatype {
 
 class Symbol {
 	private:
-		st_datatype type;
 		bool is_ptr;
 
 	public:
+		st_datatype type;
 		string name;
 		Symbol(AST*, st_datatype, bool is_ptr = false);
 		Symbol(string, st_datatype, bool is_ptr = false);

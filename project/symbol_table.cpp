@@ -1,4 +1,6 @@
 #include "symbol_table.h"
+#include "ast.h"
+#include <cassert>
 
 using namespace std;
 
@@ -51,7 +53,7 @@ int SymbolTable::add_symbols_from_table(SymbolTable* t){
 }
 
 int SymbolTable::add_global_symbols(SymbolTable* gst){	
-	for(auto s: t->symbols){
+	for(auto s: gst->symbols){
 		add_symbol(s.second);
 	}
 	return 0;

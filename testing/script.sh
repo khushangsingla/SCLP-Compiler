@@ -1,3 +1,4 @@
+cp ../project/sclp .
 for folder in $(ls example-programs)
 do
 	rm example-programs/$folder/*.toks 2>/dev/null
@@ -52,6 +53,26 @@ do
 			fi
 		fi
 		# continue
+		./sclp $file
+		y=$?
+		./ref-sclp $file
+		z=$?
+		if [ $z -eq 0 ]
+		then
+			if [ $y -ne 0 ]
+			then
+				echo PARSE ERROR 1
+				echo $file
+				exit
+			fi
+		else
+			if [ $y -ne 0 ]
+			then
+				echo PARSE ERROR 2
+				echo $file
+				exit
+			fi
+		fi
 	done
 done
 # Tokens

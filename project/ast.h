@@ -3,7 +3,12 @@
 #include <vector>
 #include <string>
 #include <stdlib.h>
+#include <map>
 using namespace std;
+#include "symbol_table.h"
+// #include "procedure.h"
+
+class Procedure;
 
 enum bool_type {
 	BOOL_AND,
@@ -50,10 +55,10 @@ enum ast_type {
 class AST 
 {
 	protected:
-		ast_type type;
 		vector<AST*> children;
 
 	public:
+		ast_type type;
 		AST(ast_type);
 		virtual int is_valid(SymbolTable*,map<string,Procedure*>&) = 0;
 };
@@ -61,8 +66,8 @@ class AST
 class ExpressionAST : public AST 
 {
 	protected:
-		st_datatype dtype;
 	public:
+		st_datatype dtype;
 		ExpressionAST(ast_type);
 		ExpressionAST(ast_type, st_datatype);
 };

@@ -39,3 +39,4 @@ void my_print_vars(const char* a, const char* b, int a1, int b1, ...);
 void scanner_output(const char* token,char* val,int lineno);
 
 void my_exit(int exit_code);
+void my_exit(int exit_code,const char* msg);

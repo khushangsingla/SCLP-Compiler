@@ -1,4 +1,5 @@
 #include "program.h"
+void my_exit(int exit_code, const char* msg);
 
 Program::Program(SymbolTable* gst){
 	global_symbol_table = gst;
@@ -8,7 +9,7 @@ Program::Program(SymbolTable* gst, Procedure* proc){
 	global_symbol_table = gst;
 	procedures[proc->name] = proc;
 	
-	if(! proc->is_proc_valid(gst, procedures)){
+	if(proc -> is_defined &&  proc->is_proc_valid(gst, procedures) != 0){
 		my_exit(1, "[program.cpp] procedure not valid");
 	}
 }
@@ -23,7 +24,7 @@ int Program::add_procedure(Procedure* proc){
 		}
 	}
 	procedures[proc->name] = proc;
-	if(proc->is_proc_valid(global_symbol_table, procedures) != 0){
+	if(proc->is_defined && proc->is_proc_valid(global_symbol_table, procedures) != 0){
 		my_exit(1, "[program.cpp] procedure not valid");
 	}
 	return 0;

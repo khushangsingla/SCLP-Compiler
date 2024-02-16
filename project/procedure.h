@@ -6,10 +6,10 @@
 
 class ProcedureDefn {
 	private:	
-		SymbolTable *local_symbol_table;
 		vector<AST*> statements;
 	
 	public:
+		SymbolTable *local_symbol_table;
 		ProcedureDefn(SymbolTable*, vector<AST*>);
 		int is_defn_valid(SymbolTable*, map<string, Procedure*>&);
 };

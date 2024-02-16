@@ -9,10 +9,10 @@ using namespace std;
 
 class Program {
 	private:
-		SymbolTable *global_symbol_table;
 		map<string, Procedure*> procedures;
 
 	public:
+		SymbolTable *global_symbol_table;
 		Program(SymbolTable*);
 		Program(SymbolTable*, Procedure*);
 		// Program(SymbolTable*, vector<Procedure*>);

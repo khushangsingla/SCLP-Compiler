@@ -1,6 +1,6 @@
 CPP = g++
 CC = g++
-CFLAGS = -std=c++11
+CFLAGS = -std=c++11 -g -Wall -Wextra -Wno-unused-parameter
 CODE = sclp
 PARSE = parser
 SCAN = scanner

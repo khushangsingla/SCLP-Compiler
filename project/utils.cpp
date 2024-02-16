@@ -44,3 +44,17 @@ void my_exit(int exit_code)
 
 	exit(exit_code);
 }
+
+void my_exit(int exit_code, const char* msg)
+{
+	if(token_output_file){
+		fclose(token_output_file);
+		token_output_file = NULL;
+	}
+	if(exit_code != 0){
+		fprintf(stderr,"ERROR ENCOUNTERED!\n");
+		fprintf(stderr,"%s\n",msg);
+	}
+
+	exit(exit_code);
+}

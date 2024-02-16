@@ -31,12 +31,14 @@ BaseExpressionAST::BaseExpressionAST(ast_type t, st_datatype dt) : ExpressionAST
 UnaryExpressionAST::UnaryExpressionAST(ast_type t,AST* ch) : ExpressionAST(t)
 {
 	this -> operand = ch;
+	dtype = DTYPE_UNKNOWN;
 }
 
 BinaryExpressionAST::BinaryExpressionAST(ast_type t, AST* left, AST* right) : ExpressionAST(t)
 {
 	setLeftChild(left);
 	setRightChild(right);
+	dtype = DTYPE_UNKNOWN;
 }
 
 void BinaryExpressionAST::setLeftChild(AST* ast)
@@ -54,6 +56,7 @@ TernaryExpressionAST::TernaryExpressionAST(ast_type t,AST* l, AST* m, AST* r) : 
 	left = l;
 	mid = m;
 	right = r;
+	dtype = DTYPE_UNKNOWN;
 }
 
 FunctionCallAST::FunctionCallAST() : BaseExpressionAST(FUNCTION_CALL_AST)
@@ -168,6 +171,7 @@ int NameExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 {
 	if(vars->is_variable_present(name) != 0)	return -1;
 	dtype = vars->get_datatype(name);
+	return 0;
 }
 
 int IntegerExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
@@ -188,7 +192,7 @@ int StringExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 int UMinusExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 {
 	if(operand->is_valid(vars,fns) != 0)	return -1;
-	dtype = operand->dtype;
+	dtype = ((ExpressionAST*)operand)->dtype;
 	return 0;
 }
 
@@ -196,7 +200,7 @@ int BooleanExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns
 {
 	if(left -> is_valid(vars,fns) != 0)	return -1;
 	if(right -> is_valid(vars,fns) != 0)	return -1;
-	if(left -> type != DTYPE_BOOL || right -> type != DTYPE_BOOL)	return -1;
+	if(((ExpressionAST*)left) -> dtype != DTYPE_BOOL || ((ExpressionAST*)right) -> dtype != DTYPE_BOOL)	return -1;
 	dtype = DTYPE_BOOL;
 	return 0;
 }
@@ -205,9 +209,9 @@ int BinaryExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 {
 	if(left -> is_valid(vars,fns) != 0)	return -1;
 	if(right -> is_valid(vars,fns) != 0)	return -1;
-	if(left -> type != right -> type)	return -1;
-	if(left -> type != DTYPE_INTEGER && left -> type != DTYPE_FLOAT)	return -1;
-	dtype = left -> type;
+	if(((ExpressionAST*)left) -> dtype != ((ExpressionAST*)right) -> dtype)	return -1;
+	if(((ExpressionAST*)left) -> dtype != DTYPE_INTEGER && ((ExpressionAST*)left) -> dtype != DTYPE_FLOAT)	return -1;
+	dtype = ((ExpressionAST*)left) -> dtype;
 	return 0;
 }
 
@@ -215,8 +219,8 @@ int RelationalExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& 
 {
 	if(left -> is_valid(vars,fns) != 0)	return -1;
 	if(right -> is_valid(vars,fns) != 0)	return -1;
-	if(left -> type != right -> type)	return -1;
-	if(left -> type != DTYPE_INTEGER && left -> type != DTYPE_FLOAT)	return -1;
+	if(((ExpressionAST*)left) ->dtype != ((ExpressionAST*)right) ->dtype)	return -1;
+	if(((ExpressionAST*)left) ->dtype != DTYPE_INTEGER && ((ExpressionAST*)left) ->dtype != DTYPE_FLOAT)	return -1;
 	dtype = DTYPE_BOOL;
 	return 0;
 }
@@ -226,17 +230,17 @@ int ConditionalExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>&
 	if(left->is_valid(vars,fns) != 0)	return -1;
 	if(mid->is_valid(vars,fns) != 0)	return -1;
 	if(right->is_valid(vars,fns) != 0)	return -1;
-	if(left->type != DTYPE_BOOL)	return -1;
-	if(mid->type != right -> type)	return -1;
-	dtype = mid->type;
+	if(((ExpressionAST*)left)->dtype != DTYPE_BOOL)	return -1;
+	if(((ExpressionAST*)mid)->dtype != ((ExpressionAST*)right) -> dtype)	return -1;
+	dtype = ((ExpressionAST*)mid)->dtype;
 	return 0;
 }
 
 int AssignmentStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 {
-	if(left -> is_valid(vars,fns) != 0)	return -1;
-	if(right -> is_valid(vars,fns) != 0)	return -1;
-	if(left -> type != right -> type)	return -1;
+	if(((ExpressionAST*)lhs) -> is_valid(vars,fns) != 0)	return -1;
+	if(((ExpressionAST*)rhs) -> is_valid(vars,fns) != 0)	return -1;
+	if(((ExpressionAST*)lhs) -> dtype != ((ExpressionAST*)rhs) -> dtype)	return -1;
 	return 0;
 }
 
@@ -250,14 +254,14 @@ int ReadStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 int PrintStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 {
 	if(opd -> is_valid(vars,fns) != 0)	return -1;
-	if(opd -> type == DTYPE_BOOL)	return -1;
+	if(((ExpressionAST*)opd) -> dtype == DTYPE_BOOL)	return -1;
 	return 0;
 }
 
 int NotBoolExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 {
 	if(operand -> is_valid(vars,fns) != 0)	return -1;
-	if(operand -> dtype != DTYPE_BOOL)	return -1;
+	if(((ExpressionAST*)operand) -> dtype != DTYPE_BOOL)	return -1;
 	dtype = DTYPE_BOOL;
 	return 0;
 }
