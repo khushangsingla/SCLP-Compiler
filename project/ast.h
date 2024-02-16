@@ -55,12 +55,16 @@ class AST
 
 	public:
 		AST(ast_type);
+		virtual int is_valid(SymbolTable*,map<string,Procedure*>&) = 0;
 };
 
 class ExpressionAST : public AST 
 {
+	protected:
+		st_datatype dtype;
 	public:
 		ExpressionAST(ast_type);
+		ExpressionAST(ast_type, st_datatype);
 };
 
 class StatementAST : public AST
@@ -72,6 +76,7 @@ class StatementAST : public AST
 class BaseExpressionAST : public ExpressionAST
 {
 	public:
+		BaseExpressionAST(ast_type, st_datatype);
 		BaseExpressionAST(ast_type);
 };
 
@@ -91,6 +96,7 @@ class BinaryExpressionAST : public ExpressionAST
 		void setLeftChild(AST*);
 		void setRightChild(AST*);
 	public:
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class TernaryExpressionAST : public ExpressionAST
@@ -113,6 +119,7 @@ class NameExpressionAST : public BaseExpressionAST
 	public:
 		string name;
 		NameExpressionAST(char* name);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class IntegerExpressionAST : public BaseExpressionAST
@@ -120,6 +127,7 @@ class IntegerExpressionAST : public BaseExpressionAST
 	int val;
 	public:
 		IntegerExpressionAST(char*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class FloatExpressionAST : public BaseExpressionAST
@@ -127,6 +135,7 @@ class FloatExpressionAST : public BaseExpressionAST
 	float val;
 	public:
 		FloatExpressionAST(char*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class StringExpressionAST : public BaseExpressionAST
@@ -134,6 +143,7 @@ class StringExpressionAST : public BaseExpressionAST
 	string val;
 	public:
 		StringExpressionAST(char*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class AddressExpressionAST : public UnaryExpressionAST
@@ -152,6 +162,7 @@ class UMinusExpressionAST : public UnaryExpressionAST
 {
 	public:
 		UMinusExpressionAST(AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class ArrayAccessExpressionAST : public BinaryExpressionAST
@@ -165,6 +176,7 @@ class BooleanExpressionAST : public BinaryExpressionAST
 	bool_type type;
 	public:
 		BooleanExpressionAST(AST* left,AST* right, bool_type);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class DivisionExpressionAST : public BinaryExpressionAST
@@ -202,12 +214,14 @@ class RelationalExpressionAST : public BinaryExpressionAST
 	relop opn;
 	public:
 		RelationalExpressionAST(AST*,AST*,relop);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class ConditionalExpressionAST : public TernaryExpressionAST
 {
 	public:
 		ConditionalExpressionAST(AST*,AST*,AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class AssignmentStatementAST : public StatementAST
@@ -215,6 +229,7 @@ class AssignmentStatementAST : public StatementAST
 	AST *lhs,*rhs;
 	public:
 		AssignmentStatementAST(AST*,AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class IterationStatementAST : public StatementAST
@@ -229,6 +244,7 @@ class ReadStatementAST : public StatementAST
 		AST* opd;
 	public:
 		ReadStatementAST(AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class PrintStatementAST : public StatementAST
@@ -237,6 +253,7 @@ class PrintStatementAST : public StatementAST
 		AST* opd;
 	public:
 		PrintStatementAST(AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };
 
 class ReturnStatementAST : public StatementAST
@@ -261,4 +278,5 @@ class NotBoolExpressionAST : public UnaryExpressionAST
 {
 	public:
 		NotBoolExpressionAST(AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
 };

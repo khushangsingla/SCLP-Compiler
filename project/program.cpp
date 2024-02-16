@@ -7,6 +7,10 @@ Program::Program(SymbolTable* gst){
 Program::Program(SymbolTable* gst, Procedure* proc){
 	global_symbol_table = gst;
 	procedures[proc->name] = proc;
+	
+	if(! proc->is_proc_valid(gst, procedures)){
+		my_exit(1, "[program.cpp] procedure not valid");
+	}
 }
 
 int Program::add_procedure(Procedure* proc){
@@ -19,6 +23,9 @@ int Program::add_procedure(Procedure* proc){
 		}
 	}
 	procedures[proc->name] = proc;
+	if(proc->is_proc_valid(global_symbol_table, procedures) != 0){
+		my_exit(1, "[program.cpp] procedure not valid");
+	}
 	return 0;
 }
 

@@ -49,3 +49,22 @@ int SymbolTable::add_symbols_from_table(SymbolTable* t){
 	}
 	return 0;
 }
+
+int SymbolTable::add_global_symbols(SymbolTable* gst){	
+	for(auto s: t->symbols){
+		add_symbol(s.second);
+	}
+	return 0;
+}
+
+int SymbolTable::is_variable_present(string name)
+{
+	if(symbols.find(name) == symbols.end())	return -1;
+	return 0;
+}
+
+st_datatype SymbolTable::get_datatype(string name)
+{
+	assert(is_variable_present(name) == 0);
+	return symbols[name] -> type;
+}

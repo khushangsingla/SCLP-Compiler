@@ -38,4 +38,7 @@ class SymbolTable {
 		SymbolTable(st_datatype, vector<AST*>*,bool to_delete = false);	// for int a, b, c;
 		int add_symbol(Symbol*);
 		int add_symbols_from_table(SymbolTable*);
+		int add_global_symbols(SymbolTable*);
+		int is_variable_present(string);
+		st_datatype get_datatype(string);
 };

@@ -11,6 +11,7 @@ class ProcedureDefn {
 	
 	public:
 		ProcedureDefn(SymbolTable*, vector<AST*>);
+		int is_defn_valid(SymbolTable*, map<string, Procedure*>&);
 };
 
 class Procedure {
@@ -26,4 +27,5 @@ class Procedure {
 		Procedure(AST*, SymbolTable*, st_datatype);
 		Procedure(AST*, SymbolTable*, SymbolTable*, vector<AST*>, st_datatype);
 		int add_defn(ProcedureDefn*);
+		int is_proc_valid(SymbolTable*, map<string, Procedure*>&);
 };
