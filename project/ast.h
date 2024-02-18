@@ -12,12 +12,14 @@ using namespace std;
 
 class Procedure;
 
-enum bool_type {
+enum bool_type 
+{
 	BOOL_AND,
 	BOOL_OR
 };
 
-enum relop {
+enum relop 
+{
 	RELOP_GREATER_THAN,
 	RELOP_LESS_THAN,
 	RELOP_GREATER_THAN_EQUAL,
@@ -26,7 +28,8 @@ enum relop {
 	RELOP_EQUAL
 };
 
-enum ast_type {
+enum ast_type 
+{
 	FUNCTION_CALL_AST,
 	NAME_EXPRESSION_AST,
 	INTEGER_EXPRESSION_AST,
@@ -143,7 +146,7 @@ class IntegerExpressionAST : public BaseExpressionAST
 
 class FloatExpressionAST : public BaseExpressionAST
 {
-	float val;
+	double val;
 	public:
 		FloatExpressionAST(char*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);

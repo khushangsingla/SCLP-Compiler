@@ -21,14 +21,6 @@ void my_print_vars(const char* a, const char* b, int a1, int b1, ...)
 #endif
 	va_end(varg);
 }
-// 
-// void my_print(std::string a, std::string b)
-// {
-// 	std::cout<<a;
-// #ifdef DEBUG
-// 	std::cout<<b;
-// #endif
-// }
 
 void scanner_output(const char* token,char* val,int lineno)
 {

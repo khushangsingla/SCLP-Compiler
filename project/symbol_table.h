@@ -9,7 +9,8 @@ class AST;
 void my_exit(int exit_code);
 using namespace std;
 
-enum st_datatype {
+enum st_datatype 
+{
 	DTYPE_UNKNOWN,
 	DTYPE_INTEGER,
 	DTYPE_FLOAT,
@@ -18,7 +19,8 @@ enum st_datatype {
 	DTYPE_VOID
 };
 
-class Symbol {
+class Symbol 
+{
 	private:
 		bool is_ptr;
 
@@ -31,7 +33,8 @@ class Symbol {
 		st_datatype get_type();
 };
 
-class SymbolTable {
+class SymbolTable 
+{
 	private:
 		map<string, Symbol*> symbols;
 	

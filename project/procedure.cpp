@@ -1,11 +1,13 @@
 #include "procedure.h"
 
-ProcedureDefn::ProcedureDefn(SymbolTable* s, vector<AST*> v){
+ProcedureDefn::ProcedureDefn(SymbolTable* s, vector<AST*> v)
+{
 	local_symbol_table = s;
 	statements = v;
 }
 
-Procedure::Procedure(AST* a, SymbolTable* st, ProcedureDefn* pd, st_datatype dt){
+Procedure::Procedure(AST* a, SymbolTable* st, ProcedureDefn* pd, st_datatype dt)
+{
 	name = ((NameExpressionAST*)a)->name;
 	// delete a;
 	formal_param_list = st;
@@ -14,7 +16,8 @@ Procedure::Procedure(AST* a, SymbolTable* st, ProcedureDefn* pd, st_datatype dt)
 	is_defined = true;
 }
 
-Procedure::Procedure(AST* a, SymbolTable* st, st_datatype dt){
+Procedure::Procedure(AST* a, SymbolTable* st, st_datatype dt)
+{
 	name = ((NameExpressionAST*)a)->name;
 	// delete a;
 	formal_param_list = st;
@@ -23,7 +26,8 @@ Procedure::Procedure(AST* a, SymbolTable* st, st_datatype dt){
 	defn = NULL;
 }
 
-Procedure::Procedure(AST* a, SymbolTable* params, SymbolTable* vars, vector<AST*> stmts, st_datatype dt){
+Procedure::Procedure(AST* a, SymbolTable* params, SymbolTable* vars, vector<AST*> stmts, st_datatype dt)
+{
 	name = ((NameExpressionAST*)a)->name;
 	// delete a;
 	formal_param_list = params;
@@ -32,7 +36,8 @@ Procedure::Procedure(AST* a, SymbolTable* params, SymbolTable* vars, vector<AST*
 	is_defined = true;
 }
 
-int Procedure::add_defn(ProcedureDefn* pd){
+int Procedure::add_defn(ProcedureDefn* pd)
+{
 	if(is_defined) return -1;
 
 	defn = pd;
@@ -40,7 +45,8 @@ int Procedure::add_defn(ProcedureDefn* pd){
 	return 0;
 }
 
-int Procedure::is_proc_valid(SymbolTable* gst, map<string, Procedure*>& fns){
+int Procedure::is_proc_valid(SymbolTable* gst, map<string, Procedure*>& fns)
+{
 	SymbolTable* unin = new SymbolTable();
 	unin->add_symbols_from_table(formal_param_list);
 	if(unin->add_symbols_from_table(defn->local_symbol_table) != 0) return -1;
@@ -64,11 +70,13 @@ int ProcedureDefn::is_defn_valid(SymbolTable* vars, map<string, Procedure*>& fns
 	return 0;
 }
 
-st_datatype Procedure::get_return_type(){
+st_datatype Procedure::get_return_type()
+{
 	return ret_type;
 }
 
-int Procedure::get_param_list_size(){
+int Procedure::get_param_list_size()
+{
 	return formal_param_list->get_symbol_count();
 }
 
@@ -96,4 +104,11 @@ void ProcedureDefn::print_ast()
 	{
 		statements[i] -> print("         ");
 	}
+}
+
+int Procedure::match_declaration(Procedure* proc)
+{
+	if(ret_type != proc->ret_type)	return -1;
+	if(check_if_symbol_tables_match(formal_param_list,proc->formal_param_list) != 0)	return -1;
+	return 0;
 }

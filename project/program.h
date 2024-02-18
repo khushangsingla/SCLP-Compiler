@@ -7,7 +7,8 @@
 
 using namespace std;
 
-class Program {
+class Program 
+{
 	private:
 		map<string, Procedure*> procedures;
 

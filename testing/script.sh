@@ -89,4 +89,7 @@ do
 			fi
 		fi
 	done
+	rm example-programs/$folder/*.toks 2>/dev/null
+	rm example-programs/$folder/*.input 2>/dev/null
+	rm example-programs/$folder/*.ast 2>/dev/null
 done

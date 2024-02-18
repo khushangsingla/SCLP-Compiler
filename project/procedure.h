@@ -6,7 +6,8 @@
 #include "ast.h"
 #include "utils.h"
 
-class ProcedureDefn {
+class ProcedureDefn 
+{
 	private:	
 		vector<AST*> statements;
 	
@@ -17,7 +18,8 @@ class ProcedureDefn {
 		void print_ast();
 };
 
-class Procedure {
+class Procedure 
+{
 	private:
 		SymbolTable *formal_param_list;
 		ProcedureDefn* defn;
@@ -34,4 +36,5 @@ class Procedure {
 		st_datatype get_return_type();
 		int get_param_list_size();
 		void print_ast();
+		int match_declaration(Procedure* proc);
 };

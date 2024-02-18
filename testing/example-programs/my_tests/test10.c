@@ -1,5 +1,4 @@
 int main(int zzz){
-	void xxxxx;
 	int a, b, c;
 	string x, y, z;
 	float l, m, n;
