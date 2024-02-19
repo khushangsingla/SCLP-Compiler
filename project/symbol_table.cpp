@@ -60,6 +60,14 @@ int SymbolTable::add_symbols_from_table(SymbolTable* t)
 	return 0;
 }
 
+int SymbolTable::add_symbols_from_table(vector<Symbol*>* t)
+{
+	for(auto s: *t){
+		if(add_symbol(s) != 0) return -1;
+	}
+	return 0;
+}
+
 int SymbolTable::add_global_symbols(SymbolTable* gst)
 {
 	for(auto s: gst->symbols){

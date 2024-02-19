@@ -21,20 +21,21 @@ class ProcedureDefn
 class Procedure 
 {
 	private:
-		SymbolTable *formal_param_list;
 		ProcedureDefn* defn;
 		st_datatype ret_type;
 	
 	public:
+		vector<Symbol*> *formal_param_list;
 		string name;
 		bool is_defined;
-		Procedure(AST*, SymbolTable*, ProcedureDefn*, st_datatype);
-		Procedure(AST*, SymbolTable*, st_datatype);
-		Procedure(AST*, SymbolTable*, SymbolTable*, vector<AST*>, st_datatype);
+		Procedure(AST*, vector<Symbol*>*, ProcedureDefn*, st_datatype);
+		Procedure(AST*, vector<Symbol*>*, st_datatype);
+		Procedure(AST*, vector<Symbol*>*, SymbolTable*, vector<AST*>, st_datatype);
 		int add_defn(ProcedureDefn*);
 		int is_proc_valid(SymbolTable*, map<string, Procedure*>&);
 		st_datatype get_return_type();
 		int get_param_list_size();
 		void print_ast();
 		int match_declaration(Procedure* proc);
+		int check_if_formal_param_list_match(vector<Symbol*>*);
 };

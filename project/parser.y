@@ -25,6 +25,7 @@ extern int yylex();
 	ProcedureDefn* procdef;
 	Symbol* symb;
 	Program* prog;
+	vector<Symbol*>* vecsymb;
 }
 
 %token WHILE				
@@ -89,7 +90,7 @@ extern int yylex();
 %type<dtype> param_type
 %type<procedure> func_decl
 %type<procedure> func_decl_defn
-%type<symtab> funcdecl_param_list
+%type<vecsymb> funcdecl_param_list
 %type<symb> funcdecl_param
 %type<procdef> func_defn
 %type<symtab> optional_var_decl_stmt_list
@@ -255,7 +256,7 @@ func_decl
 												}
 	| named_type variable_as_operand LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET SEMICOLON {
 													if(!arguments.stop_after_parsing){
-														$$ = new Procedure($2, new SymbolTable(), $1);
+														$$ = new Procedure($2, new vector<Symbol*>(), $1);
 													}
 												}
 
@@ -267,7 +268,7 @@ func_decl_defn
 												}
 	| named_type variable_as_operand LEFT_ROUND_BRACKET RIGHT_ROUND_BRACKET LEFT_CURLY_BRACKET func_defn RIGHT_CURLY_BRACKET {
 													if(!arguments.stop_after_parsing){
-														$$ = new Procedure($2, new SymbolTable(), $6, $1);
+														$$ = new Procedure($2, new vector<Symbol*>(), $6, $1);
 													}
 												}
 ;
@@ -276,13 +277,13 @@ funcdecl_param_list
 	: funcdecl_param_list COMMA funcdecl_param {
 													if(!arguments.stop_after_parsing){
 														$$ = $1;
-														$1->add_symbol($3);
+														$1->push_back($3);
 													}
 												}
 	| funcdecl_param {
 													if(!arguments.stop_after_parsing){
-														$$ = new SymbolTable();
-														$$->add_symbol($1);
+														$$ = new vector<Symbol*> ();
+														$$->push_back($1);
 													}
 												}
 ;

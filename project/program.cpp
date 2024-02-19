@@ -36,11 +36,13 @@ int Program::add_procedure(Procedure* proc)
 {
 	if(procedures.find(proc->name) != procedures.end()){
 		if(procedures[proc->name]->is_defined || !proc->is_defined){
+			my_exit(1, "[program.cpp] procedure defined twice or not defined at all");
 			return -1;
 		}
 		else{
 			// Check if declaration matches definition
 			if(procedures[proc->name] -> match_declaration(proc) != 0){
+				my_exit(1, "[program.cpp] declaration doesn't match definition");
 				return -1;
 			}
 			// delete procedures[proc->name];

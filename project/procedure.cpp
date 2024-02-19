@@ -6,7 +6,7 @@ ProcedureDefn::ProcedureDefn(SymbolTable* s, vector<AST*> v)
 	statements = v;
 }
 
-Procedure::Procedure(AST* a, SymbolTable* st, ProcedureDefn* pd, st_datatype dt)
+Procedure::Procedure(AST* a, vector<Symbol*>* st, ProcedureDefn* pd, st_datatype dt)
 {
 	name = ((NameExpressionAST*)a)->name;
 	// delete a;
@@ -16,7 +16,7 @@ Procedure::Procedure(AST* a, SymbolTable* st, ProcedureDefn* pd, st_datatype dt)
 	is_defined = true;
 }
 
-Procedure::Procedure(AST* a, SymbolTable* st, st_datatype dt)
+Procedure::Procedure(AST* a, vector<Symbol*>* st, st_datatype dt)
 {
 	name = ((NameExpressionAST*)a)->name;
 	// delete a;
@@ -26,7 +26,7 @@ Procedure::Procedure(AST* a, SymbolTable* st, st_datatype dt)
 	defn = NULL;
 }
 
-Procedure::Procedure(AST* a, SymbolTable* params, SymbolTable* vars, vector<AST*> stmts, st_datatype dt)
+Procedure::Procedure(AST* a, vector<Symbol*>* params, SymbolTable* vars, vector<AST*> stmts, st_datatype dt)
 {
 	name = ((NameExpressionAST*)a)->name;
 	// delete a;
@@ -77,7 +77,7 @@ st_datatype Procedure::get_return_type()
 
 int Procedure::get_param_list_size()
 {
-	return formal_param_list->get_symbol_count();
+	return formal_param_list->size();
 }
 
 void Procedure::print_ast()
@@ -89,6 +89,9 @@ void Procedure::print_ast()
 	ast_output(get_string_for_dtype(ret_type));
 	ast_output("\n");
 	ast_output("\tFormal Parameters:\n");
+	for(int i=0; i<formal_param_list->size(); ++i){
+		ast_output("\t\t" + formal_param_list->at(i)->name + "_ Type:" + get_string_for_dtype(formal_param_list->at(i)->type) + "\n");
+	}
 #ifndef SHIT_MAIN_ONLY
 	assert(0);
 #endif
@@ -109,6 +112,15 @@ void ProcedureDefn::print_ast()
 int Procedure::match_declaration(Procedure* proc)
 {
 	if(ret_type != proc->ret_type)	return -1;
-	if(check_if_symbol_tables_match(formal_param_list,proc->formal_param_list) != 0)	return -1;
+	if(check_if_formal_param_list_match(proc->formal_param_list) != 0)	return -1;
+
+	return 0;
+}
+
+int Procedure::check_if_formal_param_list_match(vector<Symbol*> *parms){
+	if(formal_param_list->size() != parms->size()) return -1;
+	for(int i=0; i<formal_param_list->size(); ++i){
+		if(formal_param_list->at(i)->type != parms->at(i)->type) return-1;	
+	}
 	return 0;
 }
