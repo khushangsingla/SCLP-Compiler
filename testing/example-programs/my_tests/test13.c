@@ -1,4 +1,5 @@
-int main(int zzz, int lmaolmao, string hjahah){
+void main(int eofe);
+void main(int zzz){
 	int a, b, c;
 	string x, y, z;
 	float l, m, n;
@@ -22,5 +23,4 @@ int main(int zzz, int lmaolmao, string hjahah){
 	g = a != b;
 	a = !g ? b : c;
 	x = "lmao";
-	return x;
 }
