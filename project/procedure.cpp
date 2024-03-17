@@ -117,10 +117,39 @@ int Procedure::match_declaration(Procedure* proc)
 	return 0;
 }
 
-int Procedure::check_if_formal_param_list_match(vector<Symbol*> *parms){
+int Procedure::check_if_formal_param_list_match(vector<Symbol*> *parms)
+{
 	if(formal_param_list->size() != parms->size()) return -1;
 	for(int i=0; i<formal_param_list->size(); ++i){
 		if(formal_param_list->at(i)->type != parms->at(i)->type) return-1;	
 	}
 	return 0;
+}
+
+void Procedure::gentac()
+{
+	if(defn){
+		defn -> gentac();
+		if(defn->tac.size()){
+			tac_output("**PROCEDURE: " + name + "\n", false);	
+			tac_output("**BEGIN: Three Address Code Statements\n", false);
+			defn->print_tac();
+			tac_output("**END: Three Address Code Statements\n", false);
+		}
+	}
+}
+
+void ProcedureDefn::print_tac()
+{
+	for(int i=0;i<tac.size();i++)
+	{
+		tac[i]->print();
+	}
+}
+
+void ProcedureDefn::gentac()
+{
+	for(int i=0; i<statements.size(); ++i){
+		statements[i]->gentac(tac);
+	}	
 }

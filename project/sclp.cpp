@@ -16,6 +16,9 @@ using namespace std;
 #define STOP_AFTER_SCAN 's'
 #define STOP_AFTER_PARSE 'p'
 #define SHOW_AST 'a'
+#define SHOW_TAC 'c'
+#define STOP_AFTER_AST 'A'
+#define PRINT_TO_TERM 'd'
 
 extern void my_exit(int);
 
@@ -53,8 +56,11 @@ int main(int argc, char* argv[])
 	struct argp_option options[] = {
   		{ "show-tokens", SHOW_TOKENS, 0, 0, "Show the tokens in FILE.toks (or out.toks)", 9 },
   		{ "show-ast", SHOW_AST, 0, 0, "Show the ast in FILE.ast (or out.ast)", 9 },
+		{ "show-tac", SHOW_TAC, 0, 0, "Show the tac in FILE.tac (or out.tac)", 9 },
   		{ "sa-scan",  STOP_AFTER_SCAN, 0, 0, "Stop after lexical analysis", 0 },
   		{ "sa-parse",  STOP_AFTER_PARSE, 0, 0, "Stop after parsing", 0 },
+		{ "sa-ast",  STOP_AFTER_AST, 0, 0, "Stop after constructing AST", 0 },
+		{"print-to-term", PRINT_TO_TERM, 0, 0, "Printing to terminal", 0 },
 		{ 0 }
 		};
 
@@ -82,12 +88,26 @@ int main(int argc, char* argv[])
 
 	if(arguments.show_tokens)
 	{
-		token_output_file = fopen((arguments.input_file + ".toks").c_str(),"w");
+		if(!arguments.print_to_term)
+			token_output_file = fopen((arguments.input_file + ".toks").c_str(),"w");
+		else
+			token_output_file = stdout;
 	}
 
 	if(arguments.show_ast)
 	{
-		arguments.ast_output_file = fopen((arguments.input_file + ".ast").c_str(),"w");
+		if(!arguments.print_to_term)
+			arguments.ast_output_file = fopen((arguments.input_file + ".ast").c_str(),"w");
+		else
+			arguments.ast_output_file = stdout;
+	}
+
+	if(arguments.show_tac)
+	{
+		if(!arguments.print_to_term)
+			arguments.tac_output_file = fopen((arguments.input_file + ".tac").c_str(),"w");
+		else
+			arguments.tac_output_file = stdout;
 	}
 
 	if(arguments.stop_after_scanning){
@@ -152,11 +172,17 @@ static int parse_opt (int key, char *arg, struct argp_state *state)
 		case SHOW_AST:
 			arguments.show_ast = true;
 			break;
+		case SHOW_TAC:
+			arguments.show_tac = true;
+			break;
 		case STOP_AFTER_SCAN: 
 			arguments.stop_after_scanning = true;	
 			break;
 		case STOP_AFTER_PARSE:
 			arguments.stop_after_parsing = true;
+			break;
+		case PRINT_TO_TERM:
+			arguments.print_to_term = true;
 			break;
 		case 0:
 			arguments.input_file = arg;

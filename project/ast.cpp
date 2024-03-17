@@ -421,3 +421,165 @@ void BooleanExpressionAST::print(string prefix)
 	right -> print(prefix + "  ");
 	ast_output(")");
 }
+
+void BooleanExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	left -> gentac(tacs);
+	right -> gentac(tacs);
+	TACStatement* tac;
+	switch(type)
+	{
+		case BOOL_AND:
+			tac = new ComputeTACStatement(left->value, right->value, AND_COMPUTATION_TYPE);
+			break;
+		case BOOL_OR:
+			tac = new ComputeTACStatement(left->value, right->value, OR_COMPUTATION_TYPE);
+			break;
+		default:
+			assert(0);
+	}
+	value = tac -> get_value();
+	tacs.push_back(tac);
+}
+
+void BinaryExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	left -> gentac(tacs);
+	right -> gentac(tacs);
+	TACStatement* tac;
+	switch(type)
+	{
+		case PLUS_EXPRESSION_AST:
+			tac = new ComputeTACStatement(left->value, right->value, ADD_COMPUTATION_TYPE);
+			break;
+		case MINUS_EXPRESSION_AST:
+			tac = new ComputeTACStatement(left->value, right->value, SUB_COMPUTATION_TYPE);
+			break;
+		case MULTIPLICATION_EXPRESSION_AST:
+			tac = new ComputeTACStatement(left->value, right->value, MUL_COMPUTATION_TYPE);
+			break;
+		case DIVISION_EXPRESSION_AST:
+			tac = new ComputeTACStatement(left->value, right->value, DIV_COMPUTATION_TYPE);
+			break;
+		default:
+			assert(0);
+	}
+	value = tac -> get_value();
+	tacs.push_back(tac);
+}
+
+void ReadStatementAST::gentac(vector<TACStatement*> &tacs)
+{
+	opd -> gentac(tacs);
+	TACStatement* tac = new IOTACStatement(opd->value, 0);
+	tacs.push_back(tac);
+}
+
+void PrintStatementAST::gentac(vector<TACStatement*> &tacs)
+{
+	opd -> gentac(tacs);
+	TACStatement* tac = new IOTACStatement(opd->value, 1);
+	tacs.push_back(tac);
+}
+
+void NameExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	TACOperand* opd = new VariableTACOperand(name);
+	value = opd;
+}
+
+void IntegerExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	TACOperand* opd = new IntegerConstantTACOperand(val);
+	value = opd;
+}
+
+void FloatExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	TACOperand* opd = new DoubleConstantTACOperand(val);
+	value = opd;
+}
+
+void StringExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	TACOperand* opd = new StringConstantTACOperand(val);
+	value = opd;
+}
+
+void UMinusExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	operand -> gentac(tacs);
+	TACStatement* tac = new ComputeTACStatement(operand->value, NULL, NEG_COMPUTATION_TYPE);
+	value = tac -> get_value();
+	tacs.push_back(tac);
+}
+
+void RelationalExpressionAST::gentac(vector<TACStatement*>& tacs)
+{
+	left -> gentac(tacs);
+	right -> gentac(tacs);
+	TACStatement* tac;
+	switch(opn)
+	{
+		case RELOP_LESS_THAN:
+			tac = new ComputeTACStatement(left->value, right->value, LT_COMPUTATION_TYPE);
+			break;
+		case RELOP_LESS_THAN_EQUAL:
+			tac = new ComputeTACStatement(left->value, right->value, LTE_COMPUTATION_TYPE);
+			break;
+		case RELOP_GREATER_THAN:
+			tac = new ComputeTACStatement(left->value, right->value, GT_COMPUTATION_TYPE);
+			break;
+		case RELOP_GREATER_THAN_EQUAL:
+			tac = new ComputeTACStatement(left->value, right->value, GTE_COMPUTATION_TYPE);
+			break;
+		case RELOP_EQUAL:
+			tac = new ComputeTACStatement(left->value, right->value, EQ_COMPUTATION_TYPE);
+			break;
+		case RELOP_NOT_EQUAL:
+			tac = new ComputeTACStatement(left->value, right->value, NEQ_COMPUTATION_TYPE);
+			break;
+		default:
+			assert(0);
+	}
+	value = tac -> get_value();
+	tacs.push_back(tac);
+}
+
+void ConditionalExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	vector<TACStatement*> tacs1;
+	TACOperand* label1 = new LabelTACOperand();
+	TACOperand* label2 = new LabelTACOperand();
+	left -> gentac(tacs);
+	value = new STemporaryTACOperand();
+	mid -> gentac(tacs1);
+	tacs1.push_back(new AssignmentTACStatement(value, mid->value));
+	TACStatement* tac3 = new GotoTACStatement(label2);
+	tacs1.push_back(tac3);
+	tacs1.push_back(new LabelTACStatement(label1));
+	right -> gentac(tacs1);
+	TACStatement* tac1 = new ComputeTACStatement(left->value, NULL, NOT_COMPUTATION_TYPE);
+	tacs.push_back(tac1);
+	TACStatement* tac2 = new IfGotoTACStatement(tac1->get_value(), label1);
+	tacs.push_back(tac2);
+	tacs.insert(tacs.end(), tacs1.begin(), tacs1.end());
+	tacs.push_back(new AssignmentTACStatement(value, right->value));
+	tacs.push_back(new LabelTACStatement(label2));
+}
+
+void AssignmentStatementAST::gentac(vector<TACStatement*> &tacs)
+{
+	lhs -> gentac(tacs);
+	rhs -> gentac(tacs);
+	TACStatement* tac = new AssignmentTACStatement(lhs->value, rhs->value);
+	tacs.push_back(tac);
+}
+
+void NotBoolExpressionAST::gentac(vector<TACStatement*> &tacs)
+{
+	operand -> gentac(tacs);
+	TACStatement* tac = new ComputeTACStatement(operand->value, NULL, NOT_COMPUTATION_TYPE);
+	value = tac -> get_value();
+	tacs.push_back(tac);
+}

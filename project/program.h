@@ -21,5 +21,6 @@ class Program
 		int add_procedure(Procedure*);
 		int add_global_symbols(SymbolTable*);
 		int main_func_check();
+		void gentac();
 		// void print_ast();
 };

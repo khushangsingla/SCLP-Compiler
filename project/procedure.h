@@ -5,17 +5,23 @@
 #include "symbol_table.h"
 #include "ast.h"
 #include "utils.h"
+#include "tac.h"
 
 class ProcedureDefn 
 {
+	friend class Procedure;
+
 	private:	
 		vector<AST*> statements;
+		vector<TACStatement*> tac;
 	
 	public:
 		SymbolTable *local_symbol_table;
 		ProcedureDefn(SymbolTable*, vector<AST*>);
 		int is_defn_valid(SymbolTable*, map<string, Procedure*>&);
 		void print_ast();
+		void gentac();
+		void print_tac();
 };
 
 class Procedure 
@@ -38,4 +44,5 @@ class Procedure
 		void print_ast();
 		int match_declaration(Procedure* proc);
 		int check_if_formal_param_list_match(vector<Symbol*>*);
+		void gentac();
 };

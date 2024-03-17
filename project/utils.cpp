@@ -1,4 +1,5 @@
 #include "utils.h"
+#include "program.h"
 extern struct arguments arguments;
 extern int yylineno;
 
@@ -66,4 +67,25 @@ void ast_output(const char* str)
 void ast_output(string str)
 {
 	ast_output(str.c_str());
+}
+
+void continue_after_ast(Program* p)
+{
+	p->gentac();
+}
+
+void tac_output(const char* str, bool istab)
+{
+	if(arguments.show_tac)
+	{
+		if(istab)
+			fprintf(arguments.tac_output_file,"\t%s",str);
+		else
+			fprintf(arguments.tac_output_file,"%s",str);
+	}
+}
+
+void tac_output(string str, bool istab)
+{
+	tac_output(str.c_str(), istab);
 }

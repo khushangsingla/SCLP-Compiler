@@ -62,3 +62,10 @@ int Program::add_global_symbols(SymbolTable* st)
 	if(global_symbol_table->add_symbols_from_table(st) != 0)	return -1;
 	return 0;
 }
+
+void Program::gentac()
+{
+	for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
+		it->second->gentac();
+	}
+}

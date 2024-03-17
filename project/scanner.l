@@ -17,7 +17,6 @@ digits [0-9]
 alphabets [a-zA-Z_]
 alphanumeric [0-9a-zA-Z_]
 operator [-+*/]
-ternary_ops [:?]
 
 
 %%
@@ -230,9 +229,15 @@ return {
 				return NOT;
 			}
 
-{ternary_ops}	{
-				my_print("", "[scanner.l] ?: found!\n");
-				scanner_output("OP_FOR_TERNARY_EXPR",yytext,yylineno);
+"?"			{
+				my_print("", "[scanner.l] ? found!\n");
+				scanner_output("QUESTION_MARK",yytext,yylineno);
+				return yytext[0];
+			}
+
+":"			{
+				my_print("", "[scanner.l] : found!\n");
+				scanner_output("COLON",yytext,yylineno);
 				return yytext[0];
 			}
 

@@ -7,6 +7,7 @@
 #include <sstream>
 using namespace std;
 #include "symbol_table.h"
+#include "tac.h"
 #include "utils.h"
 // #include "procedure.h"
 
@@ -63,10 +64,12 @@ class AST
 		vector<AST*> children;
 
 	public:
+		TACOperand* value;
 		ast_type type;
 		AST(ast_type);
 		virtual int is_valid(SymbolTable*,map<string,Procedure*>&) = 0;
 		virtual void print(string) = 0;
+		virtual void gentac(vector<TACStatement*>&) = 0;
 };
 
 class ExpressionAST : public AST 
@@ -109,6 +112,7 @@ class BinaryExpressionAST : public ExpressionAST
 	public:
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class TernaryExpressionAST : public ExpressionAST
@@ -133,6 +137,7 @@ class NameExpressionAST : public BaseExpressionAST
 		NameExpressionAST(char* name);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class IntegerExpressionAST : public BaseExpressionAST
@@ -142,6 +147,7 @@ class IntegerExpressionAST : public BaseExpressionAST
 		IntegerExpressionAST(char*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class FloatExpressionAST : public BaseExpressionAST
@@ -151,6 +157,7 @@ class FloatExpressionAST : public BaseExpressionAST
 		FloatExpressionAST(char*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class StringExpressionAST : public BaseExpressionAST
@@ -160,6 +167,7 @@ class StringExpressionAST : public BaseExpressionAST
 		StringExpressionAST(char*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class AddressExpressionAST : public UnaryExpressionAST
@@ -180,6 +188,7 @@ class UMinusExpressionAST : public UnaryExpressionAST
 		UMinusExpressionAST(AST*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class ArrayAccessExpressionAST : public BinaryExpressionAST
@@ -195,6 +204,7 @@ class BooleanExpressionAST : public BinaryExpressionAST
 		BooleanExpressionAST(AST* left,AST* right, bool_type);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class DivisionExpressionAST : public BinaryExpressionAST
@@ -234,6 +244,7 @@ class RelationalExpressionAST : public BinaryExpressionAST
 		RelationalExpressionAST(AST*,AST*,relop);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class ConditionalExpressionAST : public TernaryExpressionAST
@@ -242,6 +253,7 @@ class ConditionalExpressionAST : public TernaryExpressionAST
 		ConditionalExpressionAST(AST*,AST*,AST*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class AssignmentStatementAST : public StatementAST
@@ -251,6 +263,7 @@ class AssignmentStatementAST : public StatementAST
 		AssignmentStatementAST(AST*,AST*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class IterationStatementAST : public StatementAST
@@ -267,6 +280,7 @@ class ReadStatementAST : public StatementAST
 		ReadStatementAST(AST*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class PrintStatementAST : public StatementAST
@@ -277,6 +291,7 @@ class PrintStatementAST : public StatementAST
 		PrintStatementAST(AST*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class ReturnStatementAST : public StatementAST
@@ -303,4 +318,5 @@ class NotBoolExpressionAST : public UnaryExpressionAST
 		NotBoolExpressionAST(AST*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
+		void gentac(vector<TACStatement*>&);
 };

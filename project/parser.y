@@ -112,12 +112,14 @@ program
 													if(!arguments.stop_after_parsing){
 														$$ = new Program($1, $2);
 														$$->main_func_check();
+														continue_after_ast($$);
 													}
 												}
 	| func_decl_defn {
 													if(!arguments.stop_after_parsing){
 														$$ = new Program(new SymbolTable(), $1);
 														$$->main_func_check();
+														continue_after_ast($$);
 													}
 												}
 	| global_decl_statement_list func_decl func_decl_defn {
@@ -125,6 +127,7 @@ program
 														$$ = new Program($1, $2);
 														$$->add_procedure($3);
 														$$->main_func_check();
+														continue_after_ast($$);
 													}
 												}
 	| func_decl global_decl_statement_list func_decl_defn {
@@ -133,6 +136,7 @@ program
 														$$->add_global_symbols($2);
 														$$->add_procedure($3);
 														$$->main_func_check();
+														continue_after_ast($$);
 													}
 												}
 	| global_decl_statement_list func_decl global_decl_statement_list func_decl_defn {
@@ -141,6 +145,7 @@ program
 														$$->add_global_symbols($3);
 														$$->add_procedure($4);
 														$$->main_func_check();
+														continue_after_ast($$);
 													}
 												}
 	| func_decl func_decl_defn {
@@ -148,6 +153,7 @@ program
 														$$ = new Program(new SymbolTable(), $1);
 														$$->add_procedure($2);
 														$$->main_func_check();
+														continue_after_ast($$);
 													}
 												}
 ;

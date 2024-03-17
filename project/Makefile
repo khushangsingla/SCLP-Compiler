@@ -11,14 +11,17 @@ YACC_FLAGS = -dv
 
 all: sclp
 
-sclp: $(CODE).o lex.yy.o y.tab.o Makefile symbol_table.o ast.o program.o procedure.o utils.o
-	$(CPP) $(CFLAGS) -o sclp $(CODE).o symbol_table.o ast.o program.o procedure.o utils.o lex.yy.o y.tab.o -ly -ll
+sclp: $(CODE).o lex.yy.o y.tab.o Makefile symbol_table.o ast.o program.o procedure.o utils.o tac.o
+	$(CPP) $(CFLAGS) -o sclp $(CODE).o symbol_table.o ast.o program.o procedure.o utils.o tac.o lex.yy.o y.tab.o -ly -ll
 
 utils.o: utils.h utils.cpp
 	$(CPP) $(CFLAGS) -c utils.cpp
 
 ast.o: ast.cpp ast.h symbol_table.h
 	$(CPP) $(CFLAGS) -c ast.cpp
+
+tac.o: tac.cpp tac.h
+	$(CPP) $(CFLAGS) -c tac.cpp
 
 program.o: program.cpp procedure.h symbol_table.h program.h ast.h
 	$(CPP) $(CFLAGS) -c program.cpp
