@@ -4,7 +4,8 @@ do
 	rm example-programs/$folder/*.toks 2>/dev/null
 	rm example-programs/$folder/*.input 2>/dev/null
 	rm example-programs/$folder/*.ast 2>/dev/null
-	for file in $(ls example-programs/$folder/*)
+	rm example-programs/$folder/*.tac 2>/dev/null
+	for file in $(ls example-programs/$folder/*.c)
 	do
 		# echo $file
 		./sclp --sa-scan --show-tokens $file
@@ -88,8 +89,44 @@ do
 				exit
 			fi
 		fi
+
+		./sclp --show-tac $file
+		y=$?
+		mv $file.tac myout
+		./ref-sclp --sa-tac --show-tac $file
+		z=$?
+		if [ $y -eq $z ]
+		then
+			if [ $z -eq 0 ]
+			then
+				result=$(diff -y -W 72 -Bw myout $file.tac)
+				if [ $? -ne 0 ]
+				then
+					echo $file 
+					# echo $result
+					echo TAC ERROR 1
+					exit
+				fi
+			fi
+		else
+			if [ $y -eq 0 ]
+			then
+				echo $file
+				# echo $result
+				echo TAC ERROR 2
+				exit
+			fi
+			if [ $z -eq 0 ]
+			then
+				echo $file
+				# echo $result
+				echo TAC ERROR 2
+				exit
+			fi
+		fi
 	done
 	rm example-programs/$folder/*.toks 2>/dev/null
 	rm example-programs/$folder/*.input 2>/dev/null
 	rm example-programs/$folder/*.ast 2>/dev/null
+	rm example-programs/$folder/*.tac 2>/dev/null
 done
