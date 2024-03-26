@@ -28,6 +28,7 @@ extern int yylex();
 	vector<Symbol*>* vecsymb;
 }
 
+%token DO
 %token WHILE				
 %token ELSE			
 %token INTEGER				/*		int ( L1 )*/
@@ -104,6 +105,7 @@ extern int yylex();
 %type<ast> relative_expression
 %type<ast> variable_as_operand
 %type<ast> constant_as_operand
+%type<vec_of_ast> compound_statement
 
 %%
 
@@ -369,6 +371,56 @@ statement
 														$$ = $1;
 													}
 												}
+	| compound_statement {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
+;
+
+if_condition
+	: LEFT_ROUND_BRACKET expression RIGHT_ROUND_BRACKET {
+													if(!arguments.stop_after_parsing){
+														$$ = $2;
+													}
+												}
+;
+
+if_statement
+	: IF if_condition statement ELSE statement {
+													if(!arguments.stop_after_parsing){
+														$$ = new SelectionStatementAST($2, $3, $5);
+													}
+												}
+	| IF if_condition statement {
+													if(!arguments.stop_after_parsing){
+														$$ = new SelectionStatementAST($2, $3, NULL);
+													}
+												}
+;
+
+do_while_statement
+	: DO statement WHILE LEFT_ROUND_BRACKET expression RIGHT_ROUND_BRACKET SEMICOLON {
+													if(!arguments.stop_after_parsing){
+														$$ = new IterationStatementAST($5, $2, true);
+													}
+												}
+;
+
+while_statement
+	: WHILE LEFT_ROUND_BRACKET expression RIGHT_ROUND_BRACKET statement      {
+													if(!arguments.stop_after_parsing){
+														$$ = new IterationStatementAST($3, $5, false);
+													}
+												}
+;
+
+compound_statement
+	: LEFT_CURLY_BRACKET statement_list RIGHT_CURLY_BRACKET    {
+																if(!arguments.stop_after_parsing){
+																	$$ = new SequenceStatementAST(*$2);
+																}
+												}     
 ;
 
 print_statement

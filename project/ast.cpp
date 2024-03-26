@@ -141,8 +141,11 @@ AssignmentStatementAST::AssignmentStatementAST(AST* l, AST* r) : StatementAST(AS
 	rhs = r;
 }
 
-IterationStatementAST::IterationStatementAST() : StatementAST(ITERATION_STATEMENT_AST)
+IterationStatementAST::IterationStatementAST(AST* condition, AST* body, bool is_do_while) : StatementAST(ITERATION_STATEMENT_AST)
 {
+	this->condition = condition;
+	this->body = body;
+	this->is_do_while = is_do_while;
 }
 
 ReadStatementAST::ReadStatementAST(AST* opd) : StatementAST(READ_STATEMENT_AST)
@@ -159,8 +162,21 @@ ReturnStatementAST::ReturnStatementAST() : StatementAST(RETURN_STATEMENT_AST)
 {
 }
 
-SelectionStatementAST::SelectionStatementAST() : StatementAST(SELECTION_STATEMENT_AST)
+SelectionStatementAST::SelectionStatementAST(AST* cond, AST* ifpart, AST* elsepart) : StatementAST(SELECTION_STATEMENT_AST)
 {
+	this->cond = cond;
+	this->ifpart = ifpart;
+	this->elsepart = elsepart;
+}
+
+SequenceStatementAST::SequenceStatementAST(vector<AST*> s) : StatementAST(SEQUENCE_STATEMENT_AST)
+{
+	this->statements = s;
+}
+
+SequenceStatementAST::SequenceStatementAST(AST* a) : StatementAST(SEQUENCE_STATEMENT_AST)
+{
+	this->statements.push_back(a);
 }
 
 NotBoolExpressionAST::NotBoolExpressionAST(AST* t) : UnaryExpressionAST(NOT_BOOL_EXPRESSION_AST,t)
@@ -264,6 +280,32 @@ int NotBoolExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns
 	if(operand -> is_valid(vars,fns) != 0)	return -1;
 	if(((ExpressionAST*)operand) -> dtype != DTYPE_BOOL)	return -1;
 	dtype = DTYPE_BOOL;
+	return 0;
+}
+
+int SequenceStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
+{
+	for(int i=0;i<statements.size();i++)
+	{
+		if(statements[i] -> is_valid(vars,fns) != 0)	return -1;
+	}
+	return 0;
+}
+
+int SelectionStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
+{
+	if(cond -> is_valid(vars,fns) != 0)	return -1;
+	if(((ExpressionAST*)cond) -> dtype != DTYPE_BOOL)	return -1;
+	if(ifpart -> is_valid(vars,fns) != 0)	return -1;
+	if(elsepart != NULL && elsepart -> is_valid(vars,fns) != 0)	return -1;
+	return 0;
+}
+
+int IterationStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
+{
+	if(condition -> is_valid(vars,fns) != 0)	return -1;
+	if(((ExpressionAST*)condition) -> dtype != DTYPE_BOOL)	return -1;
+	if(body -> is_valid(vars,fns) != 0)	return -1;
 	return 0;
 }
 
@@ -420,6 +462,53 @@ void BooleanExpressionAST::print(string prefix)
 	ast_output(")\n" + prefix + "  " + "  R_Opd (");
 	right -> print(prefix + "  ");
 	ast_output(")");
+}
+
+void SequenceStatementAST::print(string prefix)
+{
+	for(int i=0;i<statements.size();i++)
+	{
+		statements[i] -> print(prefix + "  ");
+	}
+}
+
+void SelectionStatementAST::print(string prefix)
+{
+	ast_output("\n" + prefix + "If: ");
+	cond -> print(prefix + "  ");
+	ast_output("\n" + prefix + "Then (");
+	ifpart -> print(prefix + "  ");
+	ast_output(")\n");
+	if(elsepart != NULL)
+	{
+		ast_output("\n" + prefix + "Else (");
+		elsepart -> print(prefix + "  ");
+		ast_output(")\n");
+	}
+}
+
+void IterationStatementAST::print(string prefix)
+{
+	if(is_do_while)
+	{
+		ast_output("\n" + prefix + "Do: ");
+		ast_output("\n" + prefix + "Body (");
+		body -> print(prefix + "  ");
+		ast_output(")\n");
+		ast_output("\n" + prefix + "While Condition (");
+		condition -> print(prefix + "  ");
+		ast_output(")\n");
+	}
+	else
+	{
+		ast_output("\n" + prefix + "While: \n");
+		ast_output(prefix + "  " + "Condition (");
+		condition -> print(prefix + "  ");
+		ast_output(")\n");
+		ast_output("\n" + prefix + "Body (");
+		body -> print(prefix + "  ");
+		ast_output(")\n");
+	}
 }
 
 void BooleanExpressionAST::gentac(vector<TACStatement*> &tacs)
@@ -582,4 +671,37 @@ void NotBoolExpressionAST::gentac(vector<TACStatement*> &tacs)
 	TACStatement* tac = new ComputeTACStatement(operand->value, NULL, NOT_COMPUTATION_TYPE);
 	value = tac -> get_value();
 	tacs.push_back(tac);
+}
+
+void SequenceStatementAST::gentac(vector<TACStatement*> &tacs)
+{
+	for(int i=0;i<statements.size();i++)
+	{
+		statements[i] -> gentac(tacs);
+	}
+}
+
+void SelectionStatementAST::gentac(vector<TACStatement*> &tacs)
+{
+	cond -> gentac(tacs);
+	TACOperand* label1 = new LabelTACOperand();
+	TACOperand* label2 = new LabelTACOperand();
+	TACStatement* tac1 = new ComputeTACStatement(cond->value, NULL, NOT_COMPUTATION_TYPE);
+	tacs.push_back(tac1);
+	TACStatement* tac2 = new IfGotoTACStatement(tac1->get_value(), label1);
+	tacs.push_back(tac2);
+	ifpart -> gentac(tacs);
+	TACStatement* tac3 = new GotoTACStatement(label2);
+	tacs.push_back(tac3);
+	tacs.push_back(new LabelTACStatement(label1));
+	if(elsepart != NULL)
+	{
+		elsepart -> gentac(tacs);
+	}
+	tacs.push_back(new LabelTACStatement(label2));
+}
+
+void SequenceStatementAST::add_statement(AST* ast)
+{
+	statements.push_back(ast);
 }

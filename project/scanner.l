@@ -20,23 +20,26 @@ operator [-+*/]
 
 
 %%
+do			{
+				my_print("", "[scanner.l] do found!\n");
+				scanner_output("DO",yytext,yylineno);
+				return DO;
+			}
+
 while		{
 				my_print("", "[scanner.l] while found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("WHILE",yytext,yylineno);
 				return WHILE;
 			}
 
 else		{
 				my_print("", "[scanner.l] else found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("ELSE",yytext,yylineno);
 				return ELSE;
 			}
 
 if			{
 				my_print("", "[scanner.l] if found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("IF",yytext,yylineno);
 				return IF;
 			}

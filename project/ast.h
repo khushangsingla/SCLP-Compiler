@@ -266,12 +266,6 @@ class AssignmentStatementAST : public StatementAST
 		void gentac(vector<TACStatement*>&);
 };
 
-class IterationStatementAST : public StatementAST
-{
-	public:
-		IterationStatementAST();
-};
-
 class ReadStatementAST : public StatementAST
 {
 	private:
@@ -303,13 +297,34 @@ class ReturnStatementAST : public StatementAST
 class SelectionStatementAST : public StatementAST
 {
 	public:
-		SelectionStatementAST();
+		AST *condition,*ifpart,*elsepart;
+		SelectionStatementAST(AST*,AST*,AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
+		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class SequenceStatementAST : public StatementAST
 {
 	public:
-		SequenceStatementAST();
+		vector<AST*> statements;
+		SequenceStatementAST(vector<AST*>);
+		SequenceStatementAST(AST*);
+		void add_statement(AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
+		void print(string);
+		void gentac(vector<TACStatement*>&);
+};
+
+class IterationStatementAST : public StatementAST
+{
+	public:
+		bool is_do_while;
+		AST *condition,*body;
+		IterationStatementAST(AST*,AST*,bool);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
+		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class NotBoolExpressionAST : public UnaryExpressionAST
