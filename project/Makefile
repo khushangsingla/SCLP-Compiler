@@ -8,6 +8,7 @@ YACC_FLAGS = -dv
 
 # YACC_FLAGS += -t
 # CFLAGS += -DDEBUG -g
+# FLAGS += -DDEBUG -g
 
 all: sclp
 

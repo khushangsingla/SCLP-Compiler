@@ -297,7 +297,7 @@ class ReturnStatementAST : public StatementAST
 class SelectionStatementAST : public StatementAST
 {
 	public:
-		AST *condition,*ifpart,*elsepart;
+		AST *cond,*ifpart,*elsepart;
 		SelectionStatementAST(AST*,AST*,AST*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);

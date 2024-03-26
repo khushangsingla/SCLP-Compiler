@@ -18,10 +18,11 @@ TACOperand::TACOperand()
 {
 }
 
-AssignmentTACStatement::AssignmentTACStatement(TACOperand* res,TACOperand* val) : TACStatement(ASSIGNMENT_TAC_STATEMENT)
+AssignmentTACStatement::AssignmentTACStatement(TACOperand* res,TACOperand* val,bool do_negation) : TACStatement(ASSIGNMENT_TAC_STATEMENT)
 {
 	result = res;
 	value = val;
+	this -> do_negation = do_negation;
 }
 
 CallTACStatement::CallTACStatement() : TACStatement(CALL_TAC_STATEMENT)
@@ -236,5 +237,8 @@ string STemporaryTACOperand::to_string()
 
 void AssignmentTACStatement::print()
 {
-	tac_output(result->to_string() + " = " + value->to_string() + "\n");
+	if(do_negation)
+		tac_output(result->to_string() + " = !" + value->to_string() + "\n");
+	else
+		tac_output(result->to_string() + " = " + value->to_string() + "\n");
 }

@@ -56,8 +56,9 @@ class TACStatement
 class AssignmentTACStatement : public TACStatement
 {
 	TACOperand *value;
+	bool do_negation;
 	public:
-		AssignmentTACStatement(TACOperand* result, TACOperand* value);
+		AssignmentTACStatement(TACOperand* result, TACOperand* value, bool do_negation = false);
 		void print();
 };
 

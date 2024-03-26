@@ -37,6 +37,7 @@ do
 		y=$?
 		./ref-sclp --sa-parse $file
 		z=$?
+		echo $y $z $file
 		if [ $z -eq 0 ]
 		then
 			if [ $y -ne 0 ]

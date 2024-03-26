@@ -105,7 +105,11 @@ extern int yylex();
 %type<ast> relative_expression
 %type<ast> variable_as_operand
 %type<ast> constant_as_operand
-%type<vec_of_ast> compound_statement
+%type<ast> compound_statement
+%type<ast> if_condition
+%type<ast> if_statement
+%type<ast> do_while_statement
+%type<ast> while_statement
 
 %%
 
@@ -372,6 +376,24 @@ statement
 													}
 												}
 	| compound_statement {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
+	
+	| if_statement {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
+
+	| do_while_statement {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
+
+	| while_statement {
 													if(!arguments.stop_after_parsing){
 														$$ = $1;
 													}

@@ -474,16 +474,18 @@ void SequenceStatementAST::print(string prefix)
 
 void SelectionStatementAST::print(string prefix)
 {
-	ast_output("\n" + prefix + "If: ");
+	ast_output("\n" + prefix + "If: \n");
+	ast_output(prefix + "  " + "Condition (");
 	cond -> print(prefix + "  ");
+	ast_output(")");
 	ast_output("\n" + prefix + "Then (");
 	ifpart -> print(prefix + "  ");
-	ast_output(")\n");
+	ast_output(")");
 	if(elsepart != NULL)
 	{
 		ast_output("\n" + prefix + "Else (");
 		elsepart -> print(prefix + "  ");
-		ast_output(")\n");
+		ast_output(")");
 	}
 }
 
@@ -494,20 +496,20 @@ void IterationStatementAST::print(string prefix)
 		ast_output("\n" + prefix + "Do: ");
 		ast_output("\n" + prefix + "Body (");
 		body -> print(prefix + "  ");
-		ast_output(")\n");
+		ast_output(")");
 		ast_output("\n" + prefix + "While Condition (");
 		condition -> print(prefix + "  ");
-		ast_output(")\n");
+		ast_output(")");
 	}
 	else
 	{
 		ast_output("\n" + prefix + "While: \n");
 		ast_output(prefix + "  " + "Condition (");
 		condition -> print(prefix + "  ");
-		ast_output(")\n");
+		ast_output(")");
 		ast_output("\n" + prefix + "Body (");
 		body -> print(prefix + "  ");
-		ast_output(")\n");
+		ast_output(")");
 	}
 }
 
@@ -638,9 +640,9 @@ void RelationalExpressionAST::gentac(vector<TACStatement*>& tacs)
 void ConditionalExpressionAST::gentac(vector<TACStatement*> &tacs)
 {
 	vector<TACStatement*> tacs1;
+	left -> gentac(tacs);
 	TACOperand* label1 = new LabelTACOperand();
 	TACOperand* label2 = new LabelTACOperand();
-	left -> gentac(tacs);
 	value = new STemporaryTACOperand();
 	mid -> gentac(tacs1);
 	tacs1.push_back(new AssignmentTACStatement(value, mid->value));
@@ -684,21 +686,61 @@ void SequenceStatementAST::gentac(vector<TACStatement*> &tacs)
 void SelectionStatementAST::gentac(vector<TACStatement*> &tacs)
 {
 	cond -> gentac(tacs);
-	TACOperand* label1 = new LabelTACOperand();
-	TACOperand* label2 = new LabelTACOperand();
-	TACStatement* tac1 = new ComputeTACStatement(cond->value, NULL, NOT_COMPUTATION_TYPE);
-	tacs.push_back(tac1);
-	TACStatement* tac2 = new IfGotoTACStatement(tac1->get_value(), label1);
-	tacs.push_back(tac2);
-	ifpart -> gentac(tacs);
-	TACStatement* tac3 = new GotoTACStatement(label2);
-	tacs.push_back(tac3);
-	tacs.push_back(new LabelTACStatement(label1));
-	if(elsepart != NULL)
-	{
-		elsepart -> gentac(tacs);
+	vector<TACStatement*> tacs1;
+	ifpart -> gentac(tacs1);
+	TemporaryTACOperand* temp = new TemporaryTACOperand();
+	tacs.push_back(new AssignmentTACStatement(temp, cond->value, true));
+	if(!elsepart){
+		TACOperand* label1 = new LabelTACOperand();
+		tacs.push_back(new IfGotoTACStatement(temp, label1));
+		tacs.insert(tacs.end(), tacs1.begin(), tacs1.end());
+		tacs.push_back(new GotoTACStatement(label1));
+		if(elsepart != NULL)
+		{
+			TACOperand* label2 = new LabelTACOperand();
+			tacs.push_back(new LabelTACStatement(label2));
+			elsepart -> gentac(tacs);
+		}
+		tacs.push_back(new LabelTACStatement(label1));
 	}
-	tacs.push_back(new LabelTACStatement(label2));
+	else{
+		TACOperand* label1 = new LabelTACOperand();
+		TACOperand* label2 = new LabelTACOperand();
+		tacs.push_back(new IfGotoTACStatement(temp, label2));
+		tacs.insert(tacs.end(), tacs1.begin(), tacs1.end());
+		tacs.push_back(new GotoTACStatement(label1));
+		tacs.push_back(new LabelTACStatement(label2));
+		elsepart -> gentac(tacs);
+		tacs.push_back(new LabelTACStatement(label1));
+	}
+}
+
+void IterationStatementAST::gentac(vector<TACStatement*> &tacs)
+{
+	vector<TACStatement*> tacs1, tacs2;
+	if(!is_do_while){
+		condition -> gentac(tacs2);
+		body -> gentac(tacs1);
+		TACOperand* label1 = new LabelTACOperand();
+		TACOperand* label2 = new LabelTACOperand();
+		TemporaryTACOperand* temp = new TemporaryTACOperand();
+		tacs.push_back(new LabelTACStatement(label1));
+		tacs.insert(tacs.end(), tacs2.begin(), tacs2.end());
+		tacs.push_back(new AssignmentTACStatement(temp, condition->value, true));
+		tacs.push_back(new IfGotoTACStatement(temp, label2));
+		tacs.insert(tacs.end(), tacs1.begin(), tacs1.end());
+		tacs.push_back(new GotoTACStatement(label1));
+		tacs.push_back(new LabelTACStatement(label2));
+	}else{
+		body -> gentac(tacs1);
+		condition -> gentac(tacs2);
+		TACOperand* label1 = new LabelTACOperand();
+		tacs.push_back(new LabelTACStatement(label1));
+		tacs.insert(tacs.end(), tacs1.begin(), tacs1.end());
+		tacs.insert(tacs.end(), tacs2.begin(), tacs2.end());
+		tacs.push_back(new IfGotoTACStatement(condition->value, label1));
+	}
+	
 }
 
 void SequenceStatementAST::add_statement(AST* ast)
