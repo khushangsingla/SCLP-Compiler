@@ -58,6 +58,18 @@ enum special_registers{
 	reg_zero
 };
 
+class TACOperand
+{
+	public:
+		TACOperand();
+		tac_operand_type op_type;
+		int alloted_register;
+		virtual string to_string() = 0;
+		virtual string to_string_for_rtl();
+		virtual st_datatype get_type();
+		virtual void set_type(st_datatype t);
+};
+
 class RTLOperand
 {
 	public:
@@ -96,6 +108,7 @@ class LabelRTLStatement : public RTLStatement
 	TACOperand* label;
 	public:
 		LabelRTLStatement(TACOperand*);
+		void print();
 };
 
 class MoveRTLStatement : public RTLStatement
@@ -112,6 +125,7 @@ class ILoadMoveRTLStatement : public MoveRTLStatement
 		int int_val;
 	public:
 		ILoadMoveRTLStatement(int, int);
+		void print();
 };
 
 class ILoadfMoveRTLStatement : public MoveRTLStatement
@@ -119,7 +133,8 @@ class ILoadfMoveRTLStatement : public MoveRTLStatement
 	private:
 		double float_val;
 	public:
-		ILoadfMoveRTLStatement(int, float);
+		ILoadfMoveRTLStatement(int, double);
+		void print();
 };
 
 class RegisterMoveRTLStatement : public MoveRTLStatement
@@ -128,6 +143,7 @@ class RegisterMoveRTLStatement : public MoveRTLStatement
 		int src_reg;
 	public:
 		RegisterMoveRTLStatement(int, int);
+		void print();
 };
 
 class LoadMoveRTLStatement : public MoveRTLStatement
@@ -136,6 +152,7 @@ class LoadMoveRTLStatement : public MoveRTLStatement
 		TACOperand* src;
 	public:
 		LoadMoveRTLStatement(int, TACOperand*);
+		void print();
 };
 
 class StoreMoveRTLStatement : public MoveRTLStatement
@@ -144,6 +161,7 @@ class StoreMoveRTLStatement : public MoveRTLStatement
 		TACOperand* dst;
 	public:
 		StoreMoveRTLStatement(int, TACOperand*);
+		void print();
 };
 
 class LoadAddrMoveRTLStatement : public MoveRTLStatement
@@ -152,6 +170,27 @@ class LoadAddrMoveRTLStatement : public MoveRTLStatement
 		TACOperand* src;
 	public:
 		LoadAddrMoveRTLStatement(int, TACOperand*);
+		void print();
+};
+
+class MoveFRTLStatement : public MoveRTLStatement
+{
+	private:
+		int regop;
+		int num;
+	public:
+		MoveFRTLStatement(int, int, int);
+		void print();
+};
+
+class MoveTRTLStatement : public MoveRTLStatement
+{
+	private:
+		int regop;
+		int num;
+	public:
+		MoveTRTLStatement(int, int, int);
+		void print();
 };
 
 class NopRTLStatement : public RTLStatement
@@ -164,12 +203,14 @@ class ReadRTLStatement : public RTLStatement
 {
 	public:
 		ReadRTLStatement();
+		void print();
 };
 
 class WriteRTLStatement : public RTLStatement
 {
 	public:
 		WriteRTLStatement();
+		void print();
 };
 
 class CallCFRTLStatement : public ControlFlowRTLStatement
@@ -184,12 +225,14 @@ class IfGotoCFRTLStatement : public ControlFlowRTLStatement
 		int condition;
 	public:
 		IfGotoCFRTLStatement(int, TACOperand*);
+		void print();
 };
 
 class GotoCFRTLStatement : public ControlFlowRTLStatement
 {
 	public:
 		GotoCFRTLStatement(TACOperand*);
+		void print();
 };
 
 class ReturnCFRTLStatement : public ControlFlowRTLStatement

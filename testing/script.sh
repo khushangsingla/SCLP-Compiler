@@ -56,7 +56,7 @@ do
 		fi
 		# continue
 		# echo ./sclp --show-ast $file
-		./sclp --show-ast $file
+		./sclp --sa-ast --show-ast $file
 		y=$?
 		mv $file.ast myout
 		./ref-sclp --sa-ast --show-ast $file
@@ -91,7 +91,7 @@ do
 			fi
 		fi
 
-		./sclp --show-tac $file
+		./sclp --sa-tac --show-tac $file
 		y=$?
 		mv $file.tac myout
 		./ref-sclp --sa-tac --show-tac $file
@@ -122,6 +122,41 @@ do
 				echo $file
 				# echo $result
 				echo TAC ERROR 2
+				exit
+			fi
+		fi
+
+		./sclp --show-rtl $file
+		y=$?
+		mv $file.rtl myout
+		./ref-sclp --sa-rtl -s --show-rtl $file
+		z=$?
+		if [ $y -eq $z ]
+		then
+			if [ $z -eq 0 ]
+			then
+				result=$(diff -y -W 72 -Bw myout $file.rtl)
+				if [ $? -ne 0 ]
+				then
+					echo $file 
+					# echo $result
+					echo RTL ERROR 1
+					exit
+				fi
+			fi
+		else
+			if [ $y -eq 0 ]
+			then
+				echo $file
+				# echo $result
+				echo RTL ERROR 2
+				exit
+			fi
+			if [ $z -eq 0 ]
+			then
+				echo $file
+				# echo $result
+				echo RTL ERROR 2
 				exit
 			fi
 		fi

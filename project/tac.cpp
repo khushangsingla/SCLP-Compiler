@@ -237,9 +237,19 @@ string LabelTACOperand::to_string()
 	return "Label" + std::to_string(num);
 }
 
+string StringConstantTACOperand::to_string_for_rtl()
+{
+	return "_str_" + std::to_string(string_index[value]);
+}
+
 string StringConstantTACOperand::to_string()
 {
-	return  value;
+	return value;
+}
+
+string TACOperand::to_string_for_rtl()
+{
+	return to_string();
 }
 
 string TemporaryTACOperand::to_string()
@@ -312,15 +322,37 @@ void AssignmentTACStatement::genrtl(vector<RTLStatement*> &rtl)
 				rtl.push_back(new LoadAddrMoveRTLStatement(value -> alloted_register,value));
 				break;
 			case TEMPORARY_TAC_OPERAND:
+				assert(false);
+				break;
 			case VARIABLE_TAC_OPERAND:
 			case STEMPORARY_TAC_OPERAND:
-				rtl.push_back(new RegisterMoveRTLStatement(value->alloted_register,value));
+				rtl.push_back(new LoadMoveRTLStatement(value->alloted_register, value));
 				break;
 			default:
 				assert(false);
 		}
 	}
-	rtl.push_back(new RegisterMoveRTLStatement(result,value->alloted_register));
+	if(result->op_type == VARIABLE_TAC_OPERAND || result->op_type == STEMPORARY_TAC_OPERAND){
+		assert(!do_negation);
+		rtl.push_back(new StoreMoveRTLStatement(value->alloted_register, result));
+	}
+	else{
+		if(result->alloted_register == -1)
+		{
+			result->alloted_register = result->get_type() == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
+		}
+		if(do_negation)
+		{
+			rtl.push_back(new ComputeRTLStatement(result->alloted_register,value->alloted_register,-1,NOT_COMPUTATION_TYPE));
+			assert(result->get_type() == DTYPE_BOOL);
+		}
+		else
+		{
+			rtl.push_back(new RegisterMoveRTLStatement(result->alloted_register,value->alloted_register));
+		}
+	}
+
+	// rtl.push_back(new RegisterMoveRTLStatement(result->alloted_register,value->alloted_register));
 	RTLOperand::free_register(value -> alloted_register);
 }
 
@@ -441,9 +473,9 @@ void LabelTACStatement::genrtl(vector<RTLStatement*> &rtl)
 void ComputeTACStatement::genrtl(vector<RTLStatement*> &rtl)
 {
 	assert(left);
-	assert(left->get_type() == DTYPE_FLOAT || left->get_type() == DTYPE_INTEGER);
+	assert(left->get_type() == DTYPE_FLOAT || left->get_type() == DTYPE_INTEGER || left->get_type() == DTYPE_BOOL);
 	if(right)
-		assert(right->get_type() == DTYPE_FLOAT || right->get_type() == DTYPE_INTEGER);
+		assert(right->get_type() == DTYPE_FLOAT || right->get_type() == DTYPE_INTEGER || right->get_type() == DTYPE_BOOL);
 	if(left->alloted_register == -1)
 	{
 		left->alloted_register = left->get_type() == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
@@ -456,13 +488,19 @@ void ComputeTACStatement::genrtl(vector<RTLStatement*> &rtl)
 				rtl.push_back(new ILoadMoveRTLStatement(left->alloted_register,((IntegerConstantTACOperand*)left)->value));
 				break;
 			case TEMPORARY_TAC_OPERAND:
+				assert(false);
+				break;
 			case VARIABLE_TAC_OPERAND:
 			case STEMPORARY_TAC_OPERAND:
-				rtl.push_back(new RegisterMoveRTLStatement(left->alloted_register,left));
+				rtl.push_back(new LoadMoveRTLStatement(left->alloted_register,left));
 				break;
 			default:
 				assert(false);
 		}
+	}
+	if(result->alloted_register == -1)
+	{
+		result->alloted_register = result->get_type() == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
 	}
 	if(right && right->alloted_register == -1)
 	{
@@ -476,18 +514,16 @@ void ComputeTACStatement::genrtl(vector<RTLStatement*> &rtl)
 				rtl.push_back(new ILoadMoveRTLStatement(right->alloted_register,((IntegerConstantTACOperand*)right)->value));
 				break;
 			case TEMPORARY_TAC_OPERAND:
+				assert(false);
+				break;
 			case VARIABLE_TAC_OPERAND:
 			case STEMPORARY_TAC_OPERAND:
-				rtl.push_back(new RegisterMoveRTLStatement(right->alloted_register,right));
+				rtl.push_back(new LoadMoveRTLStatement(right->alloted_register, right));
 				break;
 			default:
 				assert(false);
 				break;
 		}
-	}
-	if(result->alloted_register == -1)
-	{
-		result->alloted_register = result->get_type() == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
 	}
 	if(result->get_type() == DTYPE_FLOAT)
 	{
@@ -522,6 +558,14 @@ void ComputeTACStatement::genrtl(vector<RTLStatement*> &rtl)
 			case EQ_COMPUTATION_TYPE:
 				rtl.push_back(new ComputeRTLStatement(result->alloted_register,left->alloted_register,right->alloted_register, type));
 				is_comparison = true;
+				break;
+			case NEG_COMPUTATION_TYPE:
+				rtl.push_back(new ComputeRTLStatement(result->alloted_register,left->alloted_register,-1, type));
+				assert(!right);
+				break;
+			case NOT_COMPUTATION_TYPE:
+				rtl.push_back(new ComputeRTLStatement(result->alloted_register,left->alloted_register,-1, type));
+				assert(!right);
 				break;
 			default:
 				assert(false);
@@ -560,7 +604,11 @@ void IfGotoTACStatement::genrtl(vector<RTLStatement*> &rtl)
 {
 	assert(condition);
 	assert(condition -> get_type() == DTYPE_BOOL);
-	assert(condition->alloted_register >= 0 && condition->alloted_register <= LAST_INT_REGISTER);
+	// assert(condition->alloted_register >= 0 && condition->alloted_register <= LAST_INT_REGISTER);
+	if(condition->alloted_register == -1)
+	{
+		condition->alloted_register = RTLOperand::get_new_int_register();
+	}
 	rtl.push_back(new IfGotoCFRTLStatement(condition->alloted_register,label));
 	RTLOperand::free_register(condition -> alloted_register);
 }

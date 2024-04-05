@@ -19,28 +19,6 @@ enum tac_type {
 	RETURN_TAC_STATEMENT,
 };
 
-enum tac_operand_type {
-	ARRAY_ACCESS_TAC_OPERAND,
-	DOUBLE_CONSTANT_TAC_OPERAND,
-	INTEGER_CONSTANT_TAC_OPERAND,
-	LABEL_TAC_OPERAND,
-	POINTER_DEREFERENCE_TAC_OPERAND,
-	STRING_CONSTANT_TAC_OPERAND,
-	TEMPORARY_TAC_OPERAND,
-	VARIABLE_TAC_OPERAND,
-	STEMPORARY_TAC_OPERAND,
-};
-
-class TACOperand
-{
-	public:
-		TACOperand();
-		tac_operand_type op_type;
-		int alloted_register;
-		virtual string to_string() = 0;
-		virtual st_datatype get_type();
-		virtual void set_type(st_datatype t);
-};
 
 class TACStatement
 {
@@ -141,8 +119,8 @@ class ArrayAccessTACOperand : public TACOperand
 
 class DoubleConstantTACOperand : public TACOperand
 {
-	double value;
 	public:
+		double value;
 		DoubleConstantTACOperand(double);
 		string to_string();
 		st_datatype get_type();
@@ -150,8 +128,8 @@ class DoubleConstantTACOperand : public TACOperand
 
 class IntegerConstantTACOperand : public TACOperand
 {
-	int value;
 	public:
+		int value;
 		IntegerConstantTACOperand(int);
 		string to_string();
 		st_datatype get_type();
@@ -180,6 +158,7 @@ class StringConstantTACOperand : public TACOperand
 		static map<string,int> string_index;
 		StringConstantTACOperand(string);
 		string to_string();
+		string to_string_for_rtl();
 		st_datatype get_type();
 };
 

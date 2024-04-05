@@ -158,7 +158,10 @@ void Procedure::genrtl()
 {
 	if(defn){
 		defn -> genrtl();
-		// TODO: print rtl here
+		rtl_output("**PROCEDURE: " + name + "\n", false);	
+		rtl_output("**BEGIN: RTL Statements\n", false);
+		defn->print_rtl();
+		rtl_output("**END: RTL Statements\n", false);
 	}
 }
 
@@ -166,5 +169,17 @@ void ProcedureDefn::genrtl()
 {
 	for(int i=0; i<tac.size(); ++i){
 		tac[i]->genrtl(rtl);
+#ifdef DEBUG
+		print_rtl();
+		rtl.erase(rtl.begin(), rtl.end());
+#endif
+	}
+}
+
+void ProcedureDefn::print_rtl()
+{
+	for(int i=0; i<rtl.size(); ++i){
+		rtl[i]->print();
+		rtl_output("\n");
 	}
 }

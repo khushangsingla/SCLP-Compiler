@@ -24,6 +24,7 @@ class ProcedureDefn
 		void gentac();
 		void print_tac();
 		void genrtl();
+		void print_rtl();
 };
 
 class Procedure 

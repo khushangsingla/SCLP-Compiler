@@ -8,14 +8,87 @@ RTLOperand::RTLOperand()
 {
 }
 
-string RTLOperand:get_reg_name(int reg)
+string RTLOperand::get_reg_name(int reg)
 {
 	switch(reg)
 	{
 		case reg_v0:
 			return "v0";
-			break;
-
+		case reg_t0:
+			return "t0";
+		case reg_t1:
+			return "t1";
+		case reg_t2:
+			return "t2";
+		case reg_t3:
+			return "t3";
+		case reg_t4:
+			return "t4";
+		case reg_t5:
+			return "t5";
+		case reg_t6:
+			return "t6";
+		case reg_t7:
+			return "t7";
+		case reg_t8:
+			return "t8";
+		case reg_t9:
+			return "t9";
+		case reg_s0:
+			return "s0";
+		case reg_s1:
+			return "s1";
+		case reg_s2:
+			return "s2";
+		case reg_s3:
+			return "s3";
+		case reg_s4:
+			return "s4";
+		case reg_s5:
+			return "s5";
+		case reg_s6:
+			return "s6";
+		case reg_s7:
+			return "s7";
+		case reg_f0:
+			return "f0";
+		case reg_f2:
+			return "f2";
+		case reg_f4:
+			return "f4";
+		case reg_f6:
+			return "f6";
+		case reg_f8:
+			return "f8";
+		case reg_f10:
+			return "f10";
+		case reg_f12:
+			return "f12";
+		case reg_f14:
+			return "f14";
+		case reg_f16:
+			return "f16";
+		case reg_f18:
+			return "f18";
+		case reg_f20:
+			return "f20";
+		case reg_f22:
+			return "f22";
+		case reg_f24:
+			return "f24";
+		case reg_f26:
+			return "f26";
+		case reg_f28:
+			return "f28";
+		case reg_f30:
+			return "f30";
+		case reg_a0:
+			return "a0";
+		case reg_zero:
+			return "zero";
+		default:
+			asm("int3");
+			assert(false);
 	}
 }
 
@@ -57,19 +130,31 @@ RegisterMoveRTLStatement::RegisterMoveRTLStatement(int dst, int src) : MoveRTLSt
 	src_reg = src;
 }
 
-LoadRTLMoveStatement::LoadRTLMoveStatement(int reg, TACOperand* var) : MoveRTLStatement(reg)
+LoadMoveRTLStatement::LoadMoveRTLStatement(int reg, TACOperand* var) : MoveRTLStatement(reg)
 {
 	src = var;
 }
 
-StoreRTLMoveStatement::StoreRTLMoveStatement(TACOperand* var, int reg) : MoveRTLStatement(reg)
+StoreMoveRTLStatement::StoreMoveRTLStatement(int reg, TACOperand* var) : MoveRTLStatement(reg)
 {
 	dst = var;
 }
 
-LoadAddrRTLMoveStatement::LoadAddrRTLMoveStatement(int reg, TACOperand* var) : MoveRTLStatement(reg)
+LoadAddrMoveRTLStatement::LoadAddrMoveRTLStatement(int reg, TACOperand* var) : MoveRTLStatement(reg)
 {
 	src = var;
+}
+
+MoveFRTLStatement::MoveFRTLStatement(int reg, int regop, int num) : MoveRTLStatement(reg)
+{
+	this->regop = regop;
+	this->num = num;
+}
+
+MoveTRTLStatement::MoveTRTLStatement(int reg, int regop, int num) : MoveRTLStatement(reg)
+{
+	this->regop = regop;
+	this->num = num;
 }
 
 NopRTLStatement::NopRTLStatement() : RTLStatement()
@@ -156,7 +241,7 @@ int RTLOperand::get_new_float_register()
 void RTLOperand::free_register(int num)
 {
 	assert(num >= 0 && num <= LAST_FLOAT_REGISTER);
-	assert(register_mapping[num]);
+	// assert(register_mapping[num]);
 	register_mapping[num] = false;
 }
 
@@ -210,10 +295,12 @@ void ComputeRTLStatement::print()
 		case EQ_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("seq.d:\t");
 			else	rtl_output("seq:\t");
+			is_arrow = true;
 			break;
 		case NEQ_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("sne.d:\t");
 			else	rtl_output("sne:\t");
+			is_arrow = true;
 			break;
 		case LT_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("slt.d:\t");
@@ -247,4 +334,100 @@ void ComputeRTLStatement::print()
 			assert(false);
 	}
 
+	if(is_arrow)
+	{
+		rtl_output(RTLOperand::get_reg_name(reg_dst) + " <- ");
+	}
+
+	if(reg2 == -1)
+	{
+		rtl_output(RTLOperand::get_reg_name(reg1));
+	}
+	else
+	{
+		rtl_output(RTLOperand::get_reg_name(reg1) + ", " + RTLOperand::get_reg_name(reg2));
+	}
+}
+
+void ILoadMoveRTLStatement::print()
+{
+	rtl_output("iLoad:\t" + RTLOperand::get_reg_name(reg) + " <- " + to_string(int_val));
+}
+
+void ILoadfMoveRTLStatement::print()
+{
+	string float_str;
+	std::stringstream ss;
+	ss << std::fixed << std::setprecision(2) << float_val;
+	float_str = ss.str();
+	rtl_output("iLoad.d:\t" + RTLOperand::get_reg_name(reg) + " <- " + float_str);
+}
+
+void RegisterMoveRTLStatement::print()
+{
+	rtl_output("move:\t" + RTLOperand::get_reg_name(reg) + " <- " + RTLOperand::get_reg_name(src_reg));
+}
+
+void LoadMoveRTLStatement::print()
+{
+	if(src->get_type() != DTYPE_FLOAT)
+	{
+		rtl_output("load:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string_for_rtl());
+	}
+	else
+	{
+		rtl_output("load.d:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string_for_rtl());
+	}
+}
+
+void StoreMoveRTLStatement::print()
+{
+	if(dst->get_type() != DTYPE_FLOAT)
+	{
+		rtl_output("store:\t" + dst->to_string_for_rtl() + " <- " + RTLOperand::get_reg_name(reg));
+	}
+	else
+	{
+		rtl_output("store.d:\t" + dst->to_string_for_rtl() + " <- " + RTLOperand::get_reg_name(reg));
+	}
+}
+
+void LoadAddrMoveRTLStatement::print()
+{
+	rtl_output("load_addr:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string_for_rtl());
+}
+
+void MoveFRTLStatement::print()
+{
+	rtl_output("movf:\t" + RTLOperand::get_reg_name(reg) + " <- " + RTLOperand::get_reg_name(regop) + " , " + to_string(num));
+}
+
+void MoveTRTLStatement::print()
+{
+	rtl_output("movt:\t" + RTLOperand::get_reg_name(reg) + " <- " + RTLOperand::get_reg_name(regop) + " , " + to_string(num));
+}
+
+void ReadRTLStatement::print()
+{
+	rtl_output("read\t");
+}
+
+void WriteRTLStatement::print()
+{
+	rtl_output("write\t");
+}
+
+void GotoCFRTLStatement::print()
+{
+	rtl_output("goto:\t" + target->to_string_for_rtl());
+}
+
+void IfGotoCFRTLStatement::print()
+{
+	rtl_output("bgtz:\t" + RTLOperand::get_reg_name(condition) + ", " + target->to_string_for_rtl());
+}
+
+void LabelRTLStatement::print()
+{
+	rtl_output(label->to_string_for_rtl() + ":", false);
 }
