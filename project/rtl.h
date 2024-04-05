@@ -54,7 +54,8 @@ enum float_registers{
 
 enum special_registers{
 	reg_f0 = LAST_FLOAT_REGISTER + 1,
-	reg_a0
+	reg_a0,
+	reg_zero
 };
 
 class RTLOperand
@@ -67,6 +68,7 @@ class RTLOperand
 		static int get_new_float_register();
 		static void free_register(int);
 		static int is_reg_allocated(int);
+		static string get_reg_name(int);
 };
 
 class ComputeRTLStatement : public RTLStatement
@@ -98,15 +100,58 @@ class LabelRTLStatement : public RTLStatement
 
 class MoveRTLStatement : public RTLStatement
 {
-	private:
-		int is_store;
+	protected:
 		int reg;
-		int reg_dst;
-		TACOperand* op;
 	public:
-		MoveRTLStatement(int, TACOperand*);
-		MoveRTLStatement(TACOperand*, int);
-		MoveRTLStatement(int, int);
+		MoveRTLStatement(int);
+};
+
+class ILoadMoveRTLStatement : public MoveRTLStatement
+{
+	private:
+		int int_val;
+	public:
+		ILoadMoveRTLStatement(int, int);
+};
+
+class ILoadfMoveRTLStatement : public MoveRTLStatement
+{
+	private:
+		double float_val;
+	public:
+		ILoadfMoveRTLStatement(int, float);
+};
+
+class RegisterMoveRTLStatement : public MoveRTLStatement
+{
+	private:
+		int src_reg;
+	public:
+		RegisterMoveRTLStatement(int, int);
+};
+
+class LoadMoveRTLStatement : public MoveRTLStatement
+{
+	private:
+		TACOperand* src;
+	public:
+		LoadMoveRTLStatement(int, TACOperand*);
+};
+
+class StoreMoveRTLStatement : public MoveRTLStatement
+{
+	private:
+		TACOperand* dst;
+	public:
+		StoreMoveRTLStatement(int, TACOperand*);
+};
+
+class LoadAddrMoveRTLStatement : public MoveRTLStatement
+{
+	private:
+		TACOperand* src;
+	public:
+		LoadAddrMoveRTLStatement(int, TACOperand*);
 };
 
 class NopRTLStatement : public RTLStatement

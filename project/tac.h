@@ -19,10 +19,23 @@ enum tac_type {
 	RETURN_TAC_STATEMENT,
 };
 
+enum tac_operand_type {
+	ARRAY_ACCESS_TAC_OPERAND,
+	DOUBLE_CONSTANT_TAC_OPERAND,
+	INTEGER_CONSTANT_TAC_OPERAND,
+	LABEL_TAC_OPERAND,
+	POINTER_DEREFERENCE_TAC_OPERAND,
+	STRING_CONSTANT_TAC_OPERAND,
+	TEMPORARY_TAC_OPERAND,
+	VARIABLE_TAC_OPERAND,
+	STEMPORARY_TAC_OPERAND,
+};
+
 class TACOperand
 {
 	public:
 		TACOperand();
+		tac_operand_type op_type;
 		int alloted_register;
 		virtual string to_string() = 0;
 		virtual st_datatype get_type();

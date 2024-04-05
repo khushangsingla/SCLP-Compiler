@@ -8,6 +8,17 @@ RTLOperand::RTLOperand()
 {
 }
 
+string RTLOperand:get_reg_name(int reg)
+{
+	switch(reg)
+	{
+		case reg_v0:
+			return "v0";
+			break;
+
+	}
+}
+
 ComputeRTLStatement::ComputeRTLStatement(int result, int left, int right, computation_type type) : RTLStatement()
 {
 	reg1 = left;
@@ -26,28 +37,39 @@ LabelRTLStatement::LabelRTLStatement(TACOperand* l) : RTLStatement()
 	label = l;
 }
 
-MoveRTLStatement::MoveRTLStatement(int reg, TACOperand* op) : RTLStatement()
+MoveRTLStatement::MoveRTLStatement(int reg) : RTLStatement()
 {
 	this->reg = reg;
-	this->op = op;
-	this->is_store = 0;
-	reg_dst = -1;
 }
 
-MoveRTLStatement::MoveRTLStatement(TACOperand* op, int reg) : RTLStatement()
+ILoadMoveRTLStatement::ILoadMoveRTLStatement(int reg, int val) : MoveRTLStatement(reg)
 {
-	this->reg = reg;
-	this->op = op;
-	this->is_store = 1;
-	reg_dst = -1;
+	int_val = val;
 }
 
-MoveRTLStatement::MoveRTLStatement(int reg1,int reg2) : RTLStatement()
+ILoadfMoveRTLStatement::ILoadfMoveRTLStatement(int reg, double val) : MoveRTLStatement(reg)
 {
-	this->reg = reg2;
-	this->reg_dst = reg1;
-	this->is_store = -1;
-	op = NULL;
+	float_val = val;
+}
+
+RegisterMoveRTLStatement::RegisterMoveRTLStatement(int dst, int src) : MoveRTLStatement(dst)
+{
+	src_reg = src;
+}
+
+LoadRTLMoveStatement::LoadRTLMoveStatement(int reg, TACOperand* var) : MoveRTLStatement(reg)
+{
+	src = var;
+}
+
+StoreRTLMoveStatement::StoreRTLMoveStatement(TACOperand* var, int reg) : MoveRTLStatement(reg)
+{
+	dst = var;
+}
+
+LoadAddrRTLMoveStatement::LoadAddrRTLMoveStatement(int reg, TACOperand* var) : MoveRTLStatement(reg)
+{
+	src = var;
 }
 
 NopRTLStatement::NopRTLStatement() : RTLStatement()
@@ -163,22 +185,27 @@ void ComputeRTLStatement::print()
 
 	bool is_float = reg_dst > LAST_INT_REGISTER;
 
+	bool is_arrow = false;
 	switch(type){
 		case ADD_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("add.d:\t");
 			else	rtl_output("add:\t");
+			is_arrow = true;
 			break;
 		case SUB_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("sub.d:\t");
 			else	rtl_output("sub:\t");
+			is_arrow = true;
 			break;
 		case MUL_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("mul.d:\t");
 			else	rtl_output("mul:\t");
+			is_arrow = true;
 			break;
 		case DIV_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("div.d:\t");
 			else	rtl_output("div:\t");
+			is_arrow = true;
 			break;
 		case EQ_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("seq.d:\t");
@@ -206,13 +233,18 @@ void ComputeRTLStatement::print()
 			break;
 		case AND_COMPUTATION_TYPE:
 			rtl_output("and:\t");
+			is_arrow = true;
 			break; 
 		case OR_COMPUTATION_TYPE:
 			rtl_output("or:\t");
+			is_arrow = true;
 			break;
 		case NOT_COMPUTATION_TYPE:
 			rtl_output("not:\t");
+			is_arrow = true;
 			break;
-
+		default:
+			assert(false);
 	}
+
 }
