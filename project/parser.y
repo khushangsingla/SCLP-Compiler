@@ -80,6 +80,8 @@ extern int yylex();
 %left PLUS MINUS
 %left MULT DIV
 %right UMINUS
+%nonassoc ifakela
+%nonassoc ELSE
 
 
 %type<prog> program
@@ -409,12 +411,12 @@ if_condition
 ;
 
 if_statement
-	: IF if_condition statement ELSE statement {
+	: IF if_condition statement ELSE statement  {
 													if(!arguments.stop_after_parsing){
 														$$ = new SelectionStatementAST($2, $3, $5);
 													}
 												}
-	| IF if_condition statement {
+	| IF if_condition statement  %prec ifakela {
 													if(!arguments.stop_after_parsing){
 														$$ = new SelectionStatementAST($2, $3, NULL);
 													}

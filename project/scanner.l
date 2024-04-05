@@ -161,7 +161,6 @@ return {
 
 &			{
 				my_print("", "[scanner.l] & found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("ADDRESSOF",yytext,yylineno);
 				return ADDRESSOF;
 			}

@@ -22,5 +22,6 @@ class Program
 		int add_global_symbols(SymbolTable*);
 		int main_func_check();
 		void gentac();
+		void genrtl();
 		// void print_ast();
 };

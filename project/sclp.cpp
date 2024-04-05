@@ -15,8 +15,10 @@ using namespace std;
 #define SHOW_TOKENS 't'
 #define STOP_AFTER_SCAN 's'
 #define STOP_AFTER_PARSE 'p'
+#define STOP_AFTER_TAC 'T'
 #define SHOW_AST 'a'
 #define SHOW_TAC 'c'
+#define SHOW_RTL 'r'
 #define STOP_AFTER_AST 'A'
 #define PRINT_TO_TERM 'd'
 
@@ -57,9 +59,11 @@ int main(int argc, char* argv[])
   		{ "show-tokens", SHOW_TOKENS, 0, 0, "Show the tokens in FILE.toks (or out.toks)", 9 },
   		{ "show-ast", SHOW_AST, 0, 0, "Show the ast in FILE.ast (or out.ast)", 9 },
 		{ "show-tac", SHOW_TAC, 0, 0, "Show the tac in FILE.tac (or out.tac)", 9 },
+		{ "show-rtl", SHOW_RTL, 0, 0, "Show the rtl in FILE.rtl (or out.rtl)", 9 },
   		{ "sa-scan",  STOP_AFTER_SCAN, 0, 0, "Stop after lexical analysis", 0 },
   		{ "sa-parse",  STOP_AFTER_PARSE, 0, 0, "Stop after parsing", 0 },
 		{ "sa-ast",  STOP_AFTER_AST, 0, 0, "Stop after constructing AST", 0 },
+		{ "sa-tac", STOP_AFTER_TAC, 0, 0, "Stop after constructing TAC", 0 },
 		{"print-to-term", PRINT_TO_TERM, 0, 0, "Printing to terminal", 0 },
 		{ 0 }
 		};
@@ -108,6 +112,14 @@ int main(int argc, char* argv[])
 			arguments.tac_output_file = fopen((arguments.input_file + ".tac").c_str(),"w");
 		else
 			arguments.tac_output_file = stdout;
+	}
+
+	if(arguments.show_rtl)
+	{
+		if(!arguments.print_to_term)
+			arguments.rtl_output_file = fopen((arguments.input_file + ".rtl").c_str(),"w");
+		else
+			arguments.rtl_output_file = stdout;
 	}
 
 	if(arguments.stop_after_scanning){
@@ -180,6 +192,15 @@ static int parse_opt (int key, char *arg, struct argp_state *state)
 			break;
 		case STOP_AFTER_PARSE:
 			arguments.stop_after_parsing = true;
+			break;
+		case STOP_AFTER_AST:
+			arguments.stop_after_ast = true;
+			break;
+		case STOP_AFTER_TAC:
+			arguments.stop_after_tac = true;
+			break;
+		case SHOW_RTL:
+			arguments.show_rtl = true;
 			break;
 		case PRINT_TO_TERM:
 			arguments.print_to_term = true;

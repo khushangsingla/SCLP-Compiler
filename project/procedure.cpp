@@ -153,3 +153,18 @@ void ProcedureDefn::gentac()
 		statements[i]->gentac(tac);
 	}	
 }
+
+void Procedure::genrtl()
+{
+	if(defn){
+		defn -> genrtl();
+		// TODO: print rtl here
+	}
+}
+
+void ProcedureDefn::genrtl()
+{
+	for(int i=0; i<tac.size(); ++i){
+		tac[i]->genrtl(rtl);
+	}
+}

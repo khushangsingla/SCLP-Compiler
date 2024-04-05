@@ -517,6 +517,8 @@ void BooleanExpressionAST::gentac(vector<TACStatement*> &tacs)
 {
 	left -> gentac(tacs);
 	right -> gentac(tacs);
+	assert(left->value && right->value);
+	assert(left->value->get_type() == DTYPE_BOOL && right->value->get_type() == DTYPE_BOOL);
 	TACStatement* tac;
 	switch(type)
 	{
@@ -529,6 +531,7 @@ void BooleanExpressionAST::gentac(vector<TACStatement*> &tacs)
 		default:
 			assert(0);
 	}
+	tac->get_value()->set_type(DTYPE_BOOL);
 	value = tac -> get_value();
 	tacs.push_back(tac);
 }
@@ -537,6 +540,9 @@ void BinaryExpressionAST::gentac(vector<TACStatement*> &tacs)
 {
 	left -> gentac(tacs);
 	right -> gentac(tacs);
+	assert(left->value && right->value);
+	assert(left->value->get_type() == right->value->get_type());
+	assert(left->value->get_type() == DTYPE_INTEGER || left->value->get_type() == DTYPE_FLOAT);
 	TACStatement* tac;
 	switch(type)
 	{
@@ -555,6 +561,7 @@ void BinaryExpressionAST::gentac(vector<TACStatement*> &tacs)
 		default:
 			assert(0);
 	}
+	tac->get_value()->set_type(left->value->get_type());
 	value = tac -> get_value();
 	tacs.push_back(tac);
 }
@@ -575,7 +582,7 @@ void PrintStatementAST::gentac(vector<TACStatement*> &tacs)
 
 void NameExpressionAST::gentac(vector<TACStatement*> &tacs)
 {
-	TACOperand* opd = new VariableTACOperand(name);
+	TACOperand* opd = new VariableTACOperand(name, dtype);
 	value = opd;
 }
 
@@ -600,7 +607,10 @@ void StringExpressionAST::gentac(vector<TACStatement*> &tacs)
 void UMinusExpressionAST::gentac(vector<TACStatement*> &tacs)
 {
 	operand -> gentac(tacs);
+	assert(operand->value);
+	assert(operand->value->get_type() == DTYPE_INTEGER || operand->value->get_type() == DTYPE_FLOAT);
 	TACStatement* tac = new ComputeTACStatement(operand->value, NULL, NEG_COMPUTATION_TYPE);
+	tac->get_value()->set_type(operand->value->get_type());
 	value = tac -> get_value();
 	tacs.push_back(tac);
 }
@@ -609,6 +619,9 @@ void RelationalExpressionAST::gentac(vector<TACStatement*>& tacs)
 {
 	left -> gentac(tacs);
 	right -> gentac(tacs);
+	assert(left->value && right->value);
+	assert(left->value->get_type() == right->value->get_type());
+	assert(left->value->get_type() == DTYPE_INTEGER || left->value->get_type() == DTYPE_FLOAT);
 	TACStatement* tac;
 	switch(opn)
 	{
@@ -633,6 +646,7 @@ void RelationalExpressionAST::gentac(vector<TACStatement*>& tacs)
 		default:
 			assert(0);
 	}
+	tac->get_value()->set_type(DTYPE_BOOL);
 	value = tac -> get_value();
 	tacs.push_back(tac);
 }
@@ -641,21 +655,28 @@ void ConditionalExpressionAST::gentac(vector<TACStatement*> &tacs)
 {
 	vector<TACStatement*> tacs1;
 	left -> gentac(tacs);
+	assert(left->value);
+	assert(left->value->get_type() == DTYPE_BOOL);
 	TACOperand* label1 = new LabelTACOperand();
 	TACOperand* label2 = new LabelTACOperand();
-	value = new STemporaryTACOperand();
+	value = new STemporaryTACOperand(dtype);	
 	mid -> gentac(tacs1);
 	tacs1.push_back(new AssignmentTACStatement(value, mid->value));
 	TACStatement* tac3 = new GotoTACStatement(label2);
 	tacs1.push_back(tac3);
 	tacs1.push_back(new LabelTACStatement(label1));
 	right -> gentac(tacs1);
+	assert(mid->value);
+	assert(right->value);
+	assert(right->value->get_type() == mid->value->get_type());
 	TACStatement* tac1 = new ComputeTACStatement(left->value, NULL, NOT_COMPUTATION_TYPE);
+	tac1->get_value()->set_type(DTYPE_BOOL);
 	tacs.push_back(tac1);
 	TACStatement* tac2 = new IfGotoTACStatement(tac1->get_value(), label1);
 	tacs.push_back(tac2);
 	tacs.insert(tacs.end(), tacs1.begin(), tacs1.end());
 	tacs.push_back(new AssignmentTACStatement(value, right->value));
+	value->set_type(right->value->get_type());
 	tacs.push_back(new LabelTACStatement(label2));
 }
 
@@ -663,6 +684,9 @@ void AssignmentStatementAST::gentac(vector<TACStatement*> &tacs)
 {
 	lhs -> gentac(tacs);
 	rhs -> gentac(tacs);
+	assert(lhs->value && rhs->value);
+	assert(lhs->value->get_type() == rhs->value->get_type());
+	assert(lhs->value->get_type() != DTYPE_UNKNOWN);
 	TACStatement* tac = new AssignmentTACStatement(lhs->value, rhs->value);
 	tacs.push_back(tac);
 }
@@ -670,8 +694,11 @@ void AssignmentStatementAST::gentac(vector<TACStatement*> &tacs)
 void NotBoolExpressionAST::gentac(vector<TACStatement*> &tacs)
 {
 	operand -> gentac(tacs);
+	assert(operand->value);
+	assert(operand->value->get_type() == DTYPE_BOOL);
 	TACStatement* tac = new ComputeTACStatement(operand->value, NULL, NOT_COMPUTATION_TYPE);
 	value = tac -> get_value();
+	value->set_type(DTYPE_BOOL);
 	tacs.push_back(tac);
 }
 
@@ -688,7 +715,7 @@ void SelectionStatementAST::gentac(vector<TACStatement*> &tacs)
 	cond -> gentac(tacs);
 	vector<TACStatement*> tacs1;
 	ifpart -> gentac(tacs1);
-	TemporaryTACOperand* temp = new TemporaryTACOperand();
+	TemporaryTACOperand* temp = new TemporaryTACOperand(DTYPE_BOOL);
 	tacs.push_back(new AssignmentTACStatement(temp, cond->value, true));
 	if(!elsepart){
 		TACOperand* label1 = new LabelTACOperand();
@@ -723,7 +750,7 @@ void IterationStatementAST::gentac(vector<TACStatement*> &tacs)
 		body -> gentac(tacs1);
 		TACOperand* label1 = new LabelTACOperand();
 		TACOperand* label2 = new LabelTACOperand();
-		TemporaryTACOperand* temp = new TemporaryTACOperand();
+		TemporaryTACOperand* temp = new TemporaryTACOperand(DTYPE_BOOL);
 		tacs.push_back(new LabelTACStatement(label1));
 		tacs.insert(tacs.end(), tacs2.begin(), tacs2.end());
 		tacs.push_back(new AssignmentTACStatement(temp, condition->value, true));

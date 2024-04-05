@@ -4,20 +4,10 @@
 #include <vector>
 #include <string>
 class AST;
-// #include "utils.h"
+#include "utils.h"
 
 void my_exit(int exit_code);
 using namespace std;
-
-enum st_datatype 
-{
-	DTYPE_UNKNOWN,
-	DTYPE_INTEGER,
-	DTYPE_FLOAT,
-	DTYPE_STRING,
-	DTYPE_BOOL,
-	DTYPE_VOID
-};
 
 class Symbol 
 {

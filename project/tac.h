@@ -2,6 +2,8 @@
 
 #include <string>
 #include "utils.h"
+#include "symbol_table.h"
+#include "rtl.h"
 
 using namespace std;
 
@@ -17,29 +19,14 @@ enum tac_type {
 	RETURN_TAC_STATEMENT,
 };
 
-enum computation_type {
-	ADD_COMPUTATION_TYPE,
-	SUB_COMPUTATION_TYPE,
-	MUL_COMPUTATION_TYPE,
-	DIV_COMPUTATION_TYPE,
-	MOD_COMPUTATION_TYPE,
-	NEG_COMPUTATION_TYPE,
-	AND_COMPUTATION_TYPE,
-	OR_COMPUTATION_TYPE,
-	NOT_COMPUTATION_TYPE,
-	EQ_COMPUTATION_TYPE,
-	NEQ_COMPUTATION_TYPE,
-	LT_COMPUTATION_TYPE,
-	GT_COMPUTATION_TYPE,
-	LTE_COMPUTATION_TYPE,
-	GTE_COMPUTATION_TYPE
-};
-
 class TACOperand
 {
 	public:
 		TACOperand();
+		int alloted_register;
 		virtual string to_string() = 0;
+		virtual st_datatype get_type();
+		virtual void set_type(st_datatype t);
 };
 
 class TACStatement
@@ -50,6 +37,7 @@ class TACStatement
 	public:
 		TACStatement(tac_type);
 		TACOperand* get_value();
+		virtual void genrtl(vector<RTLStatement*>&) = 0;
 		virtual void print() = 0;
 };
 
@@ -60,6 +48,7 @@ class AssignmentTACStatement : public TACStatement
 	public:
 		AssignmentTACStatement(TACOperand* result, TACOperand* value, bool do_negation = false);
 		void print();
+		void genrtl(vector<RTLStatement*>&);
 };
 
 class CallTACStatement : public TACStatement
@@ -75,6 +64,7 @@ class ComputeTACStatement : public TACStatement
 	public:
 		ComputeTACStatement(TACOperand*, TACOperand*, computation_type);
 		void print();
+		void genrtl(vector<RTLStatement*>&);
 };
 
 class GotoTACStatement : public TACStatement
@@ -84,6 +74,7 @@ class GotoTACStatement : public TACStatement
 	public:
 		GotoTACStatement(TACOperand*);
 		void print();
+		void genrtl(vector<RTLStatement*>&);
 };
 
 class IfGotoTACStatement : public TACStatement
@@ -94,6 +85,7 @@ class IfGotoTACStatement : public TACStatement
 	public:
 		IfGotoTACStatement(TACOperand*, TACOperand*);
 		void print();
+		void genrtl(vector<RTLStatement*>&);
 };
 
 class IOTACStatement : public TACStatement
@@ -103,6 +95,7 @@ class IOTACStatement : public TACStatement
 	public:
 		IOTACStatement(TACOperand*, bool);
 		void print();
+		void genrtl(vector<RTLStatement*>&);
 };
 
 class LabelTACStatement : public TACStatement
@@ -112,6 +105,7 @@ class LabelTACStatement : public TACStatement
 	public:
 		LabelTACStatement(TACOperand*);
 		void print();
+		void genrtl(vector<RTLStatement*>&);
 };
 
 class NopTACStatement : public TACStatement
@@ -138,6 +132,7 @@ class DoubleConstantTACOperand : public TACOperand
 	public:
 		DoubleConstantTACOperand(double);
 		string to_string();
+		st_datatype get_type();
 };
 
 class IntegerConstantTACOperand : public TACOperand
@@ -146,6 +141,7 @@ class IntegerConstantTACOperand : public TACOperand
 	public:
 		IntegerConstantTACOperand(int);
 		string to_string();
+		st_datatype get_type();
 };
 
 class LabelTACOperand : public TACOperand
@@ -168,8 +164,10 @@ class StringConstantTACOperand : public TACOperand
 {
 	string value;
 	public:
+		static map<string,int> string_index;
 		StringConstantTACOperand(string);
 		string to_string();
+		st_datatype get_type();
 };
 
 class TemporaryTACOperand : public TACOperand
@@ -177,17 +175,23 @@ class TemporaryTACOperand : public TACOperand
 	private:
 		int num;
 		static int count;
+		st_datatype type;
 	public:
-		TemporaryTACOperand();
+		TemporaryTACOperand(st_datatype);
 		string to_string();
+		st_datatype get_type();
+		void set_type(st_datatype t);
 };
 
 class VariableTACOperand : public TACOperand
 {
 	string name;
+	st_datatype type;
 	public:
-		VariableTACOperand(string);
+		VariableTACOperand(string, st_datatype);
 		string to_string();
+		st_datatype get_type();
+		void set_type(st_datatype t);
 };
 
 class STemporaryTACOperand : public TACOperand
@@ -195,7 +199,10 @@ class STemporaryTACOperand : public TACOperand
 	private:
 		int num;
 		static int count;
+		st_datatype type;
 	public:
-		STemporaryTACOperand();
+		STemporaryTACOperand(st_datatype);
 		string to_string();
+		st_datatype get_type();
+		void set_type(st_datatype t);
 };

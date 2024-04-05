@@ -14,6 +14,7 @@ class ProcedureDefn
 	private:	
 		vector<AST*> statements;
 		vector<TACStatement*> tac;
+		vector<RTLStatement*> rtl;
 	
 	public:
 		SymbolTable *local_symbol_table;
@@ -22,6 +23,7 @@ class ProcedureDefn
 		void print_ast();
 		void gentac();
 		void print_tac();
+		void genrtl();
 };
 
 class Procedure 
@@ -45,4 +47,5 @@ class Procedure
 		int match_declaration(Procedure* proc);
 		int check_if_formal_param_list_match(vector<Symbol*>*);
 		void gentac();
+		void genrtl();
 };

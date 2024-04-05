@@ -71,7 +71,16 @@ void ast_output(string str)
 
 void continue_after_ast(Program* p)
 {
+	if(arguments.stop_after_ast)
+	{
+		my_exit(0);
+	}
 	p->gentac();
+	if(arguments.stop_after_tac)
+	{
+		my_exit(0);
+	}
+	p->genrtl();
 }
 
 void tac_output(const char* str, bool istab)
@@ -88,4 +97,20 @@ void tac_output(const char* str, bool istab)
 void tac_output(string str, bool istab)
 {
 	tac_output(str.c_str(), istab);
+}
+
+void rtl_output(const char* str, bool istab)
+{
+	if(arguments.show_rtl)
+	{
+		if(istab)
+			fprintf(arguments.rtl_output_file,"\t%s",str);
+		else
+			fprintf(arguments.rtl_output_file,"%s",str);
+	}
+}
+
+void rtl_output(string str, bool istab)
+{
+	rtl_output(str.c_str(), istab);
 }

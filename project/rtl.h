@@ -1,37 +1,112 @@
+#pragma once
+#include "utils.h"
+class TACOperand;
+
 class RTLStatement
 {
 	public:
 		RTLStatement();
+		virtual void print() = 0;
+};
+
+#define LAST_INT_REGISTER reg_s7
+#define LAST_FLOAT_REGISTER reg_f30
+
+enum int_registers{
+	reg_v0,
+	reg_t0,
+	reg_t1,
+	reg_t2,
+	reg_t3,
+	reg_t4,
+	reg_t5,
+	reg_t6,
+	reg_t7,
+	reg_t8,
+	reg_t9,
+	reg_s0,
+	reg_s1,
+	reg_s2,
+	reg_s3,
+	reg_s4,
+	reg_s5,
+	reg_s6,
+	reg_s7
+};
+
+enum float_registers{
+	reg_f2 = LAST_INT_REGISTER + 1,
+	reg_f4,
+	reg_f6,
+	reg_f8,
+	reg_f10,
+	reg_f12,
+	reg_f14,
+	reg_f16,
+	reg_f18,
+	reg_f20,
+	reg_f22,
+	reg_f24,
+	reg_f26,
+	reg_f28,
+	reg_f30
+};
+
+enum special_registers{
+	reg_f0 = LAST_FLOAT_REGISTER + 1,
+	reg_a0
 };
 
 class RTLOperand
 {
 	public:
 		RTLOperand();
+		static vector<bool> register_mapping;
+		// static void initialize_register_mapping();
+		static int get_new_int_register();
+		static int get_new_float_register();
+		static void free_register(int);
+		static int is_reg_allocated(int);
 };
 
 class ComputeRTLStatement : public RTLStatement
 {
+	private:
+		int reg1;
+		int reg2;
+		int reg_dst;
+		computation_type type;
 	public:
-		ComputeRTLStatement();
+		ComputeRTLStatement(int, int, int, computation_type);
+		void print();
 };
 
 class ControlFlowRTLStatement : public RTLStatement
 {
+	protected:
+		TACOperand* target;
 	public:
-		ControlFlowRTLStatement();
+		ControlFlowRTLStatement(TACOperand*);
 };
 
 class LabelRTLStatement : public RTLStatement
 {
+	TACOperand* label;
 	public:
-		LabelRTLStatement();
+		LabelRTLStatement(TACOperand*);
 };
 
 class MoveRTLStatement : public RTLStatement
 {
+	private:
+		int is_store;
+		int reg;
+		int reg_dst;
+		TACOperand* op;
 	public:
-		MoveRTLStatement();
+		MoveRTLStatement(int, TACOperand*);
+		MoveRTLStatement(TACOperand*, int);
+		MoveRTLStatement(int, int);
 };
 
 class NopRTLStatement : public RTLStatement
@@ -60,14 +135,16 @@ class CallCFRTLStatement : public ControlFlowRTLStatement
 
 class IfGotoCFRTLStatement : public ControlFlowRTLStatement
 {
+	private:
+		int condition;
 	public:
-		IfGotoCFRTLStatement();
+		IfGotoCFRTLStatement(int, TACOperand*);
 };
 
 class GotoCFRTLStatement : public ControlFlowRTLStatement
 {
 	public:
-		GotoCFRTLStatement();
+		GotoCFRTLStatement(TACOperand*);
 };
 
 class ReturnCFRTLStatement : public ControlFlowRTLStatement

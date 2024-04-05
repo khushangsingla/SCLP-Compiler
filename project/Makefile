@@ -4,7 +4,7 @@ CFLAGS = -std=c++11 -g -Wall -Wextra -Wno-unused-parameter
 CODE = sclp
 PARSE = parser
 SCAN = scanner
-YACC_FLAGS = -dv
+YACC_FLAGS = -dv -Wcounterexamples
 
 # YACC_FLAGS += -t
 # CFLAGS += -DDEBUG -g
@@ -12,8 +12,8 @@ YACC_FLAGS = -dv
 
 all: sclp
 
-sclp: $(CODE).o lex.yy.o y.tab.o Makefile symbol_table.o ast.o program.o procedure.o utils.o tac.o
-	$(CPP) $(CFLAGS) -o sclp $(CODE).o symbol_table.o ast.o program.o procedure.o utils.o tac.o lex.yy.o y.tab.o -ly -ll
+sclp: $(CODE).o lex.yy.o y.tab.o Makefile symbol_table.o ast.o program.o procedure.o utils.o tac.o rtl.o
+	$(CPP) $(CFLAGS) -o sclp $(CODE).o symbol_table.o ast.o program.o procedure.o utils.o tac.o rtl.o lex.yy.o y.tab.o -ly -ll
 
 utils.o: utils.h utils.cpp
 	$(CPP) $(CFLAGS) -c utils.cpp
@@ -21,8 +21,11 @@ utils.o: utils.h utils.cpp
 ast.o: ast.cpp ast.h symbol_table.h
 	$(CPP) $(CFLAGS) -c ast.cpp
 
-tac.o: tac.cpp tac.h
+tac.o: tac.cpp tac.h rtl.h
 	$(CPP) $(CFLAGS) -c tac.cpp
+
+rtl.o: rtl.cpp rtl.h utils.h
+	$(CPP) $(CFLAGS) -c rtl.cpp
 
 program.o: program.cpp procedure.h symbol_table.h program.h ast.h
 	$(CPP) $(CFLAGS) -c program.cpp

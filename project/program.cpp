@@ -69,3 +69,10 @@ void Program::gentac()
 		it->second->gentac();
 	}
 }
+
+void Program::genrtl()
+{
+	for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
+		it->second->genrtl();
+	}
+}
