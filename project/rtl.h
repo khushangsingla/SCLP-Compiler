@@ -65,7 +65,6 @@ class TACOperand
 		tac_operand_type op_type;
 		int alloted_register;
 		virtual string to_string() = 0;
-		virtual string to_string_for_rtl();
 		virtual st_datatype get_type();
 		virtual void set_type(st_datatype t);
 };

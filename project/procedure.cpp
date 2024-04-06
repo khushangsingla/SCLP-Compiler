@@ -1,5 +1,7 @@
 #include "procedure.h"
 
+extern bool is_rtl_printing_rn;
+
 ProcedureDefn::ProcedureDefn(SymbolTable* s, vector<AST*> v)
 {
 	local_symbol_table = s;
@@ -158,10 +160,13 @@ void Procedure::genrtl()
 {
 	if(defn){
 		defn -> genrtl();
-		rtl_output("**PROCEDURE: " + name + "\n", false);	
-		rtl_output("**BEGIN: RTL Statements\n", false);
-		defn->print_rtl();
-		rtl_output("**END: RTL Statements\n", false);
+		if(defn->rtl.size()){
+			rtl_output("**PROCEDURE: " + name + "\n", false);	
+			rtl_output("**BEGIN: RTL Statements\n", false);
+			is_rtl_printing_rn = true;
+			defn->print_rtl();
+			rtl_output("**END: RTL Statements\n", false);
+		}
 	}
 }
 

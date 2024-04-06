@@ -648,6 +648,7 @@ void RelationalExpressionAST::gentac(vector<TACStatement*>& tacs)
 	}
 	tac->get_value()->set_type(DTYPE_BOOL);
 	value = tac -> get_value();
+	value->set_type(DTYPE_BOOL);
 	tacs.push_back(tac);
 }
 

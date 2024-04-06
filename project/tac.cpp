@@ -1,5 +1,7 @@
 #include "tac.h"
 
+extern bool is_rtl_printing_rn;
+
 int TemporaryTACOperand::count = 0;
 int STemporaryTACOperand::count = 0;
 int LabelTACOperand::count = 0;
@@ -237,19 +239,13 @@ string LabelTACOperand::to_string()
 	return "Label" + std::to_string(num);
 }
 
-string StringConstantTACOperand::to_string_for_rtl()
-{
-	return "_str_" + std::to_string(string_index[value]);
-}
-
 string StringConstantTACOperand::to_string()
 {
-	return value;
-}
-
-string TACOperand::to_string_for_rtl()
-{
-	return to_string();
+	if(is_rtl_printing_rn)
+	{
+		return "_str_" + std::to_string(string_index[value]);
+	}
+	return  value;
 }
 
 string TemporaryTACOperand::to_string()
@@ -411,6 +407,8 @@ void IOTACStatement::genrtl(vector<RTLStatement*> &rtl)
 			}
 			rtl.push_back(new WriteRTLStatement());
 			RTLOperand::free_register(new_reg);
+			if(new_reg != reg_v0)
+				RTLOperand::free_register(reg_v0);
 			if(result->alloted_register != -1)
 				RTLOperand::free_register(result -> alloted_register);
 		}
@@ -525,7 +523,7 @@ void ComputeTACStatement::genrtl(vector<RTLStatement*> &rtl)
 				break;
 		}
 	}
-	if(result->get_type() == DTYPE_FLOAT)
+	if(left->get_type() == DTYPE_FLOAT)
 	{
 		bool is_comparison = false;
 		bool is_negated = false;
@@ -574,11 +572,14 @@ void ComputeTACStatement::genrtl(vector<RTLStatement*> &rtl)
 		if(is_comparison)
 		{
 			int reg = RTLOperand::get_new_int_register();
+			int temp = result -> alloted_register;
+			result->alloted_register = reg;
+			reg = temp;
 			rtl.push_back(new ILoadMoveRTLStatement(reg,1));
-			rtl.push_back(new RegisterMoveRTLStatement(result->alloted_register,reg_zero));
+			rtl.push_back(new RegisterMoveRTLStatement(result -> alloted_register,reg_zero));
 			if(is_negated)
 			{
-				rtl.push_back(new MoveFRTLStatement(result->alloted_register,reg,0));
+				rtl.push_back(new MoveFRTLStatement(result -> alloted_register,reg,0));
 			}
 			else
 			{
@@ -608,6 +609,7 @@ void IfGotoTACStatement::genrtl(vector<RTLStatement*> &rtl)
 	if(condition->alloted_register == -1)
 	{
 		condition->alloted_register = RTLOperand::get_new_int_register();
+		rtl.push_back(new LoadMoveRTLStatement(condition->alloted_register,condition));
 	}
 	rtl.push_back(new IfGotoCFRTLStatement(condition->alloted_register,label));
 	RTLOperand::free_register(condition -> alloted_register);

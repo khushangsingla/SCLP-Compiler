@@ -33,6 +33,8 @@ static int parse_opt (int key, char *arg, struct argp_state *state);
 extern FILE *yyin, *yyout;
 FILE* token_output_file = NULL;
 
+bool is_rtl_printing_rn = false;
+
 struct arguments arguments;
 
 int yylex (void);

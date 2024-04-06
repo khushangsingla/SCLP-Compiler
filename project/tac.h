@@ -158,7 +158,6 @@ class StringConstantTACOperand : public TACOperand
 		static map<string,int> string_index;
 		StringConstantTACOperand(string);
 		string to_string();
-		string to_string_for_rtl();
 		st_datatype get_type();
 };
 

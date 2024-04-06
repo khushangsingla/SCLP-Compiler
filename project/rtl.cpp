@@ -1,5 +1,6 @@
 #include "rtl.h"
 
+
 RTLStatement::RTLStatement()
 {
 }
@@ -265,10 +266,10 @@ void ComputeRTLStatement::print()
 {
 	assert(reg1 >= 0 && reg1 <= LAST_FLOAT_REGISTER);
 	assert(reg_dst >= 0 && reg_dst <= LAST_FLOAT_REGISTER);
-	if(reg1 <= LAST_INT_REGISTER)	assert(reg_dst <= LAST_INT_REGISTER);
-	else assert(reg_dst > LAST_INT_REGISTER);
+	// if(reg1 <= LAST_INT_REGISTER)	assert(reg_dst <= LAST_INT_REGISTER);
+	// else assert(reg_dst > LAST_INT_REGISTER);
 
-	bool is_float = reg_dst > LAST_INT_REGISTER;
+	bool is_float = reg1 > LAST_INT_REGISTER;
 
 	bool is_arrow = false;
 	switch(type){
@@ -330,11 +331,16 @@ void ComputeRTLStatement::print()
 			rtl_output("not:\t");
 			is_arrow = true;
 			break;
+		case NEG_COMPUTATION_TYPE:
+			if(is_float)	rtl_output("uminus.d:\t");
+			else	rtl_output("uminus:\t");
+			is_arrow = true;
+			break;
 		default:
 			assert(false);
 	}
 
-	if(is_arrow)
+	if(!is_float || is_arrow)
 	{
 		rtl_output(RTLOperand::get_reg_name(reg_dst) + " <- ");
 	}
@@ -365,18 +371,26 @@ void ILoadfMoveRTLStatement::print()
 
 void RegisterMoveRTLStatement::print()
 {
-	rtl_output("move:\t" + RTLOperand::get_reg_name(reg) + " <- " + RTLOperand::get_reg_name(src_reg));
+	if(reg <= LAST_INT_REGISTER || reg > LAST_FLOAT_REGISTER)
+	{
+		rtl_output("move:\t" + RTLOperand::get_reg_name(reg) + " <- " + RTLOperand::get_reg_name(src_reg));
+	}
+	else
+	{
+		rtl_output("move.d:\t" + RTLOperand::get_reg_name(reg) + " <- " + RTLOperand::get_reg_name(src_reg));
+	}
+	// rtl_output("move:\t" + RTLOperand::get_reg_name(reg) + " <- " + RTLOperand::get_reg_name(src_reg));
 }
 
 void LoadMoveRTLStatement::print()
 {
 	if(src->get_type() != DTYPE_FLOAT)
 	{
-		rtl_output("load:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string_for_rtl());
+		rtl_output("load:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string());
 	}
 	else
 	{
-		rtl_output("load.d:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string_for_rtl());
+		rtl_output("load.d:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string());
 	}
 }
 
@@ -384,17 +398,17 @@ void StoreMoveRTLStatement::print()
 {
 	if(dst->get_type() != DTYPE_FLOAT)
 	{
-		rtl_output("store:\t" + dst->to_string_for_rtl() + " <- " + RTLOperand::get_reg_name(reg));
+		rtl_output("store:\t" + dst->to_string() + " <- " + RTLOperand::get_reg_name(reg));
 	}
 	else
 	{
-		rtl_output("store.d:\t" + dst->to_string_for_rtl() + " <- " + RTLOperand::get_reg_name(reg));
+		rtl_output("store.d:\t" + dst->to_string() + " <- " + RTLOperand::get_reg_name(reg));
 	}
 }
 
 void LoadAddrMoveRTLStatement::print()
 {
-	rtl_output("load_addr:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string_for_rtl());
+	rtl_output("load_addr:\t" + RTLOperand::get_reg_name(reg) + " <- " + src->to_string());
 }
 
 void MoveFRTLStatement::print()
@@ -419,15 +433,15 @@ void WriteRTLStatement::print()
 
 void GotoCFRTLStatement::print()
 {
-	rtl_output("goto:\t" + target->to_string_for_rtl());
+	rtl_output("goto:\t" + target->to_string());
 }
 
 void IfGotoCFRTLStatement::print()
 {
-	rtl_output("bgtz:\t" + RTLOperand::get_reg_name(condition) + ", " + target->to_string_for_rtl());
+	rtl_output("bgtz:\t" + RTLOperand::get_reg_name(condition) + ", " + target->to_string());
 }
 
 void LabelRTLStatement::print()
 {
-	rtl_output(label->to_string_for_rtl() + ":", false);
+	rtl_output(label->to_string() + ":", false);
 }
