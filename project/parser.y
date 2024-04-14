@@ -112,10 +112,24 @@ extern int yylex();
 %type<ast> if_statement
 %type<ast> do_while_statement
 %type<ast> while_statement
-
+%type<ast> actual_arg
+%type<vec_of_ast> actual_arg_list
+%type<vec_of_ast> non_empty_arg_list
+%type<ast> func_call
+%type<ast> call_statement
 %%
 
 program 
+	: global_decl_statement_list func_defn_list
+	| func_defn_list
+;
+
+func_defn_list
+	: func_defn_list func_decl_def
+	| func_decl_def
+;
+
+
 	: global_decl_statement_list func_decl_defn {
 													if(!arguments.stop_after_parsing){
 														$$ = new Program($1, $2);
@@ -179,6 +193,8 @@ global_decl_statement_list
 														$$ = $1;
 													}
 												}
+	| global_decl_statement_list func_decl     {}
+	| func_decl
 ;
 
 var_decl_stmt
@@ -400,6 +416,63 @@ statement
 														$$ = $1;
 													}
 												}
+	| call_statement {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
+;
+
+call_statement
+	: func_call SEMICOLON {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
+;
+
+func_call
+	: NAME LEFT_ROUND_BRACKET actual_arg_list RIGHT_ROUND_BRACKET SEMICOLON {
+													if(!arguments.stop_after_parsing){
+														$$ = new FunctionCallAST($1, $3);
+													}
+												}
+;
+
+actual_arg_list
+	: non_empty_arg_list {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
+	| %empty {
+													if(!arguments.stop_after_parsing){
+														$$ = new vector<AST*>;
+													}
+												}
+;
+
+non_empty_arg_list
+	: actual_arg {
+													if(!arguments.stop_after_parsing){
+														$$ = new vector<AST*>;
+														$$->push_back($1);
+													}
+												}
+	| non_empty_arg_list COMMA actual_arg {
+													if(!arguments.stop_after_parsing){
+														$1->push_back($3);
+														$$ = $1;
+													}
+												}
+;
+
+actual_arg
+	: expression {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
 ;
 
 if_condition
@@ -465,6 +538,11 @@ read_statement
 
 assignment_statement
 	: variable_as_operand ASSIGN_OP expression SEMICOLON	{
+												if (!arguments.stop_after_parsing){
+													$$ = new AssignmentStatementAST($1,$3);
+												}
+											}
+	| variable_as_operand ASSIGN_OP func_call SEMICOLON	{
 												if (!arguments.stop_after_parsing){
 													$$ = new AssignmentStatementAST($1,$3);
 												}

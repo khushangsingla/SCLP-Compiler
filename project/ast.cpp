@@ -59,8 +59,10 @@ TernaryExpressionAST::TernaryExpressionAST(ast_type t,AST* l, AST* m, AST* r) : 
 	dtype = DTYPE_UNKNOWN;
 }
 
-FunctionCallAST::FunctionCallAST() : BaseExpressionAST(FUNCTION_CALL_AST)
+FunctionCallAST::FunctionCallAST(char* name, vector<AST*> vec) : BaseExpressionAST(FUNCTION_CALL_AST)
 {
+	this->name = name;
+	this->arguments = vec;
 }
 
 NameExpressionAST::NameExpressionAST(char* name) : BaseExpressionAST(NAME_EXPRESSION_AST)

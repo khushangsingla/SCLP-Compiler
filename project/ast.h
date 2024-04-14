@@ -126,8 +126,12 @@ class TernaryExpressionAST : public ExpressionAST
 
 class FunctionCallAST : public BaseExpressionAST
 {
+	private:
+		vector<AST*> arguments;
+		string name;
+		Procedure* proc;
 	public:
-		FunctionCallAST();
+		FunctionCallAST(char*, vector<AST*>);
 };
 
 class NameExpressionAST : public BaseExpressionAST
