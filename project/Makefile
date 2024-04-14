@@ -1,6 +1,6 @@
 CPP = g++
 CC = g++
-CFLAGS = -std=c++11 -g -Wall -Wextra -Wno-unused-parameter
+CFLAGS = -std=c++11 -g -Wall -Wextra -Wno-unused-parameter -Wno-sign-compare -Wno-missing-field-initializers
 CODE = sclp
 PARSE = parser
 SCAN = scanner

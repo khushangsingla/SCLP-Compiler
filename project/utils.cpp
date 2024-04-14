@@ -71,6 +71,7 @@ void ast_output(string str)
 
 void continue_after_ast(Program* p)
 {
+	p->printast();
 	if(arguments.stop_after_ast)
 	{
 		my_exit(0);
@@ -81,6 +82,10 @@ void continue_after_ast(Program* p)
 		my_exit(0);
 	}
 	p->genrtl();
+	if(arguments.stop_after_rtl)
+	{
+		my_exit(0);
+	}
 }
 
 void tac_output(const char* str, bool istab)

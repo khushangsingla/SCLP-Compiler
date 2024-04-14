@@ -1,6 +1,8 @@
 #include "tac.h"
+#include "procedure.h"
 
 extern bool is_rtl_printing_rn;
+extern Procedure* current_procedure_rn;
 
 int TemporaryTACOperand::count = 0;
 int STemporaryTACOperand::count = 0;
@@ -28,8 +30,18 @@ AssignmentTACStatement::AssignmentTACStatement(TACOperand* res,TACOperand* val,b
 	this -> do_negation = do_negation;
 }
 
-CallTACStatement::CallTACStatement() : TACStatement(CALL_TAC_STATEMENT)
+CallTACStatement::CallTACStatement(Procedure* proc, vector<TACOperand*> args) : TACStatement(CALL_TAC_STATEMENT)
 {
+	this->proc = proc;
+	this->args = args;
+	if(proc->get_return_type() != DTYPE_VOID)
+	{
+		result = new TemporaryTACOperand(proc->get_return_type());
+	}
+	else
+	{
+		result = NULL;
+	}
 }
 
 st_datatype TACOperand::get_type()
@@ -71,8 +83,9 @@ NopTACStatement::NopTACStatement() : TACStatement(NOP_TAC_STATEMENT)
 {
 }
 
-ReturnTACStatement::ReturnTACStatement() : TACStatement(RETURN_TAC_STATEMENT)
+ReturnTACStatement::ReturnTACStatement(TACOperand* t) : TACStatement(RETURN_TAC_STATEMENT)
 {
+	this->value = t;
 }
 
 ArrayAccessTACOperand::ArrayAccessTACOperand() : TACOperand()
@@ -635,4 +648,49 @@ void VariableTACOperand::set_type(st_datatype t)
 void STemporaryTACOperand::set_type(st_datatype t)
 {
 	type = t;
+}
+
+void CallTACStatement::print()
+{
+	if(result)
+	{
+		tac_output(result->to_string() + " = ");
+	}
+	tac_output(proc->name + "_(");
+	for(int i=0;i<args.size();i++)
+	{
+		tac_output(args[i]->to_string());
+		if(i != args.size()-1)
+		{
+			tac_output(", ");
+		}
+	}
+	tac_output(")\n");
+}
+
+void CallTACStatement::genrtl(vector<RTLStatement*> &rtl)
+{
+	for(int i=args.size()-1;i>=0;i--)
+	{
+		if(args[i]->alloted_register == -1)
+		{
+			args[i]->alloted_register = args[i] -> get_type() == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
+			rtl.push_back(new LoadMoveRTLStatement(args[i]->alloted_register,args[i]));
+		}
+		rtl.push_back(new PushRTLStatement(args[i]->alloted_register));
+		RTLOperand::free_register(args[i]->alloted_register);
+	}
+	rtl.push_back(new CallCFRTLStatement(proc->name));
+
+}
+
+void ReturnTACStatement::print(){
+	assert(value);
+	tac_output("return " + value->to_string() + "\n");
+}
+
+void ReturnTACStatement::genrtl(vector<RTLStatement*> &rtl)
+{
+	rtl.push_back(new LoadMoveRTLStatement(reg_v1,value));
+	rtl.push_back(new ReturnCFRTLStatement());
 }

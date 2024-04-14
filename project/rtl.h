@@ -55,7 +55,8 @@ enum float_registers{
 enum special_registers{
 	reg_f0 = LAST_FLOAT_REGISTER + 1,
 	reg_a0,
-	reg_zero
+	reg_zero,
+	reg_v1
 };
 
 class TACOperand
@@ -214,8 +215,11 @@ class WriteRTLStatement : public RTLStatement
 
 class CallCFRTLStatement : public ControlFlowRTLStatement
 {
+	private:
+		string arg;
 	public:
-		CallCFRTLStatement();
+		CallCFRTLStatement(string);
+		void print();
 };
 
 class IfGotoCFRTLStatement : public ControlFlowRTLStatement
@@ -238,6 +242,7 @@ class ReturnCFRTLStatement : public ControlFlowRTLStatement
 {
 	public:
 		ReturnCFRTLStatement();
+		void print();
 };
 
 class DoubleConstRTLOperand : public RTLOperand
@@ -274,4 +279,22 @@ class VariableRTLOperand : public RTLOperand
 {
 	public:
 		VariableRTLOperand();
+};
+
+class PushRTLStatement : public RTLStatement
+{
+	private:
+		int reg;
+	public:
+		PushRTLStatement(int);
+		void print();
+};
+
+class PopRTLStatement : public RTLStatement
+{
+	private:
+		int reg;
+	public:
+		PopRTLStatement();
+		void print();
 };

@@ -21,7 +21,7 @@ class ProcedureDefn
 		ProcedureDefn(SymbolTable*, vector<AST*>);
 		int is_defn_valid(SymbolTable*, map<string, Procedure*>&);
 		void print_ast();
-		void gentac();
+		void gentac(TACOperand*);
 		void print_tac();
 		void genrtl();
 		void print_rtl();
@@ -31,9 +31,10 @@ class Procedure
 {
 	private:
 		ProcedureDefn* defn;
-		st_datatype ret_type;
 	
 	public:
+		st_datatype ret_type;
+		LabelTACOperand* ret_label;
 		vector<Symbol*> *formal_param_list;
 		string name;
 		bool is_defined;
@@ -47,6 +48,7 @@ class Procedure
 		void print_ast();
 		int match_declaration(Procedure* proc);
 		int check_if_formal_param_list_match(vector<Symbol*>*);
+		st_datatype get_arg_type(int);
 		void gentac();
 		void genrtl();
 };

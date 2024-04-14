@@ -44,8 +44,13 @@ class AssignmentTACStatement : public TACStatement
 
 class CallTACStatement : public TACStatement
 {
+	private:
+		Procedure* proc;
+		vector<TACOperand*> args;
 	public:
-	CallTACStatement();
+		CallTACStatement(Procedure*, vector<TACOperand*>);
+		void print();
+		void genrtl(vector<RTLStatement*>&);
 };
 
 class ComputeTACStatement : public TACStatement
@@ -107,8 +112,11 @@ class NopTACStatement : public TACStatement
 
 class ReturnTACStatement : public TACStatement
 {
+	TACOperand *value;
 	public:
-	ReturnTACStatement();
+		ReturnTACStatement(TACOperand*);
+		void print();
+		void genrtl(vector<RTLStatement*>&);
 };
 
 class ArrayAccessTACOperand : public TACOperand
@@ -165,9 +173,9 @@ class TemporaryTACOperand : public TACOperand
 {
 	private:
 		int num;
-		static int count;
 		st_datatype type;
 	public:
+		static int count;
 		TemporaryTACOperand(st_datatype);
 		string to_string();
 		st_datatype get_type();
@@ -189,9 +197,9 @@ class STemporaryTACOperand : public TACOperand
 {
 	private:
 		int num;
-		static int count;
 		st_datatype type;
 	public:
+		static int count;
 		STemporaryTACOperand(st_datatype);
 		string to_string();
 		st_datatype get_type();

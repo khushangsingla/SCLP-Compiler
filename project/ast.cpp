@@ -1,6 +1,10 @@
 #include <cassert>
-
+#include "procedure.h"
 #include "ast.h"
+
+extern string function_being_checked_for_ast_rn;
+extern bool return_statement_present_in_function_being_checked_for_ast_rn;
+extern Procedure* current_procedure_rn;
 
 AST::AST(ast_type type)
 {
@@ -59,10 +63,54 @@ TernaryExpressionAST::TernaryExpressionAST(ast_type t,AST* l, AST* m, AST* r) : 
 	dtype = DTYPE_UNKNOWN;
 }
 
-FunctionCallAST::FunctionCallAST(char* name, vector<AST*> vec) : BaseExpressionAST(FUNCTION_CALL_AST)
+FunctionCallAST::FunctionCallAST(char* name, vector<AST*> *vec) : BaseExpressionAST(FUNCTION_CALL_AST)
 {
 	this->name = name;
-	this->arguments = vec;
+	this->arguments = *vec;
+}
+
+int FunctionCallAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
+{
+	if(fns.find(name) == fns.end())	return -1;
+	proc = fns[name];
+	// if(proc -> is_proc_valid(vars,fns) != 0)	return -1;
+	if(arguments.size() != proc -> get_param_list_size())	return -1;
+	for(int i=0;i<arguments.size();i++)
+	{
+		if(arguments[i] -> is_valid(vars,fns) != 0)	return -1;
+		if(((ExpressionAST*)arguments[i]) -> dtype != proc -> get_arg_type(i))	return -1;
+	}
+	dtype = proc -> get_return_type();
+	return 0;
+}
+
+void FunctionCallAST::print(string prefix)
+{
+	ast_output("\n" + prefix + "FN CALL: " + name + "_ (");
+	for(int i=0;i<arguments.size();i++)
+	{
+		ast_output("\n");
+		ast_output(prefix + "  ");
+		arguments[i] -> print(prefix + "  ");
+	}
+	ast_output(")");
+}
+
+FunctionStatementAST::FunctionStatementAST(AST* fn) : StatementAST(FUNCTION_STATEMENT_AST)
+{
+	this->fn = fn;
+}
+
+int FunctionStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
+{
+	if(fn -> is_valid(vars,fns) != 0)	return -1;
+	if(((ExpressionAST*)fn) -> dtype != DTYPE_VOID)	return -1;
+	return 0;
+}
+
+void FunctionStatementAST::print(string prefix)
+{
+	fn -> print(prefix );
 }
 
 NameExpressionAST::NameExpressionAST(char* name) : BaseExpressionAST(NAME_EXPRESSION_AST)
@@ -160,8 +208,23 @@ PrintStatementAST::PrintStatementAST(AST* opd) : StatementAST(PRINT_STATEMENT_AS
 	this->opd = opd;
 }
 
-ReturnStatementAST::ReturnStatementAST() : StatementAST(RETURN_STATEMENT_AST)
+ReturnStatementAST::ReturnStatementAST(AST* opd) : StatementAST(RETURN_STATEMENT_AST)
 {
+	this->opd = opd;
+}
+
+int ReturnStatementAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
+{
+	return_statement_present_in_function_being_checked_for_ast_rn = true;
+	if(opd -> is_valid(vars,fns) != 0)	return -1;
+	if(((ExpressionAST*)opd) -> dtype != fns[function_being_checked_for_ast_rn] -> get_return_type())	return -1;
+	return 0;
+}
+
+void ReturnStatementAST::print(string prefix)
+{
+	ast_output("\n" + prefix + "Return: ");
+	opd -> print(prefix + "  ");
 }
 
 SelectionStatementAST::SelectionStatementAST(AST* cond, AST* ifpart, AST* elsepart) : StatementAST(SELECTION_STATEMENT_AST)
@@ -776,4 +839,28 @@ void IterationStatementAST::gentac(vector<TACStatement*> &tacs)
 void SequenceStatementAST::add_statement(AST* ast)
 {
 	statements.push_back(ast);
+}
+
+void FunctionCallAST::gentac(vector<TACStatement*> &tacs)
+{
+	vector<TACOperand*> args;
+	for(int i=0;i<arguments.size();i++)
+	{
+		arguments[i] -> gentac(tacs);
+		args.push_back(((ExpressionAST*)arguments[i]) -> value);
+	}
+	TACStatement* tac = new CallTACStatement(proc, args);
+	tacs.push_back(tac);
+}
+
+void FunctionStatementAST::gentac(vector<TACStatement*> &tacs)
+{
+	fn -> gentac(tacs);
+}
+
+void ReturnStatementAST::gentac(vector<TACStatement*> &tacs)
+{
+	opd -> gentac(tacs);
+	TACStatement* tac = new GotoTACStatement(current_procedure_rn->ret_label);
+	tacs.push_back(tac);
 }

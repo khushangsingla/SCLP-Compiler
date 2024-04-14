@@ -12,7 +12,6 @@ extern struct arguments arguments;
 int do_parse();
 int yyerror(char*);
 extern int yylex();
-// int yydebug = 1;
 %}
 
 %union{
@@ -26,6 +25,8 @@ extern int yylex();
 	Symbol* symb;
 	Program* prog;
 	vector<Symbol*>* vecsymb;
+	pair<SymbolTable*, vector<Procedure*> >* p_symtab_vproc;
+	vector<Procedure*>* vec_proc;
 }
 
 %token DO
@@ -85,12 +86,13 @@ extern int yylex();
 
 
 %type<prog> program
-%type<symtab> global_decl_statement_list
+%type<p_symtab_vproc> global_decl_statement_list
 %type<symtab> var_decl_stmt
 %type<vec_of_ast> var_decl_item_list
 %type<ast> var_decl_item
 %type<dtype> named_type
 %type<dtype> param_type
+%type<vec_proc> func_defn_list
 %type<procedure> func_decl
 %type<procedure> func_decl_defn
 %type<vecsymb> funcdecl_param_list
@@ -117,84 +119,72 @@ extern int yylex();
 %type<vec_of_ast> non_empty_arg_list
 %type<ast> func_call
 %type<ast> call_statement
+%type<ast> return_statement
 %%
 
 program 
-	: global_decl_statement_list func_defn_list
-	| func_defn_list
+	: global_decl_statement_list func_defn_list	{
+													if(!arguments.stop_after_parsing){
+														$$ = new Program($1, $2);
+														// $$->main_func_check();
+														continue_after_ast($$);
+													}
+												}
+
+	| func_defn_list							{
+													if(!arguments.stop_after_parsing){
+														$$ = new Program(NULL, $1);	
+														// $$->main_func_check();
+														continue_after_ast($$);
+													}
+												}
 ;
 
 func_defn_list
-	: func_defn_list func_decl_def
-	| func_decl_def
-;
-
-
-	: global_decl_statement_list func_decl_defn {
+	: func_defn_list func_decl_defn {
 													if(!arguments.stop_after_parsing){
-														$$ = new Program($1, $2);
-														$$->main_func_check();
-														continue_after_ast($$);
+														$$ = $1;
+														$$->push_back($2);
 													}
 												}
 	| func_decl_defn {
 													if(!arguments.stop_after_parsing){
-														$$ = new Program(new SymbolTable(), $1);
-														$$->main_func_check();
-														continue_after_ast($$);
-													}
-												}
-	| global_decl_statement_list func_decl func_decl_defn {
-													if(!arguments.stop_after_parsing){
-														$$ = new Program($1, $2);
-														$$->add_procedure($3);
-														$$->main_func_check();
-														continue_after_ast($$);
-													}
-												}
-	| func_decl global_decl_statement_list func_decl_defn {
-													if(!arguments.stop_after_parsing){
-														$$ = new Program(new SymbolTable(), $1);
-														$$->add_global_symbols($2);
-														$$->add_procedure($3);
-														$$->main_func_check();
-														continue_after_ast($$);
-													}
-												}
-	| global_decl_statement_list func_decl global_decl_statement_list func_decl_defn {
-													if(!arguments.stop_after_parsing){
-														$$ = new Program($1, $2);
-														$$->add_global_symbols($3);
-														$$->add_procedure($4);
-														$$->main_func_check();
-														continue_after_ast($$);
-													}
-												}
-	| func_decl func_decl_defn {
-													if(!arguments.stop_after_parsing){
-														$$ = new Program(new SymbolTable(), $1);
-														$$->add_procedure($2);
-														$$->main_func_check();
-														continue_after_ast($$);
+														$$ = new vector<Procedure*>();	
+														$$->push_back($1);
 													}
 												}
 ;
 
+
 global_decl_statement_list
 	: global_decl_statement_list var_decl_stmt {
 													if(!arguments.stop_after_parsing){
-														$1->add_symbols_from_table($2);
+														$1->first->add_symbols_from_table($2);
 														$$ = $1;
 														// delete $2;
 													}
 												}
 	| var_decl_stmt {
 													if(!arguments.stop_after_parsing){
+														$$ = new pair<SymbolTable*, vector<Procedure*> >();
+														$$->second = vector<Procedure*>();
+														$$->first = $1;
+													}
+												}
+	| global_decl_statement_list func_decl     {
+													if(!arguments.stop_after_parsing){
+														$1->second.push_back($2);
 														$$ = $1;
 													}
 												}
-	| global_decl_statement_list func_decl     {}
-	| func_decl
+
+	| func_decl									{
+													if(!arguments.stop_after_parsing){
+														$$ = new pair<SymbolTable*, vector<Procedure*> >();
+														$$->first = new SymbolTable();
+														$$->second.push_back($1);
+													}
+												}
 ;
 
 var_decl_stmt
@@ -421,7 +411,20 @@ statement
 														$$ = $1;
 													}
 												}
+	
+	| return_statement {
+													if(!arguments.stop_after_parsing){
+														$$ = $1;
+													}
+												}
 ;
+
+return_statement
+	: RETURN expression SEMICOLON {
+													if(!arguments.stop_after_parsing){
+														$$ = new ReturnStatementAST($2);
+													}
+												}
 
 call_statement
 	: func_call SEMICOLON {
@@ -432,7 +435,7 @@ call_statement
 ;
 
 func_call
-	: NAME LEFT_ROUND_BRACKET actual_arg_list RIGHT_ROUND_BRACKET SEMICOLON {
+	: NAME LEFT_ROUND_BRACKET actual_arg_list RIGHT_ROUND_BRACKET {
 													if(!arguments.stop_after_parsing){
 														$$ = new FunctionCallAST($1, $3);
 													}

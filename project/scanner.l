@@ -88,7 +88,6 @@ read		{
 
 return {
 				my_print("", "[scanner.l] return found!\n");
-				return NOT_IN_CURRENT_LEVEL;
 				scanner_output("RETURN",yytext,yylineno);
 				return RETURN;
 			}

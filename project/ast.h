@@ -55,7 +55,8 @@ enum ast_type
 	RETURN_STATEMENT_AST,
 	PRINT_STATEMENT_AST,
 	SELECTION_STATEMENT_AST,
-	SEQUENCE_STATEMENT_AST
+	SEQUENCE_STATEMENT_AST,
+	FUNCTION_STATEMENT_AST
 };
 
 class AST 
@@ -131,7 +132,10 @@ class FunctionCallAST : public BaseExpressionAST
 		string name;
 		Procedure* proc;
 	public:
-		FunctionCallAST(char*, vector<AST*>);
+		FunctionCallAST(char*, vector<AST*>*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
+		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class NameExpressionAST : public BaseExpressionAST
@@ -294,8 +298,13 @@ class PrintStatementAST : public StatementAST
 
 class ReturnStatementAST : public StatementAST
 {
+	private:
+		AST* opd;
 	public:
-		ReturnStatementAST();
+		ReturnStatementAST(AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
+		void print(string);
+		void gentac(vector<TACStatement*>&);
 };
 
 class SelectionStatementAST : public StatementAST
@@ -335,6 +344,17 @@ class NotBoolExpressionAST : public UnaryExpressionAST
 {
 	public:
 		NotBoolExpressionAST(AST*);
+		int is_valid(SymbolTable*,map<string,Procedure*>&);
+		void print(string);
+		void gentac(vector<TACStatement*>&);
+};
+
+class FunctionStatementAST : public StatementAST
+{
+	private:
+		AST* fn;
+	public:
+		FunctionStatementAST(AST*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
 		void gentac(vector<TACStatement*>&);

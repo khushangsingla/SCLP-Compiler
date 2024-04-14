@@ -1,6 +1,9 @@
 #include "procedure.h"
 
 extern bool is_rtl_printing_rn;
+extern string function_being_checked_for_ast_rn;
+extern bool return_statement_present_in_function_being_checked_for_ast_rn;
+extern Procedure* current_procedure_rn;
 
 ProcedureDefn::ProcedureDefn(SymbolTable* s, vector<AST*> v)
 {
@@ -16,6 +19,12 @@ Procedure::Procedure(AST* a, vector<Symbol*>* st, ProcedureDefn* pd, st_datatype
 	defn = pd;
 	ret_type = dt;
 	is_defined = true;
+	if(ret_type != DTYPE_VOID){
+		ret_label = new LabelTACOperand();
+	}
+	else{
+		ret_label = NULL;
+	}
 }
 
 Procedure::Procedure(AST* a, vector<Symbol*>* st, st_datatype dt)
@@ -26,6 +35,12 @@ Procedure::Procedure(AST* a, vector<Symbol*>* st, st_datatype dt)
 	is_defined = false;
 	ret_type = dt;
 	defn = NULL;
+	if(ret_type != DTYPE_VOID){
+		ret_label = new LabelTACOperand();
+	}
+	else{
+		ret_label = NULL;
+	}
 }
 
 Procedure::Procedure(AST* a, vector<Symbol*>* params, SymbolTable* vars, vector<AST*> stmts, st_datatype dt)
@@ -36,6 +51,12 @@ Procedure::Procedure(AST* a, vector<Symbol*>* params, SymbolTable* vars, vector<
 	defn = new ProcedureDefn(vars, stmts);
 	ret_type = dt;
 	is_defined = true;
+	if(ret_type != DTYPE_VOID){
+		ret_label = new LabelTACOperand();
+	}
+	else{
+		ret_label = NULL;
+	}
 }
 
 int Procedure::add_defn(ProcedureDefn* pd)
@@ -49,6 +70,8 @@ int Procedure::add_defn(ProcedureDefn* pd)
 
 int Procedure::is_proc_valid(SymbolTable* gst, map<string, Procedure*>& fns)
 {
+	function_being_checked_for_ast_rn = name;
+	return_statement_present_in_function_being_checked_for_ast_rn = false;
 	SymbolTable* unin = new SymbolTable();
 	unin->add_symbols_from_table(formal_param_list);
 	if(unin->add_symbols_from_table(defn->local_symbol_table) != 0) return -1;
@@ -58,6 +81,13 @@ int Procedure::is_proc_valid(SymbolTable* gst, map<string, Procedure*>& fns)
 	if(defn -> is_defn_valid(unin,fns) != 0){
 		delete unin;
 		return -1;
+	}
+
+	if(!return_statement_present_in_function_being_checked_for_ast_rn){
+		if(ret_type != DTYPE_VOID){
+			delete unin;
+			return -1;
+		}
 	}
 	delete unin;
 	return 0;
@@ -86,6 +116,8 @@ void Procedure::print_ast()
 {
 	ast_output("**PROCEDURE: ");
 	ast_output(name.c_str());
+	if(strcmp(name.c_str(), "main") != 0)
+		ast_output("_");
 	ast_output("\n");
 	ast_output("\tReturn Type: ");
 	ast_output(get_string_for_dtype(ret_type));
@@ -130,10 +162,18 @@ int Procedure::check_if_formal_param_list_match(vector<Symbol*> *parms)
 
 void Procedure::gentac()
 {
+	STemporaryTACOperand *ret_stemp = NULL;
+	current_procedure_rn = this;
 	if(defn){
-		defn -> gentac();
+		if(ret_type != DTYPE_VOID){
+			ret_stemp = new STemporaryTACOperand(ret_type);
+		}
+		defn -> gentac(ret_stemp);
 		if(defn->tac.size()){
-			tac_output("**PROCEDURE: " + name + "\n", false);	
+			tac_output("**PROCEDURE: " + name, false);	
+			if(strcmp(name.c_str(), "main") != 0)
+				tac_output("_", false);
+			tac_output("\n", false);
 			tac_output("**BEGIN: Three Address Code Statements\n", false);
 			defn->print_tac();
 			tac_output("**END: Three Address Code Statements\n", false);
@@ -149,11 +189,16 @@ void ProcedureDefn::print_tac()
 	}
 }
 
-void ProcedureDefn::gentac()
+void ProcedureDefn::gentac(TACOperand* ret_stemp)
 {
 	for(int i=0; i<statements.size(); ++i){
 		statements[i]->gentac(tac);
 	}	
+	if(current_procedure_rn -> ret_type != DTYPE_VOID){
+		assert(current_procedure_rn->ret_label == nullptr);
+		tac.push_back(new LabelTACStatement(current_procedure_rn->ret_label));
+		tac.push_back(new ReturnTACStatement(ret_stemp));
+	}
 }
 
 void Procedure::genrtl()
@@ -161,7 +206,10 @@ void Procedure::genrtl()
 	if(defn){
 		defn -> genrtl();
 		if(defn->rtl.size()){
-			rtl_output("**PROCEDURE: " + name + "\n", false);	
+			rtl_output("**PROCEDURE: " + name, false);	
+			if(strcmp(name.c_str(), "main") != 0)
+				rtl_output("_", false);
+			rtl_output("\n", false);
 			rtl_output("**BEGIN: RTL Statements\n", false);
 			is_rtl_printing_rn = true;
 			defn->print_rtl();
@@ -187,4 +235,11 @@ void ProcedureDefn::print_rtl()
 		rtl[i]->print();
 		rtl_output("\n");
 	}
+}
+
+st_datatype Procedure::get_arg_type(int i)
+{
+	assert(i < formal_param_list->size());
+	assert(i>=0);
+	return (*formal_param_list)[i]->type;
 }

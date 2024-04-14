@@ -15,6 +15,8 @@ string RTLOperand::get_reg_name(int reg)
 	{
 		case reg_v0:
 			return "v0";
+		case reg_v1:
+			return "v1";
 		case reg_t0:
 			return "t0";
 		case reg_t1:
@@ -170,8 +172,9 @@ WriteRTLStatement::WriteRTLStatement() : RTLStatement()
 {
 }
 
-CallCFRTLStatement::CallCFRTLStatement() : ControlFlowRTLStatement(NULL)
+CallCFRTLStatement::CallCFRTLStatement(string name) : ControlFlowRTLStatement(NULL)
 {
+	arg = name;
 }
 
 IfGotoCFRTLStatement::IfGotoCFRTLStatement(int reg, TACOperand* target) : ControlFlowRTLStatement(target)
@@ -444,4 +447,37 @@ void IfGotoCFRTLStatement::print()
 void LabelRTLStatement::print()
 {
 	rtl_output(label->to_string() + ":", false);
+}
+
+void ReturnCFRTLStatement::print()
+{
+	rtl_output("return\tv1\p");
+}
+
+PushRTLStatement::PushRTLStatement(int reg) : RTLStatement()
+{
+	this->reg = reg;
+}
+
+PopRTLStatement::PopRTLStatement() : RTLStatement()
+{
+}
+
+void PushRTLStatement::print()
+{
+	rtl_output("push:\t" + RTLOperand::get_reg_name(reg) );
+}
+
+void PopRTLStatement::print()
+{
+	rtl_output("pop");
+}
+
+void CallCFRTLStatement::print()
+{
+	rtl_output("call " + arg);
+	if(strcmp(arg.c_str(), "main"))
+	{
+		rtl_output("_",false);
+	}
 }

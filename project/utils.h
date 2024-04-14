@@ -53,6 +53,7 @@ enum st_datatype
 
 extern FILE* token_output_file;
 class Program;
+class Procedure;
 
 struct arguments 
 {
@@ -61,6 +62,7 @@ struct arguments
 	bool stop_after_parsing = false;
 	bool stop_after_ast = false;
 	bool stop_after_tac = false;
+	bool stop_after_rtl = false;
 	bool show_ast = false;
 	bool show_tac = false;
 	bool show_rtl = false;
@@ -68,6 +70,7 @@ struct arguments
 	FILE* ast_output_file = NULL;
 	FILE* tac_output_file = NULL;
 	FILE* rtl_output_file = NULL;
+	FILE* asm_output_file = NULL;
 	std::string input_file = "";
 };
 
