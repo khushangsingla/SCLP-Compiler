@@ -14,7 +14,7 @@ class Program
 
 	public:
 		SymbolTable *global_symbol_table;
-		vector<string> order_of_keys_with__;
+		// vector<string> order_of_keys_with__;
 		// Program(SymbolTable*);
 		// Program(SymbolTable*, Procedure*);
 		Program(pair<SymbolTable*, vector<Procedure*>>*, vector<Procedure*>*);

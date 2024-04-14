@@ -17,17 +17,6 @@ Program::Program(pair<SymbolTable* , vector<Procedure*>> *p, vector<Procedure*> 
 	}
 	main_func_check();
 
-	vector<string> keys;
-	for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
-		if(it->first == "main")	keys.push_back(it->first);
-		else keys.push_back(it->first + "_");
-	}
-	sort(keys.begin(), keys.end());
-	for(int i = 0; i < keys.size(); i++){
-		if(keys[i] == "main")	order_of_keys_with__.push_back("main");
-		else
-			order_of_keys_with__.push_back(keys[i].substr(0, keys[i].size() - 1));
-	}
 }
 
 int Program::main_func_check()
@@ -77,25 +66,66 @@ int Program::add_global_symbols(SymbolTable* st)
 
 void Program::gentac()
 {
+	vector<string> keys;
 	for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
+		if(it->first == "main")	keys.push_back(it->first);
+		else keys.push_back(it->first + "_");
+	}
+	sort(keys.begin(), keys.end());
+	vector<string> order_of_keys_with__;
+	for(int i = 0; i < keys.size(); i++){
+		string curr;
+		if(keys[i] == "main")	curr= "main";
+		else
+			curr = keys[i].substr(0, keys[i].size()-1);
 		TemporaryTACOperand::count = 0;
 		STemporaryTACOperand::count = 0;
-		it->second->gentac();
+		procedures[curr]->gentac();
 	}
+	// for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
+	// 	TemporaryTACOperand::count = 0;
+	// 	STemporaryTACOperand::count = 0;
+	// 	it->second->gentac();
+	// }
 }
 
 void Program::genrtl()
 {
-	// Iterate procedures in order of keys
+	vector<string> keys;
 	for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
-		it->second->genrtl();
+		if(it->first == "main")	keys.push_back(it->first);
+		else keys.push_back(it->first + "_");
 	}
+	sort(keys.begin(), keys.end());
+	vector<string> order_of_keys_with__;
+	for(int i = 0; i < keys.size(); i++){
+		string curr;
+		if(keys[i] == "main")	curr= "main";
+		else
+			curr = keys[i].substr(0, keys[i].size()-1);
+		procedures[curr]->genrtl();
+	}
+	// // Iterate procedures in order of keys
+	// for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
+	// 	it->second->genrtl();
+	// }
 }
 
 void Program::printast()
 {
 
+	vector<string> keys;
 	for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
-		it->second->print_ast();
+		if(it->first == "main")	keys.push_back(it->first);
+		else keys.push_back(it->first + "_");
+	}
+	sort(keys.begin(), keys.end());
+	vector<string> order_of_keys_with__;
+	for(int i = 0; i < keys.size(); i++){
+		string curr;
+		if(keys[i] == "main")	curr= "main";
+		else
+			curr = keys[i].substr(0, keys[i].size()-1);
+		procedures[curr]->print_ast();
 	}
 }
