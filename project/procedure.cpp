@@ -162,7 +162,7 @@ int Procedure::check_if_formal_param_list_match(vector<Symbol*> *parms)
 
 void Procedure::gentac()
 {
-	STemporaryTACOperand *ret_stemp = NULL;
+	ret_stemp = NULL;
 	current_procedure_rn = this;
 	if(defn){
 		if(ret_type != DTYPE_VOID){
@@ -195,7 +195,7 @@ void ProcedureDefn::gentac(TACOperand* ret_stemp)
 		statements[i]->gentac(tac);
 	}	
 	if(current_procedure_rn -> ret_type != DTYPE_VOID){
-		assert(current_procedure_rn->ret_label == nullptr);
+		assert(current_procedure_rn->ret_label);
 		tac.push_back(new LabelTACStatement(current_procedure_rn->ret_label));
 		tac.push_back(new ReturnTACStatement(ret_stemp));
 	}

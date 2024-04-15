@@ -33,6 +33,7 @@ class Procedure
 		ProcedureDefn* defn;
 	
 	public:
+		STemporaryTACOperand* ret_stemp;
 		st_datatype ret_type;
 		LabelTACOperand* ret_label;
 		vector<Symbol*> *formal_param_list;

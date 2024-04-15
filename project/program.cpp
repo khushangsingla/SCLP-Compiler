@@ -35,6 +35,12 @@ int Program::main_func_check()
 
 int Program::add_procedure(Procedure* proc)
 {
+	// bool is_ret_label_defined = false;
+	if(global_symbol_table->is_variable_present(proc->name) == 0)
+	{
+		my_exit(1, "[program.cpp] procedure name same as global variable");
+		return -1;
+	}
 	if(procedures.find(proc->name) != procedures.end()){
 		if(procedures[proc->name]->is_defined || !proc->is_defined){
 			my_exit(1, "[program.cpp] procedure defined twice or not defined at all");
@@ -48,6 +54,7 @@ int Program::add_procedure(Procedure* proc)
 			}
 			// delete procedures[proc->name];
 		}
+		// is_ret_label_defined = true;
 	}
 	procedures[proc->name] = proc;
 	if(proc->is_defined && proc->is_proc_valid(global_symbol_table, procedures) != 0){
@@ -60,6 +67,12 @@ int Program::add_procedure(Procedure* proc)
 
 int Program::add_global_symbols(SymbolTable* st)
 {
+	for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
+		if(global_symbol_table->is_variable_present(it->first) == 0){
+			my_exit(1, "[program.cpp] procedure name same as global variable");
+			return -1;
+		}
+	}
 	if(global_symbol_table->add_symbols_from_table(st) != 0)	return -1;
 	return 0;
 }

@@ -107,7 +107,8 @@ IntegerConstantTACOperand::IntegerConstantTACOperand(int val) : TACOperand()
 
 LabelTACOperand::LabelTACOperand() : TACOperand()
 {
-	num = count++;
+	num = count;
+	count += 1;
 	op_type = LABEL_TAC_OPERAND;
 }
 

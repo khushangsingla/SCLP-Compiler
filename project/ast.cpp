@@ -86,7 +86,10 @@ int FunctionCallAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 
 void FunctionCallAST::print(string prefix)
 {
-	ast_output("\n" + prefix + "FN CALL: " + name + "_ (");
+	if(name != "main")
+		ast_output("\n" + prefix + "FN CALL: " + name + "_ (");
+	else
+		ast_output("\n" + prefix + "FN CALL: " + name + " (");
 	for(int i=0;i<arguments.size();i++)
 	{
 		ast_output("\n");
@@ -251,6 +254,7 @@ NotBoolExpressionAST::NotBoolExpressionAST(AST* t) : UnaryExpressionAST(NOT_BOOL
 int NameExpressionAST::is_valid(SymbolTable* vars,map<string,Procedure*>& fns)
 {
 	if(vars->is_variable_present(name) != 0)	return -1;
+	if(fns.find(name) != fns.end())	return -1;
 	dtype = vars->get_datatype(name);
 	return 0;
 }
@@ -844,12 +848,14 @@ void SequenceStatementAST::add_statement(AST* ast)
 void FunctionCallAST::gentac(vector<TACStatement*> &tacs)
 {
 	vector<TACOperand*> args;
+	TemporaryTACOperand* res = NULL;
 	for(int i=0;i<arguments.size();i++)
 	{
 		arguments[i] -> gentac(tacs);
 		args.push_back(((ExpressionAST*)arguments[i]) -> value);
 	}
 	TACStatement* tac = new CallTACStatement(proc, args);
+	value = tac -> get_value();
 	tacs.push_back(tac);
 }
 
@@ -861,6 +867,7 @@ void FunctionStatementAST::gentac(vector<TACStatement*> &tacs)
 void ReturnStatementAST::gentac(vector<TACStatement*> &tacs)
 {
 	opd -> gentac(tacs);
+	tacs.push_back(new AssignmentTACStatement(current_procedure_rn->ret_stemp, opd->value));
 	TACStatement* tac = new GotoTACStatement(current_procedure_rn->ret_label);
 	tacs.push_back(tac);
 }
