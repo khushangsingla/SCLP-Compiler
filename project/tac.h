@@ -32,6 +32,93 @@ class TACStatement
 		virtual void print() = 0;
 };
 
+class ArrayAccessTACOperand : public TACOperand
+{
+	public:
+	ArrayAccessTACOperand();
+};
+
+class DoubleConstantTACOperand : public TACOperand
+{
+	public:
+		double value;
+		DoubleConstantTACOperand(double);
+		string to_string();
+		st_datatype get_type();
+};
+
+class IntegerConstantTACOperand : public TACOperand
+{
+	public:
+		int value;
+		IntegerConstantTACOperand(int);
+		string to_string();
+		st_datatype get_type();
+};
+
+class LabelTACOperand : public TACOperand
+{
+	private:
+		int num;
+		static int count;
+	public:
+		LabelTACOperand();
+		string to_string();
+};
+
+class PointerDereferenceTACOperand : public TACOperand
+{
+	public:
+	PointerDereferenceTACOperand();
+};
+
+class StringConstantTACOperand : public TACOperand
+{
+	string value;
+	public:
+		static map<string,int> string_index;
+		StringConstantTACOperand(string,int);
+		string to_string();
+		st_datatype get_type();
+};
+
+class TemporaryTACOperand : public TACOperand
+{
+	private:
+		int num;
+		st_datatype type;
+	public:
+		static int count;
+		TemporaryTACOperand(st_datatype);
+		string to_string();
+		st_datatype get_type();
+		void set_type(st_datatype t);
+};
+
+class VariableTACOperand : public TACOperand
+{
+	string name;
+	st_datatype type;
+	public:
+		VariableTACOperand(string, st_datatype);
+		string to_string();
+		st_datatype get_type();
+		void set_type(st_datatype t);
+};
+
+class STemporaryTACOperand : public TACOperand
+{
+	private:
+		int num;
+		st_datatype type;
+	public:
+		static int count;
+		STemporaryTACOperand(st_datatype);
+		string to_string();
+		st_datatype get_type();
+		void set_type(st_datatype t);
+};
+
 class AssignmentTACStatement : public TACStatement
 {
 	TACOperand *value;
@@ -48,7 +135,7 @@ class CallTACStatement : public TACStatement
 		Procedure* proc;
 		vector<TACOperand*> args;
 	public:
-		CallTACStatement(Procedure*, vector<TACOperand*>);
+		CallTACStatement(Procedure*, vector<TACOperand*>, TemporaryTACOperand*);
 		void print();
 		void genrtl(vector<RTLStatement*>&);
 };
@@ -117,91 +204,4 @@ class ReturnTACStatement : public TACStatement
 		ReturnTACStatement(TACOperand*);
 		void print();
 		void genrtl(vector<RTLStatement*>&);
-};
-
-class ArrayAccessTACOperand : public TACOperand
-{
-	public:
-	ArrayAccessTACOperand();
-};
-
-class DoubleConstantTACOperand : public TACOperand
-{
-	public:
-		double value;
-		DoubleConstantTACOperand(double);
-		string to_string();
-		st_datatype get_type();
-};
-
-class IntegerConstantTACOperand : public TACOperand
-{
-	public:
-		int value;
-		IntegerConstantTACOperand(int);
-		string to_string();
-		st_datatype get_type();
-};
-
-class LabelTACOperand : public TACOperand
-{
-	private:
-		int num;
-		static int count;
-	public:
-		LabelTACOperand();
-		string to_string();
-};
-
-class PointerDereferenceTACOperand : public TACOperand
-{
-	public:
-	PointerDereferenceTACOperand();
-};
-
-class StringConstantTACOperand : public TACOperand
-{
-	string value;
-	public:
-		static map<string,int> string_index;
-		StringConstantTACOperand(string);
-		string to_string();
-		st_datatype get_type();
-};
-
-class TemporaryTACOperand : public TACOperand
-{
-	private:
-		int num;
-		st_datatype type;
-	public:
-		static int count;
-		TemporaryTACOperand(st_datatype);
-		string to_string();
-		st_datatype get_type();
-		void set_type(st_datatype t);
-};
-
-class VariableTACOperand : public TACOperand
-{
-	string name;
-	st_datatype type;
-	public:
-		VariableTACOperand(string, st_datatype);
-		string to_string();
-		st_datatype get_type();
-		void set_type(st_datatype t);
-};
-
-class STemporaryTACOperand : public TACOperand
-{
-	private:
-		int num;
-		st_datatype type;
-	public:
-		static int count;
-		STemporaryTACOperand(st_datatype);
-		string to_string();
-		st_datatype get_type();
-		void set_type(st_datatype t);
 };

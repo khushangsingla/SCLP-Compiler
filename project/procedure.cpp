@@ -19,12 +19,7 @@ Procedure::Procedure(AST* a, vector<Symbol*>* st, ProcedureDefn* pd, st_datatype
 	defn = pd;
 	ret_type = dt;
 	is_defined = true;
-	if(ret_type != DTYPE_VOID){
-		ret_label = new LabelTACOperand();
-	}
-	else{
-		ret_label = NULL;
-	}
+	ret_label = NULL;
 }
 
 Procedure::Procedure(AST* a, vector<Symbol*>* st, st_datatype dt)
@@ -35,12 +30,7 @@ Procedure::Procedure(AST* a, vector<Symbol*>* st, st_datatype dt)
 	is_defined = false;
 	ret_type = dt;
 	defn = NULL;
-	if(ret_type != DTYPE_VOID){
-		ret_label = new LabelTACOperand();
-	}
-	else{
-		ret_label = NULL;
-	}
+	ret_label = NULL;
 }
 
 Procedure::Procedure(AST* a, vector<Symbol*>* params, SymbolTable* vars, vector<AST*> stmts, st_datatype dt)
@@ -51,12 +41,7 @@ Procedure::Procedure(AST* a, vector<Symbol*>* params, SymbolTable* vars, vector<
 	defn = new ProcedureDefn(vars, stmts);
 	ret_type = dt;
 	is_defined = true;
-	if(ret_type != DTYPE_VOID){
-		ret_label = new LabelTACOperand();
-	}
-	else{
-		ret_label = NULL;
-	}
+	ret_label = NULL;
 }
 
 int Procedure::add_defn(ProcedureDefn* pd)

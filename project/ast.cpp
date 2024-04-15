@@ -5,6 +5,7 @@
 extern string function_being_checked_for_ast_rn;
 extern bool return_statement_present_in_function_being_checked_for_ast_rn;
 extern Procedure* current_procedure_rn;
+map<string,int> StringExpressionAST::string_index = map<string,int>();
 
 AST::AST(ast_type type)
 {
@@ -136,6 +137,10 @@ FloatExpressionAST::FloatExpressionAST(char* val) : BaseExpressionAST(FLOAT_EXPR
 StringExpressionAST::StringExpressionAST(char* val) : BaseExpressionAST(STRING_EXPRESSION_AST, DTYPE_STRING)
 {
 	this->val = val;
+	if(string_index.find(val) == string_index.end())
+	{
+		string_index[val] = string_index.size();
+	}
 }
 
 AddressExpressionAST::AddressExpressionAST(AST* t) : UnaryExpressionAST(ADDRESS_EXPRESSION_AST,t)
@@ -669,7 +674,7 @@ void FloatExpressionAST::gentac(vector<TACStatement*> &tacs)
 
 void StringExpressionAST::gentac(vector<TACStatement*> &tacs)
 {
-	TACOperand* opd = new StringConstantTACOperand(val);
+	TACOperand* opd = new StringConstantTACOperand(val,string_index[val]);
 	value = opd;
 }
 
@@ -849,13 +854,16 @@ void FunctionCallAST::gentac(vector<TACStatement*> &tacs)
 {
 	vector<TACOperand*> args;
 	TemporaryTACOperand* res = NULL;
+	if(proc->ret_type != DTYPE_VOID)
+		res = new TemporaryTACOperand(proc->ret_type);
 	for(int i=0;i<arguments.size();i++)
 	{
 		arguments[i] -> gentac(tacs);
 		args.push_back(((ExpressionAST*)arguments[i]) -> value);
 	}
-	TACStatement* tac = new CallTACStatement(proc, args);
+	TACStatement* tac = new CallTACStatement(proc, args,res);
 	value = tac -> get_value();
+	// assert(res == value);
 	tacs.push_back(tac);
 }
 

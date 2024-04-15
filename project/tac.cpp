@@ -30,17 +30,18 @@ AssignmentTACStatement::AssignmentTACStatement(TACOperand* res,TACOperand* val,b
 	this -> do_negation = do_negation;
 }
 
-CallTACStatement::CallTACStatement(Procedure* proc, vector<TACOperand*> args) : TACStatement(CALL_TAC_STATEMENT)
+CallTACStatement::CallTACStatement(Procedure* proc, vector<TACOperand*> args, TemporaryTACOperand* result) : TACStatement(CALL_TAC_STATEMENT)
 {
 	this->proc = proc;
 	this->args = args;
+	this -> result = result;
 	if(proc->get_return_type() != DTYPE_VOID)
 	{
-		result = new TemporaryTACOperand(proc->get_return_type());
+		assert(result);
 	}
 	else
 	{
-		result = NULL;
+		assert(result == NULL);
 	}
 }
 
@@ -117,13 +118,10 @@ PointerDereferenceTACOperand::PointerDereferenceTACOperand() : TACOperand()
 	op_type = POINTER_DEREFERENCE_TAC_OPERAND;
 }
 
-StringConstantTACOperand::StringConstantTACOperand(string val) : TACOperand()
+StringConstantTACOperand::StringConstantTACOperand(string val,int c) : TACOperand()
 {
 	value = val;
-	if(string_index.find(val) == string_index.end())
-	{
-		string_index[val] = string_index.size();
-	}
+	string_index[val] = c;
 	op_type = STRING_CONSTANT_TAC_OPERAND;
 }
 
@@ -319,6 +317,7 @@ void AssignmentTACStatement::genrtl(vector<RTLStatement*> &rtl)
 {
 	if(value->alloted_register == -1)
 	{
+		// int new_reg;
 		value->alloted_register = value->get_type() == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
 		switch(value->op_type)
 		{
@@ -333,6 +332,9 @@ void AssignmentTACStatement::genrtl(vector<RTLStatement*> &rtl)
 				break;
 			case TEMPORARY_TAC_OPERAND:
 				assert(false);
+				// new_reg = value->get_type() == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
+				// rtl.push_back(new RegisterMoveRTLStatement(new_reg, reg_v1));
+				// value -> alloted_register = new_reg;
 				break;
 			case VARIABLE_TAC_OPERAND:
 			case STEMPORARY_TAC_OPERAND:
@@ -657,7 +659,11 @@ void CallTACStatement::print()
 	{
 		tac_output(result->to_string() + " = ");
 	}
-	tac_output(proc->name + "_(");
+	if(proc->name != "main")
+		tac_output(proc->name + "_(");
+	else
+		tac_output(proc->name + " (");
+		
 	for(int i=0;i<args.size();i++)
 	{
 		tac_output(args[i]->to_string());
@@ -676,13 +682,41 @@ void CallTACStatement::genrtl(vector<RTLStatement*> &rtl)
 		if(args[i]->alloted_register == -1)
 		{
 			args[i]->alloted_register = args[i] -> get_type() == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
-			rtl.push_back(new LoadMoveRTLStatement(args[i]->alloted_register,args[i]));
+			switch(args[i] -> op_type){
+				case DOUBLE_CONSTANT_TAC_OPERAND:
+					rtl.push_back(new ILoadfMoveRTLStatement(args[i]->alloted_register,((DoubleConstantTACOperand*)args[i])->value));
+					break;
+				case INTEGER_CONSTANT_TAC_OPERAND:
+					rtl.push_back(new ILoadMoveRTLStatement(args[i]->alloted_register,((IntegerConstantTACOperand*)args[i])->value));
+					break;
+				case STRING_CONSTANT_TAC_OPERAND:
+					rtl.push_back(new LoadAddrMoveRTLStatement(args[i]->alloted_register,args[i]));
+					break;
+				case TEMPORARY_TAC_OPERAND:
+				case STEMPORARY_TAC_OPERAND:
+				case VARIABLE_TAC_OPERAND:
+					rtl.push_back(new LoadMoveRTLStatement(args[i]->alloted_register,args[i]));
+					break;
+				default:
+					assert(false);
+			}
+			// rtl.push_back(new LoadMoveRTLStatement(args[i]->alloted_register,args[i]));
 		}
 		rtl.push_back(new PushRTLStatement(args[i]->alloted_register));
 		RTLOperand::free_register(args[i]->alloted_register);
 	}
-	rtl.push_back(new CallCFRTLStatement(proc->name));
-
+	rtl.push_back(new CallCFRTLStatement(proc->name, proc->get_return_type()));
+	for(int i=0;i<args.size();i++)
+	{
+		rtl.push_back(new PopRTLStatement());
+	}
+	if(proc->ret_type != DTYPE_VOID){
+		result -> alloted_register = proc->ret_type == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
+		if(proc->ret_type == DTYPE_FLOAT)
+			rtl.push_back(new RegisterMoveRTLStatement(result->alloted_register,reg_f0));
+		else
+			rtl.push_back(new RegisterMoveRTLStatement(result->alloted_register,reg_v1));
+	}
 }
 
 void ReturnTACStatement::print(){
@@ -692,6 +726,9 @@ void ReturnTACStatement::print(){
 
 void ReturnTACStatement::genrtl(vector<RTLStatement*> &rtl)
 {
-	rtl.push_back(new LoadMoveRTLStatement(reg_v1,value));
-	rtl.push_back(new ReturnCFRTLStatement());
+	if(current_procedure_rn -> ret_type == DTYPE_FLOAT)
+		rtl.push_back(new LoadMoveRTLStatement(reg_f0,value));
+	else
+		rtl.push_back(new LoadMoveRTLStatement(reg_v1,value));
+	rtl.push_back(new ReturnCFRTLStatement(current_procedure_rn->ret_type));
 }

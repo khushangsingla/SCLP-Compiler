@@ -1,5 +1,6 @@
 #include "program.h"
 void my_exit(int exit_code, const char* msg);
+extern Procedure* current_procedure_rn;
 
 Program::Program(pair<SymbolTable* , vector<Procedure*>> *p, vector<Procedure*> *procs)
 {
@@ -35,7 +36,7 @@ int Program::main_func_check()
 
 int Program::add_procedure(Procedure* proc)
 {
-	// bool is_ret_label_defined = false;
+	bool is_ret_label_defined = false;
 	if(global_symbol_table->is_variable_present(proc->name) == 0)
 	{
 		my_exit(1, "[program.cpp] procedure name same as global variable");
@@ -54,7 +55,13 @@ int Program::add_procedure(Procedure* proc)
 			}
 			// delete procedures[proc->name];
 		}
-		// is_ret_label_defined = true;
+		is_ret_label_defined = true;
+	}
+	if(proc -> ret_type != DTYPE_VOID){
+		if (is_ret_label_defined)
+			proc -> ret_label = procedures[proc->name] -> ret_label;
+		else
+			proc -> ret_label = new LabelTACOperand();
 	}
 	procedures[proc->name] = proc;
 	if(proc->is_defined && proc->is_proc_valid(global_symbol_table, procedures) != 0){
@@ -116,6 +123,7 @@ void Program::genrtl()
 		if(keys[i] == "main")	curr= "main";
 		else
 			curr = keys[i].substr(0, keys[i].size()-1);
+		current_procedure_rn = procedures[curr];
 		procedures[curr]->genrtl();
 	}
 	// // Iterate procedures in order of keys

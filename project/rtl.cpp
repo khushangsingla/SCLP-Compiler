@@ -172,9 +172,10 @@ WriteRTLStatement::WriteRTLStatement() : RTLStatement()
 {
 }
 
-CallCFRTLStatement::CallCFRTLStatement(string name) : ControlFlowRTLStatement(NULL)
+CallCFRTLStatement::CallCFRTLStatement(string name, st_datatype ret) : ControlFlowRTLStatement(NULL)
 {
 	arg = name;
+	ret_type = ret;
 }
 
 IfGotoCFRTLStatement::IfGotoCFRTLStatement(int reg, TACOperand* target) : ControlFlowRTLStatement(target)
@@ -186,8 +187,9 @@ GotoCFRTLStatement::GotoCFRTLStatement(TACOperand* target) : ControlFlowRTLState
 {
 }
 
-ReturnCFRTLStatement::ReturnCFRTLStatement() : ControlFlowRTLStatement(NULL)
+ReturnCFRTLStatement::ReturnCFRTLStatement(st_datatype t) : ControlFlowRTLStatement(NULL)
 {
+	ret_type = t;
 }
 
 DoubleConstRTLOperand::DoubleConstRTLOperand() : RTLOperand()
@@ -299,7 +301,7 @@ void ComputeRTLStatement::print()
 		case EQ_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("seq.d:\t");
 			else	rtl_output("seq:\t");
-			is_arrow = true;
+			// is_arrow = true;
 			break;
 		case NEQ_COMPUTATION_TYPE:
 			if(is_float)	rtl_output("sne.d:\t");
@@ -451,7 +453,12 @@ void LabelRTLStatement::print()
 
 void ReturnCFRTLStatement::print()
 {
-	rtl_output("return\tv1\p");
+	if(ret_type == DTYPE_FLOAT)
+		rtl_output("return\tf0\n");
+	else if(ret_type == DTYPE_VOID)
+		rtl_output("return\n");
+	else
+		rtl_output("return\tv1\n");
 }
 
 PushRTLStatement::PushRTLStatement(int reg) : RTLStatement()
@@ -475,7 +482,12 @@ void PopRTLStatement::print()
 
 void CallCFRTLStatement::print()
 {
-	rtl_output("call " + arg);
+	if(ret_type == DTYPE_VOID)
+		rtl_output("call " + arg);
+	else if(ret_type == DTYPE_FLOAT)
+		rtl_output("f0 = call " + arg);
+	else
+		rtl_output("v1 = call " + arg);
 	if(strcmp(arg.c_str(), "main"))
 	{
 		rtl_output("_",false);

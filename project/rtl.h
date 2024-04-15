@@ -217,8 +217,9 @@ class CallCFRTLStatement : public ControlFlowRTLStatement
 {
 	private:
 		string arg;
+		st_datatype ret_type;
 	public:
-		CallCFRTLStatement(string);
+		CallCFRTLStatement(string, st_datatype);
 		void print();
 };
 
@@ -240,8 +241,9 @@ class GotoCFRTLStatement : public ControlFlowRTLStatement
 
 class ReturnCFRTLStatement : public ControlFlowRTLStatement
 {
+	st_datatype ret_type;
 	public:
-		ReturnCFRTLStatement();
+		ReturnCFRTLStatement(st_datatype);
 		void print();
 };
 

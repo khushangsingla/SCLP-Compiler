@@ -172,6 +172,7 @@ class StringExpressionAST : public BaseExpressionAST
 {
 	string val;
 	public:
+		static map<string,int> string_index;
 		StringExpressionAST(char*);
 		int is_valid(SymbolTable*,map<string,Procedure*>&);
 		void print(string);
