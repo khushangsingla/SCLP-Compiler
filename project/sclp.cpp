@@ -38,6 +38,7 @@ bool is_rtl_printing_rn = false;
 string function_being_checked_for_ast_rn = "";
 bool return_statement_present_in_function_being_checked_for_ast_rn = false;
 Procedure* current_procedure_rn = NULL;
+Program* only_program_rn = NULL;
 
 struct arguments arguments;
 

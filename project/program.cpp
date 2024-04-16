@@ -1,6 +1,7 @@
 #include "program.h"
 void my_exit(int exit_code, const char* msg);
 extern Procedure* current_procedure_rn;
+using namespace std;
 
 Program::Program(pair<SymbolTable* , vector<Procedure*>> *p, vector<Procedure*> *procs)
 {
@@ -148,5 +149,72 @@ void Program::printast()
 		else
 			curr = keys[i].substr(0, keys[i].size()-1);
 		procedures[curr]->print_ast();
+	}
+}
+
+void Program::genasm()
+{
+	// print data section
+	map<string,int> str_consts = StringConstantTACOperand::string_index;
+	if(global_symbol_table -> symbols . size() || str_consts.size()){
+		asm_output(".data\n");
+	}
+	vector<pair<int,string>> ordered_gst;
+	for(auto s: global_symbol_table->symbols){
+		ordered_gst.push_back(make_pair(s.second->offset, s.first));
+	}
+	sort(ordered_gst.begin(), ordered_gst.end());
+	for(auto s: ordered_gst){
+		asm_output(s.second + "_:",false);
+		if(global_symbol_table -> symbols[s.second] -> type == DTYPE_FLOAT){
+			asm_output(".double 0.0",true);
+		}
+		else{
+			asm_output(".word 0",true);
+		}
+		asm_output("\n",false);
+	}
+	vector<pair<int,string>> ordered_str_consts;
+	for(auto s: str_consts){
+		ordered_str_consts.push_back(make_pair(s.second, s.first));
+	}
+
+	sort(ordered_str_consts.begin(), ordered_str_consts.end());
+	for(auto s: ordered_str_consts){
+		asm_output("_str_" + to_string(s.first) + ":",false);
+		asm_output(".asciiz " + s.second,true);
+		asm_output("\n",false);
+	}
+	
+	asm_output("\n");
+	// print code
+	vector<string> keys;
+	for(map<string, Procedure*>::iterator it = procedures.begin(); it != procedures.end(); it++){
+		if(it->first == "main")	keys.push_back(it->first);
+		else keys.push_back(it->first + "_");
+	}
+	sort(keys.begin(), keys.end());
+	vector<string> order_of_keys_with__;
+	for(int i = 0; i < keys.size(); i++){
+		string curr;
+		if(keys[i] == "main")	curr= "main";
+		else
+			curr = keys[i].substr(0, keys[i].size()-1);
+		current_procedure_rn = procedures[curr];
+		asm_output(".text\n\t.globl " + curr ,true);
+		if(curr == "main"){
+			asm_output("\n");
+		}
+		else{
+			asm_output("_\n");
+		}
+		asm_output(curr ,false);
+		if(curr == "main"){
+			asm_output(":\n",false);
+		}
+		else{
+			asm_output("_:\n",false);
+		}
+		procedures[curr]->genasm();
 	}
 }

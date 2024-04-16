@@ -25,19 +25,19 @@ class ProcedureDefn
 		void print_tac();
 		void genrtl();
 		void print_rtl();
+		void genasm();
 };
 
 class Procedure 
 {
-	private:
-		ProcedureDefn* defn;
-	
 	public:
+		ProcedureDefn* defn;
 		STemporaryTACOperand* ret_stemp;
 		st_datatype ret_type;
 		LabelTACOperand* ret_label;
 		vector<Symbol*> *formal_param_list;
 		string name;
+		vector<int> stemp_offsets;
 		bool is_defined;
 		Procedure(AST*, vector<Symbol*>*, ProcedureDefn*, st_datatype);
 		Procedure(AST*, vector<Symbol*>*, st_datatype);
@@ -52,4 +52,5 @@ class Procedure
 		st_datatype get_arg_type(int);
 		void gentac();
 		void genrtl();
+		void genasm();
 };

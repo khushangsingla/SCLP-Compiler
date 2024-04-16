@@ -54,6 +54,7 @@ enum st_datatype
 extern FILE* token_output_file;
 class Program;
 class Procedure;
+class TACOperand;
 
 struct arguments 
 {
@@ -84,8 +85,11 @@ void tac_output(const char* str, bool istab = true);
 void tac_output(string str, bool istab = true);
 void rtl_output(const char* str, bool istab = true);
 void rtl_output(string str, bool istab = true);
+void asm_output(const char* str, bool istab = true);
+void asm_output(string str, bool istab = true);
 
 void my_exit(int exit_code);
 void my_exit(int exit_code,const char* msg);
 
 void continue_after_ast(Program*);
+string print_offset_reg(TACOperand*);

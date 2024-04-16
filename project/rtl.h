@@ -7,6 +7,7 @@ class RTLStatement
 	public:
 		RTLStatement();
 		virtual void print() = 0;
+		virtual void printasm() = 0;
 };
 
 #define LAST_INT_REGISTER reg_s7
@@ -56,7 +57,10 @@ enum special_registers{
 	reg_f0 = LAST_FLOAT_REGISTER + 1,
 	reg_a0,
 	reg_zero,
-	reg_v1
+	reg_v1,
+	reg_ra,
+	reg_sp,
+	reg_fp,
 };
 
 class TACOperand
@@ -93,6 +97,7 @@ class ComputeRTLStatement : public RTLStatement
 	public:
 		ComputeRTLStatement(int, int, int, computation_type);
 		void print();
+		void printasm();
 };
 
 class ControlFlowRTLStatement : public RTLStatement
@@ -109,6 +114,7 @@ class LabelRTLStatement : public RTLStatement
 	public:
 		LabelRTLStatement(TACOperand*);
 		void print();
+		void printasm();
 };
 
 class MoveRTLStatement : public RTLStatement
@@ -126,6 +132,7 @@ class ILoadMoveRTLStatement : public MoveRTLStatement
 	public:
 		ILoadMoveRTLStatement(int, int);
 		void print();
+		void printasm();
 };
 
 class ILoadfMoveRTLStatement : public MoveRTLStatement
@@ -135,6 +142,7 @@ class ILoadfMoveRTLStatement : public MoveRTLStatement
 	public:
 		ILoadfMoveRTLStatement(int, double);
 		void print();
+		void printasm();
 };
 
 class RegisterMoveRTLStatement : public MoveRTLStatement
@@ -144,6 +152,7 @@ class RegisterMoveRTLStatement : public MoveRTLStatement
 	public:
 		RegisterMoveRTLStatement(int, int);
 		void print();
+		void printasm();
 };
 
 class LoadMoveRTLStatement : public MoveRTLStatement
@@ -153,6 +162,7 @@ class LoadMoveRTLStatement : public MoveRTLStatement
 	public:
 		LoadMoveRTLStatement(int, TACOperand*);
 		void print();
+		void printasm();
 };
 
 class StoreMoveRTLStatement : public MoveRTLStatement
@@ -162,6 +172,7 @@ class StoreMoveRTLStatement : public MoveRTLStatement
 	public:
 		StoreMoveRTLStatement(int, TACOperand*);
 		void print();
+		void printasm();
 };
 
 class LoadAddrMoveRTLStatement : public MoveRTLStatement
@@ -171,6 +182,7 @@ class LoadAddrMoveRTLStatement : public MoveRTLStatement
 	public:
 		LoadAddrMoveRTLStatement(int, TACOperand*);
 		void print();
+		void printasm();
 };
 
 class MoveFRTLStatement : public MoveRTLStatement
@@ -181,6 +193,7 @@ class MoveFRTLStatement : public MoveRTLStatement
 	public:
 		MoveFRTLStatement(int, int, int);
 		void print();
+		void printasm();
 };
 
 class MoveTRTLStatement : public MoveRTLStatement
@@ -191,6 +204,7 @@ class MoveTRTLStatement : public MoveRTLStatement
 	public:
 		MoveTRTLStatement(int, int, int);
 		void print();
+		void printasm();
 };
 
 class NopRTLStatement : public RTLStatement
@@ -204,6 +218,7 @@ class ReadRTLStatement : public RTLStatement
 	public:
 		ReadRTLStatement();
 		void print();
+		void printasm();
 };
 
 class WriteRTLStatement : public RTLStatement
@@ -211,6 +226,7 @@ class WriteRTLStatement : public RTLStatement
 	public:
 		WriteRTLStatement();
 		void print();
+		void printasm();
 };
 
 class CallCFRTLStatement : public ControlFlowRTLStatement
@@ -221,6 +237,7 @@ class CallCFRTLStatement : public ControlFlowRTLStatement
 	public:
 		CallCFRTLStatement(string, st_datatype);
 		void print();
+		void printasm();
 };
 
 class IfGotoCFRTLStatement : public ControlFlowRTLStatement
@@ -230,6 +247,7 @@ class IfGotoCFRTLStatement : public ControlFlowRTLStatement
 	public:
 		IfGotoCFRTLStatement(int, TACOperand*);
 		void print();
+		void printasm();
 };
 
 class GotoCFRTLStatement : public ControlFlowRTLStatement
@@ -237,6 +255,7 @@ class GotoCFRTLStatement : public ControlFlowRTLStatement
 	public:
 		GotoCFRTLStatement(TACOperand*);
 		void print();
+		void printasm();
 };
 
 class ReturnCFRTLStatement : public ControlFlowRTLStatement
@@ -245,6 +264,7 @@ class ReturnCFRTLStatement : public ControlFlowRTLStatement
 	public:
 		ReturnCFRTLStatement(st_datatype);
 		void print();
+		void printasm();
 };
 
 class DoubleConstRTLOperand : public RTLOperand
@@ -290,13 +310,15 @@ class PushRTLStatement : public RTLStatement
 	public:
 		PushRTLStatement(int);
 		void print();
+		void printasm();
 };
 
 class PopRTLStatement : public RTLStatement
 {
 	private:
-		int reg;
+		st_datatype dt;
 	public:
-		PopRTLStatement();
+		PopRTLStatement(st_datatype);
 		void print();
+		void printasm();
 };

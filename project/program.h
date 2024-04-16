@@ -26,5 +26,6 @@ class Program
 		void printast();
 		void gentac();
 		void genrtl();
+		void genasm();
 		// void print_ast();
 };

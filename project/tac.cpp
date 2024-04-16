@@ -144,6 +144,7 @@ STemporaryTACOperand::STemporaryTACOperand(st_datatype d) : TACOperand()
 	num = count++;
 	type = d;
 	op_type = STEMPORARY_TAC_OPERAND;
+	current_procedure_rn -> stemp_offsets.push_back((d == DTYPE_FLOAT ? 8 : 4) + current_procedure_rn -> stemp_offsets.back());
 }
 
 void ComputeTACStatement::print()
@@ -708,7 +709,7 @@ void CallTACStatement::genrtl(vector<RTLStatement*> &rtl)
 	rtl.push_back(new CallCFRTLStatement(proc->name, proc->get_return_type()));
 	for(int i=0;i<args.size();i++)
 	{
-		rtl.push_back(new PopRTLStatement());
+		rtl.push_back(new PopRTLStatement(args[i]->get_type()));
 	}
 	if(proc->ret_type != DTYPE_VOID){
 		result -> alloted_register = proc->ret_type == DTYPE_FLOAT ? RTLOperand::get_new_float_register() : RTLOperand::get_new_int_register();
@@ -731,4 +732,9 @@ void ReturnTACStatement::genrtl(vector<RTLStatement*> &rtl)
 	else
 		rtl.push_back(new LoadMoveRTLStatement(reg_v1,value));
 	rtl.push_back(new ReturnCFRTLStatement(current_procedure_rn->ret_type));
+}
+
+string VariableTACOperand::get_name()
+{
+	return name;
 }

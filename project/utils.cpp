@@ -1,7 +1,10 @@
 #include "utils.h"
 #include "program.h"
+#include "tac.h"
 extern struct arguments arguments;
 extern int yylineno;
+extern Procedure* current_procedure_rn;
+extern Program* only_program_rn;
 
 void my_print(const char* a, const char* b)
 {
@@ -71,6 +74,7 @@ void ast_output(string str)
 
 void continue_after_ast(Program* p)
 {
+	only_program_rn = p;
 	p->printast();
 	if(arguments.stop_after_ast)
 	{
@@ -86,6 +90,15 @@ void continue_after_ast(Program* p)
 	{
 		my_exit(0);
 	}
+	if(arguments.print_to_term)
+	{
+		arguments.asm_output_file = stdout;
+	}
+	else
+		arguments.asm_output_file = fopen((arguments.input_file + ".spim").c_str(),"w");
+	p->genasm();
+	if(!arguments.print_to_term)
+		fclose(arguments.asm_output_file);
 }
 
 void tac_output(const char* str, bool istab)
@@ -119,3 +132,69 @@ void rtl_output(string str, bool istab)
 {
 	rtl_output(str.c_str(), istab);
 }
+
+void asm_output(string str, bool istab)
+{
+	asm_output(str.c_str(), istab);
+}
+
+void asm_output(const char* str, bool istab)
+{
+		if(istab)
+			fprintf(arguments.asm_output_file,"\t%s",str);
+		else
+			fprintf(arguments.asm_output_file,"%s",str);
+}
+
+string print_offset_reg(TACOperand* opd)
+{
+	assert(opd->op_type == VARIABLE_TAC_OPERAND || opd->op_type == STEMPORARY_TAC_OPERAND);
+	if(opd->op_type == STEMPORARY_TAC_OPERAND)
+	{
+		int idx = ((STemporaryTACOperand*)opd)->num;
+		int ret = current_procedure_rn->stemp_offsets[idx+1] + current_procedure_rn->defn->local_symbol_table->current_offset;
+		if(current_procedure_rn->ret_label && idx == 0)
+		{
+			ret = (current_procedure_rn->ret_type==DTYPE_FLOAT?8:4);
+		}
+		return  "-" + to_string(ret) + "($fp)";
+	}
+	string var = ((VariableTACOperand*)opd) -> get_name();
+	vector<Symbol*> param_list = *(current_procedure_rn->formal_param_list);
+	int curr_offset = 8;
+	for(int i=0;i<param_list.size();i++)
+	{
+		if(param_list[i]->get_name() == var)
+		{
+			return to_string(curr_offset) + "($fp)";
+		}
+		if(param_list[i]->get_type() == DTYPE_FLOAT)
+		{
+			curr_offset += 8;
+		}
+		else
+		{
+			curr_offset += 4;
+		}
+	}
+
+	// Search in local_symbol_table
+	SymbolTable* local_symbol_table = current_procedure_rn->defn->local_symbol_table;
+	map<string, Symbol*> symbols = local_symbol_table->symbols;
+	if(symbols.find(var) != symbols.end())
+	{
+		if(current_procedure_rn->ret_label)
+			return "-" + to_string(symbols[var]->offset+(current_procedure_rn->ret_type==DTYPE_FLOAT?8:4)) + "($fp)";
+		else
+			return "-" + to_string(symbols[var]->offset) + "($fp)";
+	}
+
+	// Search in global_symbol_table
+	SymbolTable* global_symbol_table = only_program_rn -> global_symbol_table;
+	if(!global_symbol_table->is_variable_present(var))
+	{
+		assert(1);
+	}
+	return var + "_";
+}
+

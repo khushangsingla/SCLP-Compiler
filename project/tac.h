@@ -101,6 +101,7 @@ class VariableTACOperand : public TACOperand
 	st_datatype type;
 	public:
 		VariableTACOperand(string, st_datatype);
+		string get_name();
 		string to_string();
 		st_datatype get_type();
 		void set_type(st_datatype t);
@@ -109,9 +110,9 @@ class VariableTACOperand : public TACOperand
 class STemporaryTACOperand : public TACOperand
 {
 	private:
-		int num;
 		st_datatype type;
 	public:
+		int num;
 		static int count;
 		STemporaryTACOperand(st_datatype);
 		string to_string();

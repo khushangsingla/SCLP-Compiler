@@ -5,6 +5,8 @@ do
 	rm example-programs/$folder/*.input 2>/dev/null
 	rm example-programs/$folder/*.ast 2>/dev/null
 	rm example-programs/$folder/*.tac 2>/dev/null
+	rm example-programs/$folder/*.rtl 2>/dev/null
+	rm example-programs/$folder/*.spim 2>/dev/null
 	for file in $(ls example-programs/$folder/*.c)
 	do
 		# echo $file
@@ -160,9 +162,46 @@ do
 				exit
 			fi
 		fi
+
+		./sclp $file
+		y=$?
+		mv $file.spim myout
+		./ref-sclp -s $file
+		z=$?
+		if [ $y -eq $z ]
+		then
+			if [ $z -eq 0 ]
+			then
+				result=$(diff -y -W 72 -Bw myout $file.spim)
+				if [ $? -ne 0 ]
+				then
+					echo $file 
+					# echo $result
+					echo ASM ERROR 1
+					exit
+				fi
+			fi
+		else
+			if [ $y -eq 0 ]
+			then
+				echo $file
+				# echo $result
+				echo ASM ERROR 2
+				exit
+			fi
+			if [ $z -eq 0 ]
+			then
+				echo $file
+				# echo $result
+				echo ASM ERROR 2
+				exit
+			fi
+		fi
 	done
 	rm example-programs/$folder/*.toks 2>/dev/null
 	rm example-programs/$folder/*.input 2>/dev/null
 	rm example-programs/$folder/*.ast 2>/dev/null
 	rm example-programs/$folder/*.tac 2>/dev/null
+	rm example-programs/$folder/*.rtl 2>/dev/null
+	rm example-programs/$folder/*.spim 2>/dev/null
 done

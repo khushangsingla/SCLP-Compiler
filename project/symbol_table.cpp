@@ -9,6 +9,7 @@ Symbol::Symbol(string s, st_datatype type, bool is_ptr )
 	this->name = s;
 	this->type = type;
 	this->is_ptr = is_ptr;
+	this->offset = -1;
 }
 
 Symbol::Symbol(AST* a, st_datatype type, bool is_ptr )
@@ -17,6 +18,7 @@ Symbol::Symbol(AST* a, st_datatype type, bool is_ptr )
 	// delete a;
 	this->type = type;
 	this->is_ptr = is_ptr;
+	this->offset = -1;
 }
 
 string Symbol::get_name()
@@ -31,10 +33,12 @@ st_datatype Symbol::get_type()
 
 SymbolTable::SymbolTable()
 {
+	this->current_offset = 0;
 }
 
 SymbolTable::SymbolTable(st_datatype d, vector<AST*>* v,bool to_delete)
 {
+	this->current_offset = 0;
 	for(auto x: *v){
 		if(add_symbol(new Symbol(((NameExpressionAST*)x)->name, d, false)) != 0) my_exit(1);
 		// if(to_delete)
@@ -48,15 +52,36 @@ int SymbolTable::add_symbol(Symbol* s)
 		return -1;
 	}	
 
+	if(s->type == DTYPE_FLOAT){
+		current_offset += 8;
+	}
+	else{
+		current_offset += 4;
+	}
+	s->update_offset(current_offset);
 	symbols[s->name] = s;
+	return 0;
+}
+
+int SymbolTable::add_symbols_from_table_helper(Symbol* s)
+{
+	if(symbols.find(s->name) != symbols.end() || s->name == "main"){
+		return -1;
+	}	
+
+	Symbol* new_sym = new Symbol();
+	*new_sym = *s;
+	symbols[s->name] = new_sym;
 	return 0;
 }
 
 int SymbolTable::add_symbols_from_table(SymbolTable* t)
 {
 	for(auto s: t->symbols){
-		if(add_symbol(s.second) != 0) return -1;
+		if(add_symbols_from_table_helper(s.second) != 0) return -1;
+		symbols[s.second->name]->change_offset_by_delta(current_offset);
 	}
+	current_offset += t->current_offset;
 	return 0;
 }
 
@@ -71,7 +96,9 @@ int SymbolTable::add_symbols_from_table(vector<Symbol*>* t)
 int SymbolTable::add_global_symbols(SymbolTable* gst)
 {
 	for(auto s: gst->symbols){
-		add_symbol(s.second);
+		Symbol* sym = new Symbol();
+		*sym = *(s.second);
+		add_symbol(sym);
 	}
 	return 0;
 }
@@ -110,4 +137,20 @@ string get_string_for_dtype(st_datatype dt)
 			assert(0);
 			return "<unknown>";
 	}
+}
+
+void Symbol::update_offset(int offset)
+{
+	this->offset = offset;
+}
+
+void Symbol::change_offset_by_delta(int delta)
+{
+	assert(this->offset >= 0 && delta >= 0);
+	this->offset += delta;
+}
+
+Symbol::Symbol()
+{
+	this->offset = -1;
 }

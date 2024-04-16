@@ -20,6 +20,7 @@ Procedure::Procedure(AST* a, vector<Symbol*>* st, ProcedureDefn* pd, st_datatype
 	ret_type = dt;
 	is_defined = true;
 	ret_label = NULL;
+	stemp_offsets.push_back(0);
 }
 
 Procedure::Procedure(AST* a, vector<Symbol*>* st, st_datatype dt)
@@ -31,6 +32,7 @@ Procedure::Procedure(AST* a, vector<Symbol*>* st, st_datatype dt)
 	ret_type = dt;
 	defn = NULL;
 	ret_label = NULL;
+	stemp_offsets.push_back(0);
 }
 
 Procedure::Procedure(AST* a, vector<Symbol*>* params, SymbolTable* vars, vector<AST*> stmts, st_datatype dt)
@@ -42,6 +44,7 @@ Procedure::Procedure(AST* a, vector<Symbol*>* params, SymbolTable* vars, vector<
 	ret_type = dt;
 	is_defined = true;
 	ret_label = NULL;
+	stemp_offsets.push_back(0);
 }
 
 int Procedure::add_defn(ProcedureDefn* pd)
@@ -163,6 +166,31 @@ void Procedure::gentac()
 			defn->print_tac();
 			tac_output("**END: Three Address Code Statements\n", false);
 		}
+	}
+}
+
+void Procedure::genasm()
+{
+		int total_offset = defn->local_symbol_table->current_offset + stemp_offsets.back() + 8;
+		asm_output("sw $ra, 0($sp)\n");
+		asm_output("sw $fp, -4($sp)\n");
+		asm_output("sub $fp, $sp, 4\n");
+		asm_output("sub $sp, $sp, " + to_string(total_offset) + "\n");
+		defn->genasm();
+		asm_output("epilogue_",false);
+		asm_output(name,false);
+		asm_output(name=="main"?":\n":"_:\n" ,false);
+		asm_output("add $sp, $sp, " + to_string(total_offset) + "\n");
+		asm_output("lw $fp, -4($sp)\n");
+		asm_output("lw $ra, 0($sp)\n");
+		asm_output("jr $ra\n");
+}
+
+void ProcedureDefn::genasm()
+{
+	for(int i=0; i<rtl.size(); ++i){
+		rtl[i]->printasm();
+		asm_output("\n");
 	}
 }
 
