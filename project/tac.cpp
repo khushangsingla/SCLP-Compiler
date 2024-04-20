@@ -268,7 +268,9 @@ string TemporaryTACOperand::to_string()
 
 string VariableTACOperand::to_string()
 {
-	return name + "_";
+	if(name != "main")
+		return name + "_";
+	return name;
 }
 
 string STemporaryTACOperand::to_string()

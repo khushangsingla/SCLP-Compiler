@@ -64,6 +64,12 @@ int Procedure::is_proc_valid(SymbolTable* gst, map<string, Procedure*>& fns)
 	unin->add_symbols_from_table(formal_param_list);
 	if(unin->add_symbols_from_table(defn->local_symbol_table) != 0) return -1;
 
+	for(map<string, Procedure*>::iterator it = fns.begin(); it != fns.end(); it++){
+		if(unin->is_variable_present(it->first) == 0){
+			delete unin;
+			return -1;
+		}
+	}
 	unin->add_global_symbols(gst);
 
 	if(defn -> is_defn_valid(unin,fns) != 0){

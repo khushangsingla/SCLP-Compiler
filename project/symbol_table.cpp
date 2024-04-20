@@ -48,7 +48,7 @@ SymbolTable::SymbolTable(st_datatype d, vector<AST*>* v,bool to_delete)
 
 int SymbolTable::add_symbol(Symbol* s)
 {
-	if(symbols.find(s->name) != symbols.end() || s->name == "main"){
+	if(symbols.find(s->name) != symbols.end()){
 		return -1;
 	}	
 
@@ -65,7 +65,7 @@ int SymbolTable::add_symbol(Symbol* s)
 
 int SymbolTable::add_symbols_from_table_helper(Symbol* s)
 {
-	if(symbols.find(s->name) != symbols.end() || s->name == "main"){
+	if(symbols.find(s->name) != symbols.end()){
 		return -1;
 	}	
 

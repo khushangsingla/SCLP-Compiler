@@ -406,7 +406,10 @@ void PrintStatementAST::print(string prefix)
 
 void NameExpressionAST::print(string prefix)
 {
-	ast_output("Name : " + name + "_" + get_string_for_dtype(dtype));
+	if(name != "main")
+		ast_output("Name : " + name + "_" + get_string_for_dtype(dtype));
+	else
+		ast_output("Name : " + name + get_string_for_dtype(dtype));
 }
 
 void IntegerExpressionAST::print(string prefix)
