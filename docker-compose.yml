@@ -1,0 +1,9 @@
+services:
+  test:
+    build: test_env
+    volumes:
+      - ./project:/project
+      - ./testing:/testing
+    tty: true
+    stdin_open: true
+    command: /bin/bash
